@@ -125,7 +125,7 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
   # resolution, and origin
   sameGeom <- class(purrr::reduce(list(tmin, tmax, tavg, prcp, srad, soilm) |>
                                     purrr::discard(is.null),
-                                  bioclima::testGeom))
+                                  fastbioclim::testGeom))
   if (sameGeom == "SpatRaster") {
     message("SpatRasters have same extent, number of rows and columns, ",
             "projection, resolution, and origin")
@@ -263,41 +263,41 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
       if (is.null(tmin) | is.null(tmax)) {
         stop("tavg cannot be calculated becuase tmin and/or tmax are NULL")
       } else {
-        tavg <- bioclima::t_avg(tmin, tmax)
+        tavg <- fastbioclim::t_avg(tmin, tmax)
       }
     } 
   }
 
   ## ONLY TEMPERATURE
   # Bio01
-  if (1 %in% bios) bio01 <- bioclima::bio_01(tavg)
+  if (1 %in% bios) bio01 <- fastbioclim::bio_01(tavg)
   # Bio02
-  if (any(2:3 %in% bios)) bio02 <- bioclima::bio_02(tmin, tmax)
+  if (any(2:3 %in% bios)) bio02 <- fastbioclim::bio_02(tmin, tmax)
   # Bio04
-  if (4 %in% bios) bio04 <- bioclima::bio_04(tavg)
+  if (4 %in% bios) bio04 <- fastbioclim::bio_04(tavg)
   # Bio05
-  if (any(c(3, 5, 7) %in% bios)) bio05 <- bioclima::bio_05(tmax, ...)
+  if (any(c(3, 5, 7) %in% bios)) bio05 <- fastbioclim::bio_05(tmax, ...)
   # Bio06
-  if (any(c(3, 6, 7) %in% bios)) bio06 <- bioclima::bio_06(tmin, ...)
+  if (any(c(3, 6, 7) %in% bios)) bio06 <- fastbioclim::bio_06(tmin, ...)
   # Bio07
-  if (any(c(3, 7) %in% bios)) bio07 <- bioclima::bio_07(bio05, bio06)
+  if (any(c(3, 7) %in% bios)) bio07 <- fastbioclim::bio_07(bio05, bio06)
   # Bio03
-  if (3 %in% bios) bio03 <- bioclima::bio_03(bio02, bio07)
+  if (3 %in% bios) bio03 <- fastbioclim::bio_03(bio02, bio07)
   
   ## ONLY PRECIPITATION
   # Bio12
-  if (12 %in% bios) bio12 <- bioclima::bio_12(prcp)
+  if (12 %in% bios) bio12 <- fastbioclim::bio_12(prcp)
   # Bio13
-  if (13 %in% bios) bio13 <- bioclima::bio_13(prcp, ...)
+  if (13 %in% bios) bio13 <- fastbioclim::bio_13(prcp, ...)
   # Bio14
-  if (14 %in% bios) bio14 <- bioclima::bio_14(prcp, ...)
+  if (14 %in% bios) bio14 <- fastbioclim::bio_14(prcp, ...)
   # Bio15
-  if (15 %in% bios) bio15 <- bioclima::bio_15(prcp)
+  if (15 %in% bios) bio15 <- fastbioclim::bio_15(prcp)
   
   
   ## ONLY PRECIPITATION PERIOD
   if (any(c(8:9, 16:19, 24:25) %in% bios)) {
-    wet <- bioclima::get_window(prcp, period, circular)
+    wet <- fastbioclim::get_window(prcp, period, circular)
     if (any(c(8, 16, 24) %in% bios) & !exists("wettest_period")) {
       wettest_period <- terra::which.max(wet)
     }
@@ -306,9 +306,9 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
     }
   }
   # Bio16
-  if (16 %in% bios) bio16 <- bioclima::bio_16(wet, wettest_period)
+  if (16 %in% bios) bio16 <- fastbioclim::bio_16(wet, wettest_period)
   # Bio17
-  if (17 %in% bios) bio17 <- bioclima::bio_17(wet, driest_period)
+  if (17 %in% bios) bio17 <- fastbioclim::bio_17(wet, driest_period)
   
   ### ONLY TEMPERATURE PERIOD
   
@@ -316,7 +316,7 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
     if (any(c(8:9) %in% bios) | 
         (any(c(10, 18, 26, 34) %in% bios) & !exists("warmest_period")) |
         (any(c(11, 19, 27, 35) %in% bios) & !exists("coldest_period"))) {
-      tmp <- bioclima::get_window(tavg, period, circular) / period
+      tmp <- fastbioclim::get_window(tavg, period, circular) / period
     }
     if (any(c(10, 18, 26, 34) %in% bios) & !exists("warmest_period")) {
       warmest_period <- terra::which.max(tmp)
@@ -326,38 +326,38 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
     }
   }
   # Bio10
-  if (10 %in% bios) bio10 <- bioclima::bio_10(tmp, warmest_period)
+  if (10 %in% bios) bio10 <- fastbioclim::bio_10(tmp, warmest_period)
   # Bio11
-  if (11 %in% bios) bio11 <- bioclima::bio_11(tmp, coldest_period)
+  if (11 %in% bios) bio11 <- fastbioclim::bio_11(tmp, coldest_period)
   
   ## ONLY SOLAR RADIATION
   # Bio20
-  if (20 %in% bios) bio20 <- bioclima::bio_20(srad)
+  if (20 %in% bios) bio20 <- fastbioclim::bio_20(srad)
   # Bio21
-  if (21 %in% bios) bio21 <- bioclima::bio_21(srad, ...)
+  if (21 %in% bios) bio21 <- fastbioclim::bio_21(srad, ...)
   # Bio22
-  if (22 %in% bios) bio22 <- bioclima::bio_22(srad, ...)
+  if (22 %in% bios) bio22 <- fastbioclim::bio_22(srad, ...)
   # Bio23
-  if (23 %in% bios) bio23 <- bioclima::bio_23(srad)
+  if (23 %in% bios) bio23 <- fastbioclim::bio_23(srad)
   
   ### GET SOLAR RADIATION PERIOD
   if (any(c(24:27) %in% bios)) {
-    prad <- bioclima::get_window(srad, period, circular) / period
+    prad <- fastbioclim::get_window(srad, period, circular) / period
   }
   
   ## ONLY SOIL MOISTURE
   # Bio28
-  if (28 %in% bios) bio28 <- bioclima::bio_28(soilm)
+  if (28 %in% bios) bio28 <- fastbioclim::bio_28(soilm)
   # Bio29
-  if (29 %in% bios) bio29 <- bioclima::bio_29(soilm, ...)
+  if (29 %in% bios) bio29 <- fastbioclim::bio_29(soilm, ...)
   # Bio30
-  if (30 %in% bios) bio30 <- bioclima::bio_30(soilm, ...)
+  if (30 %in% bios) bio30 <- fastbioclim::bio_30(soilm, ...)
   # Bio31
-  if (31 %in% bios) bio31 <- bioclima::bio_31(soilm)
+  if (31 %in% bios) bio31 <- fastbioclim::bio_31(soilm)
   
   ### ONLY SOIL MOISTURE PERIOD
   if (any(c(32:35) %in% bios)) {
-    psoil <- bioclima::get_window(soilm, period, circular) / period
+    psoil <- fastbioclim::get_window(soilm, period, circular) / period
     if ((32 %in% bios) & !exists("high_soil_period")) {
       high_soil_period <- terra::which.max(psoil)
     }
@@ -366,31 +366,31 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
     }
   }
   # Bio32
-  if (32 %in% bios) bio32 <- bioclima::bio_32(psoil, high_soil_period)
+  if (32 %in% bios) bio32 <- fastbioclim::bio_32(psoil, high_soil_period)
   # Bio33
-  if (33 %in% bios) bio33 <- bioclima::bio_33(psoil, low_soil_period)
+  if (33 %in% bios) bio33 <- fastbioclim::bio_33(psoil, low_soil_period)
   
   #### COMBINED PERIODS
   # Bio08
-  if (8 %in% bios) bio08 <- bioclima::bio_08(tmp, wettest_period)
+  if (8 %in% bios) bio08 <- fastbioclim::bio_08(tmp, wettest_period)
   # Bio09
-  if (9 %in% bios) bio09 <- bioclima::bio_09(tmp, driest_period)
+  if (9 %in% bios) bio09 <- fastbioclim::bio_09(tmp, driest_period)
   # Bio18
-  if (18 %in% bios) bio18 <- bioclima::bio_18(tmp, warmest_period)
+  if (18 %in% bios) bio18 <- fastbioclim::bio_18(tmp, warmest_period)
   # Bio19
-  if (19 %in% bios) bio19 <- bioclima::bio_19(tmp, coldest_period)
+  if (19 %in% bios) bio19 <- fastbioclim::bio_19(tmp, coldest_period)
   # Bio24
-  if (24 %in% bios) bio24 <- bioclima::bio_24(prad, wettest_period)
+  if (24 %in% bios) bio24 <- fastbioclim::bio_24(prad, wettest_period)
   # Bio25
-  if (25 %in% bios) bio25 <- bioclima::bio_25(prad, driest_period)
+  if (25 %in% bios) bio25 <- fastbioclim::bio_25(prad, driest_period)
   # Bio26
-  if (26 %in% bios) bio26 <- bioclima::bio_26(prad, warmest_period)
+  if (26 %in% bios) bio26 <- fastbioclim::bio_26(prad, warmest_period)
   # Bio27
-  if (27 %in% bios) bio27 <- bioclima::bio_27(prad, coldest_period)
+  if (27 %in% bios) bio27 <- fastbioclim::bio_27(prad, coldest_period)
   # Bio34
-  if (34 %in% bios) bio34 <- bioclima::bio_34(psoil, warmest_period)
+  if (34 %in% bios) bio34 <- fastbioclim::bio_34(psoil, warmest_period)
   # Bio35
-  if (35 %in% bios) bio35 <- bioclima::bio_35(psoil, coldest_period)
+  if (35 %in% bios) bio35 <- fastbioclim::bio_35(psoil, coldest_period)
   
   # Window message
   if (any(c(8:11, 16:19, 24:27, 32:35) %in% bios)) {

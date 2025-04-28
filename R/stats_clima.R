@@ -24,7 +24,7 @@ stats_clima <- function(variable,
                                        max_period, min_period, 
                                        max_interactive, min_interactive) |>
                                     purrr::discard(is.null),
-                                  bioclima::testGeom))
+                                  fastbioclim::testGeom))
   if (sameGeom == "SpatRaster") {
     message("SpatRasters have same extent, number of rows and columns, ",
             "projection, resolution, and origin")
@@ -130,14 +130,14 @@ stats_clima <- function(variable,
   
   # CV_CLI
   if ("cv_cli" %in% stats) {
-    cv_cli_stat <- bioclima::cv_cli(variable)
+    cv_cli_stat <- fastbioclim::cv_cli(variable)
     names(cv_cli_stat) <- paste0(prefix_variable, "_cv")
   }
   
   # MAX & MIN PERIOD
   if (any(c("max_period", "min_period", "max_inter", "min_inter") %in% c(stats, inter_stats))) {
     # Get windows
-    period_windows <- bioclima::get_window(variable, period, circular)
+    period_windows <- fastbioclim::get_window(variable, period, circular)
     if (period_stats == "mean") period_windows <- period_windows / period
   }
   ## MAX_PERIOD
@@ -161,7 +161,7 @@ stats_clima <- function(variable,
   if (!is.null(inter_variable)) {
     if (("max_inter" %in% inter_stats & is.null(max_interactive)) | 
         ("min_inter" %in% inter_stats & is.null(min_interactive))) {
-      inter_windows <- bioclima::get_window(inter_variable, period, circular)
+      inter_windows <- fastbioclim::get_window(inter_variable, period, circular)
     }
     if ("max_inter" %in% inter_stats) {
       if (is.null(max_interactive)) {

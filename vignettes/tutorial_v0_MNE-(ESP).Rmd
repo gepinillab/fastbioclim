@@ -9,11 +9,11 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Paquete bioclima: *Variables bioclimáticas utilizando terra*
+# Paquete fastbioclim: *Variables bioclimáticas utilizando terra*
 
-El paquete `bioclima` es un paquete de R diseñado para generar eficientemente variables bioclimáticas utilizando el paquete terra en lugar de raster. Esta elección de dependencia hace que el proceso sea más rápido, ya que terra está optimizado para operaciones raster a gran escala. El paquete `bioclima` también tiene disponible la opción de crear un subconjunto de variables sin necesidad de construir todas ellas. Además, ofrece la opción de crear variables bioclimáticas basadas en otros períodos de tiempo (por ejemplo, semanas, días), definir períodos diferentes a los trimestres (utilizados para bio08, 09, 10, 11, 16, 17, 18, 19). O incluso utilizar la temperatura promedio real (parámetro 'tavg'), en lugar de una aproximación basada en la temperatura máxima y mínima ((tmax + tmin)) / 2).
+El paquete `fastbioclim` es un paquete de R diseñado para generar eficientemente variables bioclimáticas utilizando el paquete terra en lugar de raster. Esta elección de dependencia hace que el proceso sea más rápido, ya que terra está optimizado para operaciones raster a gran escala. El paquete `fastbioclim` también tiene disponible la opción de crear un subconjunto de variables sin necesidad de construir todas ellas. Además, ofrece la opción de crear variables bioclimáticas basadas en otros períodos de tiempo (por ejemplo, semanas, días), definir períodos diferentes a los trimestres (utilizados para bio08, 09, 10, 11, 16, 17, 18, 19). O incluso utilizar la temperatura promedio real (parámetro 'tavg'), en lugar de una aproximación basada en la temperatura máxima y mínima ((tmax + tmin)) / 2).
 
-La funcionalidad proporcionada por `bioclima` está inspirada en la función biovars del paquete `dismo`. El objetivo es agilizar el proceso de creación de variables bioclimáticas para modelado ecológico y ambiental.
+La funcionalidad proporcionada por `fastbioclim` está inspirada en la función biovars del paquete `dismo`. El objetivo es agilizar el proceso de creación de variables bioclimáticas para modelado ecológico y ambiental.
 
 **Aviso: Este paquete está en desarrollo**
 
@@ -22,16 +22,16 @@ Este paquete de R está actualmente en desarrollo y puede contener errores, fall
 ### Notas importantes
 Utilice este paquete bajo su propio riesgo. El desarrollador no garantiza la estabilidad o corrección del código.
 
-Se agradecen las contribuciones y los informes de errores. Si encuentra problemas o tiene sugerencias de mejora, por favor abra un problema ("Issues") en el repositorio de [GitHub](https://github.com/gepinillab/bioclima).
+Se agradecen las contribuciones y los informes de errores. Si encuentra problemas o tiene sugerencias de mejora, por favor abra un problema ("Issues") en el repositorio de [GitHub](https://github.com/gepinillab/fastbioclim).
 
 Gracias por su comprensión y colaboración mientras trabajo para mejorar y estabilizar este paquete de R.
 
 ## Instalación
 
-Para instalar `bioclima`, puede utilizar el paquete `remotes`. Si aún no lo tiene instalado, puede hacerlo ejecutando:
+Para instalar `fastbioclim`, puede utilizar el paquete `remotes`. Si aún no lo tiene instalado, puede hacerlo ejecutando:
 ```{r message=FALSE}
 install.packages("remotes")
-remotes::install_github("gepinillab/bioclima")
+remotes::install_github("gepinillab/fastbioclim")
 ```
 
 Instale y cargue los paquetes necesarios:
@@ -52,8 +52,8 @@ if (!require("here")) {
   install.packages("here") }
 if (!require("magrittr")) {
   install.packages("magrittr") }
-if (!require("bioclima")) {
-  remotes::install_github("gepinillab/bioclima") }
+if (!require("fastbioclim")) {
+  remotes::install_github("gepinillab/fastbioclim") }
 ```
 
 ## Obtener datos mensuales de Costa Rica
@@ -130,7 +130,7 @@ ppt_avg <- terra::tapp(ppt, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 srad_avg <- terra::tapp(srad, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 soilm_avg <- terra::tapp(soilm, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 
-bios <- bioclima::clima(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
+bios <- fastbioclim::clima(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
                         srad = srad_avg, soilm = soilm_avg,
               bios = 1:35, period = 3, circular = TRUE)
 ```
@@ -172,12 +172,12 @@ plot(rast(bios_dismo) - bios[[1:19]])
 #### Tiempo de ejecución
 
 ```{r message=FALSE}
-# Correr bioclima
-start.bioclima <- Sys.time()
-bios <- bioclima::clima(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
+# Correr fastbioclim
+start.fastbioclim <- Sys.time()
+bios <- fastbioclim::clima(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
               bios = c(1:19), period = 3, circular = TRUE)
-end.bioclima <- Sys.time()
-time.bioclima <- end.bioclima - start.bioclima
+end.fastbioclim <- Sys.time()
+time.fastbioclim <- end.fastbioclim - start.fastbioclim
 # Correr biovars
 start.biovars <- Sys.time()
 bios_dismo <- dismo::biovars(prec = r.ppt, 
@@ -185,15 +185,15 @@ bios_dismo <- dismo::biovars(prec = r.ppt,
                              tmin = r.tmin)
 end.biovars <- Sys.time()
 time.biovars <- end.biovars - start.biovars
-time.biovars - time.bioclima
+time.biovars - time.fastbioclim
 ```
 
-Al comparar los tiempos de ejecución, la diferencia para un área cómo Costa Rica es mínima. Pero al aumentar la resolución, el área (más celdas), o al hacer series temporales, está diferencia puede ser significativa. Por ejemplo, al correr el mismo ejemplo con Colombia (un área que es 50 veces más grande que Costa Rica) la diferencia fue de casi un minuto, siendo `bioclima` 25 veces más rápido (resultados no mostrados en este documento y que dependen de la computadora utilizada).
+Al comparar los tiempos de ejecución, la diferencia para un área cómo Costa Rica es mínima. Pero al aumentar la resolución, el área (más celdas), o al hacer series temporales, está diferencia puede ser significativa. Por ejemplo, al correr el mismo ejemplo con Colombia (un área que es 50 veces más grande que Costa Rica) la diferencia fue de casi un minuto, siendo `fastbioclim` 25 veces más rápido (resultados no mostrados en este documento y que dependen de la computadora utilizada).
 
 #### Seleccionar un grupo de variables
 Muchas veces no es necesario utilizar todas las variables bioclimáticas en nuestros análisis. Por este motivo, y a diferencia de biovars(), se puede definir en el parámetro 'bios' el número que identifica cada una de las variables bioclimáticas. De esta forma no es necesario obtener todas las 19 variables para luego solo seleccionar las variables de interés. En el siguiente ejemplo solo se obtendrán cuatro variables (bio05, bio06, bio13 y bio14). Este ejemplo es algo más rápido, ya que no es necesario calcular internamente los trimestres más cálidos/fríos o secos/húmedos.
 ```{r message=FALSE}
-bios4 <- bioclima::clima(
+bios4 <- fastbioclim::clima(
   tmin = tmin_avg, 
   tmax = tmax_avg, 
   prcp = ppt_avg,
@@ -238,7 +238,7 @@ for (i in 1:length(mes_inicial)) {
     fun = mean, 
     na.rm = TRUE) # remover NAs
   # Crear sets of variables bioclimaticas
-  bios_ts <- bioclima::clima(
+  bios_ts <- fastbioclim::clima(
     bios = 1:19,
     tmax = tmax_int,
     tmin = tmin_int,
@@ -337,7 +337,7 @@ for (i in 1:length(mes_inicial)) {
     index = "months", # índice mensual
     fun = mean, 
     na.rm = TRUE) # remover NAs
-  tri_menor <- bioclima::get_window(menor_temp, period = 3, circular = TRUE) / 3
+  tri_menor <- fastbioclim::get_window(menor_temp, period = 3, circular = TRUE) / 3
   min_tri_menor <- which.min(tri_menor) |>
     terra::subst(1:12, time(menor_temp))
   levels(min_tri_menor) <- data.frame(id = 1:12,
@@ -377,7 +377,7 @@ for (i in 1:length(mes_inicial)) {
     fun = mean, 
     na.rm = TRUE) # remover NAs
   # Crear sets of variables bioclimaticas
-  ts_bios_subset <- bioclima::clima(
+  ts_bios_subset <- fastbioclim::clima(
     bios = c(27, 35),
     # tmin = tmin_int,
     # tmax = tmax_int,
@@ -417,7 +417,7 @@ plot(wind[[1]])
 ```
 ```{r}
 wind_avg <- terra::tapp(wind, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
-wind_stats <- bioclima::stats_clima(variable = wind_avg, 
+wind_stats <- fastbioclim::stats_clima(variable = wind_avg, 
                                     inter_variable = ppt_avg,
                                     prefix_variable = "wind",
                                     suffix_inter_max = "wettest",
@@ -426,7 +426,7 @@ wind_stats
 plot(wind_stats[[1]])
 ```
 ```{r}
-wind_stats_soil <- bioclima::stats_clima(variable = wind_avg,
+wind_stats_soil <- fastbioclim::stats_clima(variable = wind_avg,
                                          stats = NULL,
                                          inter_variable = tmax_avg - tmin_avg,
                                          prefix_variable = "wind",
