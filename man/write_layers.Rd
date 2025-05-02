@@ -11,8 +11,7 @@ write_layers(
 )
 }
 \arguments{
-\item{biovardir}{Character string. The path to the directory containing the
-intermediate `.qs` files AND the `template_info.qs` file.}
+\item{biovardir}{Character string. Path to directory with intermediate `.qs` files and `template_info.qs`}
 
 \item{save_dir}{Character string. Path for the final GeoTIFF files. Default: "bioclimatic".}
 
@@ -23,8 +22,7 @@ None. Writes GeoTIFF files to `save_dir`.
 }
 \description{
 Assembles intermediate `.qs` files into a full vector in memory, performs
-cell ID mapping if necessary, and writes final GeoTIFF rasters. Derives geometry from
-metadata saved within the input directory.
+cell ID mapping if necessary, and writes final GeoTIFF rasters.
 }
 \author{
 Luis Osorio-Olvera, Gonzalo E. Pinilla-Buitrago
