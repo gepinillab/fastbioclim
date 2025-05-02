@@ -5,8 +5,8 @@ Version: 0.1.0-9999
 Author: person("Gonzalo E.", "Pinilla-Buitrago", email = "gepinillab@gmail.com", role = c("aut", "cre"))
 Maintainer: Gonzalo E. Pinilla-Buitrago <gepinillab@gmail.com>
 Description: Get bioclimatic variables
-Depends: purrr, terra
-Suggests: climateR, AOI, dismo, here
+Depends: exactextractr, future.apply, parallel, progressr, purrr, qs, Rfast, sf, stringr, rio, terra  
+Suggests: AOI, climateR, dismo, here
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true

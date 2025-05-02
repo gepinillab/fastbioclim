@@ -261,7 +261,7 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
   if (any(c(1, 4, 8, 9, 10, 11, 18, 19) %in% bios)) {
     if (is.null(tavg)) {
       if (is.null(tmin) | is.null(tmax)) {
-        stop("tavg cannot be calculated becuase tmin and/or tmax are NULL")
+        stop("tavg cannot be calculated because tmin and/or tmax are NULL")
       } else {
         tavg <- fastbioclim::t_avg(tmin, tmax)
       }
