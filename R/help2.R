@@ -454,3 +454,50 @@ bio19_fun <- function(pperiod, tperiod_min_idx, cell){
   bio19V <- cbind(bio19 = bio19V, cell = cell)
   return(bio19V)
 }
+
+#' Create an Inverse Cell ID Translation Function
+#'
+#' Generates a function to translate cell IDs from a source raster grid
+#' to a target raster grid, considering potential offsets and different dimensions.
+#' Handles cases where the target grid is a subset (e.g., cropped/masked)
+#' of the source grid.
+#'
+#' @param ncol_src Integer. Number of columns in the source raster.
+#' @param ncol_tgt Integer. Number of columns in the target raster.
+#' @param row_offset Integer. Row offset of the target grid's top-left corner
+#'   relative to the source grid's top-left corner (0-based).
+#' @param col_offset Integer. Column offset of the target grid's top-left corner
+#'   relative to the source grid's top-left corner (0-based).
+#'
+#' @return A function that takes a vector of source cell IDs (`cell_src`) and
+#'   returns a vector of corresponding target cell IDs. Cells falling outside
+#'   the target grid bounds will have `NA_integer_` as their target ID.
+define_translate <- function(ncol_src, ncol_tgt, row_offset, col_offset) {
+  force(ncol_src) # Force evaluation of arguments in the enclosing environment
+  force(ncol_tgt)
+  force(row_offset)
+  force(col_offset)
+
+  function(cell_src) {
+    if (!is.integer(cell_src)) cell_src <- as.integer(cell_src) # Ensure integer input
+
+    # Preallocate result vector with NA
+    result <- rep(NA_integer_, length(cell_src))
+
+    # Calculate source row and column (1-based)
+    row_src <- ((cell_src - 1L) %/% ncol_src) + 1L
+    col_src <- ((cell_src - 1L) %% ncol_src) + 1L
+
+    # Calculate potential target row and column (1-based) by applying offset
+    row_tgt <- row_src - row_offset
+    col_tgt <- col_src - col_offset
+
+    # Identify valid cells (within the bounds of the target grid)
+    valid <- row_tgt >= 1L & col_tgt >= 1L
+
+    # Compute target cell ID *only* for valid indices
+    result[valid] <- (row_tgt[valid] - 1L) * ncol_tgt + col_tgt[valid]
+
+    result
+  }
+}

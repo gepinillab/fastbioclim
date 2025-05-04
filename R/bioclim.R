@@ -212,11 +212,13 @@ bioclim_vars <- function(bios,
       original_extent_vec <- as.vector(terra::ext(ref_rast_geom))
       original_dims_vec <- c(terra::nrow(ref_rast_geom), terra::ncol(ref_rast_geom))
       original_crs_txt <- terra::crs(ref_rast_geom, proj = TRUE)
+      original_ncol <- original_dims_vec[2]
 
       # Determine target geometry
       target_extent_vec <- original_extent_vec
       target_dims_vec <- original_dims_vec
       target_crs_txt <- original_crs_txt
+      target_ncol <- original_ncol
 
       if (!is.null(user_region)) {
           message("Deriving target geometry from user_region.")
@@ -226,6 +228,7 @@ bioclim_vars <- function(bios,
               if(terra::ncell(target_template_rast) > 0){
                   target_extent_vec <- as.vector(terra::ext(target_template_rast))
                   target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
+                  target_ncol <- target_dims_vec[2]
                   message("Target template geometry based on cropped reference raster.")
               } else {
                   warning("Cropping resulted in empty raster, using original geometry.")
@@ -237,7 +240,7 @@ bioclim_vars <- function(bios,
       } else {
           message("Target template geometry based on full input raster extent.")
       }
-      rm(ref_rast_geom)
+
 
       template_info <- list(
           original_geom = list(
@@ -251,7 +254,46 @@ bioclim_vars <- function(bios,
               crs = target_crs_txt
           )
       )
+  
+      # --- Calculate Translation Parameters ---
+      if (!is.null(user_region)) {
+        message("Calculating cell ID translation parameters...")
+      # Use the original raster *header* info (ref_rast_geom) for offset calculation
+      target_xmin <- template_info$target_geom$extent[1]
+      target_ymax <- template_info$target_geom$extent[4]
 
+      # Handle potential floating point inaccuracies by finding the *nearest* cell
+      col_offset <- tryCatch(
+          terra::colFromX(ref_rast_geom, target_xmin) - 1L,
+          error = function(e) {
+              warning("Could not precisely determine column offset using terra::colFromX, possibly due to edge alignment. Assuming 0 offset. Error: ", e$message)
+              0L # Default to 0 if calculation fails
+          }
+      )
+      row_offset <- tryCatch(
+          terra::rowFromY(ref_rast_geom, target_ymax) - 1L,
+          error = function(e) {
+              warning("Could not precisely determine row offset using terra::rowFromY, possibly due to edge alignment. Assuming 0 offset. Error: ", e$message)
+              0L # Default to 0 if calculation fails
+          }
+      )
+
+      # Ensure offsets are non-negative (should be if target is within original)
+      col_offset <- max(0L, col_offset)
+      row_offset <- max(0L, row_offset)
+
+      message(sprintf("Translation params: ncol_src=%d, ncol_tgt=%d, row_offset=%d, col_offset=%d",
+                      original_ncol, target_ncol, row_offset, col_offset))
+
+      # --- Create the specific translation function ---
+      translate_cell <- define_translate(
+          ncol_src = original_ncol,
+          ncol_tgt = target_ncol,
+          row_offset = row_offset,
+          col_offset = col_offset
+      )
+    }
+  
       # Save the template info within that directory
       template_info_file <- file.path(bioclima_dir, "template_info.qs")
       tryCatch({
@@ -260,7 +302,7 @@ bioclim_vars <- function(bios,
       }, error = function(e){
           stop("Failed to save template geometry information: ", e$message)
       })
-  
+      rm(ref_rast_geom)
       # --- 4. Create Spatial Tiles ---
       sf::sf_use_s2(FALSE)
       grid_bbox <- sf::st_bbox(base_map)
@@ -323,6 +365,7 @@ bioclim_vars <- function(bios,
             static_colnames_present <- intersect(static_colnames_expected, all_colnames)
             cell_id_col_name <- "cell"
             cell_ids_extracted <- df[[cell_id_col_name]][nonaID]
+            if (!is.null(user_region)) cell_ids_extracted <- translate_cell(cell_ids_extracted)
             climate_df_subset <- df[nonaID, climate_colnames, drop = FALSE]
             climate_mat <- Rfast::data.frame.to_matrix(climate_df_subset)
             colnames(climate_mat) <- climate_colnames

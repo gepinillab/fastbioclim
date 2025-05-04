@@ -84,40 +84,21 @@ write_layers <- function(biovardir, save_dir = "bioclimatic",
     pb <- utils::txtProgressBar(min = 0, max = length(biovar_paths), style = 3, width = 50)
     rvals <- rep(NA_real_, n_target_cells)
     
-    if (crop_occurred) {
-      for (i in seq_along(biovar_paths)) {
-        bioval <- tryCatch(rio::import(biovar_paths[i]), error = function(e) NULL)
-        if (is.null(bioval) || !("cell" %in% colnames(bioval)) || nrow(bioval) == 0) {
-          utils::setTxtProgressBar(pb, i)
-          next
-        }
-        
-        xy_pix <- terra::xyFromCell(original_template, bioval$cell)
-        cellID <- stats::na.omit(terra::cellFromXY(target_template, xy_pix))
-        id_na <- attr(cellID, "na.action")
-        
-        if (!is.null(id_na)) {
-          rvals[cellID] <- bioval[[1]][-id_na]
-        } else {
-          rvals[cellID] <- bioval[[1]]
-        }
+    for (i in seq_along(biovar_paths)) {
+      bioval <- tryCatch(rio::import(biovar_paths[i]), error = function(e) NULL)
+      if (is.null(bioval) || !("cell" %in% colnames(bioval)) || nrow(bioval) == 0) {
         utils::setTxtProgressBar(pb, i)
+        next
       }
-    } else {
-      for (i in seq_along(biovar_paths)) {
-        bioval <- tryCatch(rio::import(biovar_paths[i]), error = function(e) NULL)
-        if (is.null(bioval) || !("cell" %in% colnames(bioval)) || nrow(bioval) == 0) {
-          utils::setTxtProgressBar(pb, i)
-          next
-        }
-        
-        cellID <- bioval$cell
-        valid_idx <- which(cellID > 0 & cellID <= n_target_cells)
-        if (length(valid_idx) > 0) {
-          rvals[cellID[valid_idx]] <- bioval[[1]][valid_idx]
-        }
-        utils::setTxtProgressBar(pb, i)
-      }
+      
+      cellID <- bioval$cell
+      # valid_idx <- which(cellID > 0 & cellID <= n_target_cells)
+      # if (length(valid_idx) > 0) {
+        # rvals[cellID[valid_idx]] <- bioval[[1]][valid_idx]
+      # }
+      rvals[cellID] <- bioval[[1]]
+      # }
+      utils::setTxtProgressBar(pb, i)
     }
     close(pb)
     
