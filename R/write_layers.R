@@ -90,14 +90,8 @@ write_layers <- function(biovardir, save_dir = "bioclimatic",
         utils::setTxtProgressBar(pb, i)
         next
       }
-      
       cellID <- bioval$cell
-      # valid_idx <- which(cellID > 0 & cellID <= n_target_cells)
-      # if (length(valid_idx) > 0) {
-        # rvals[cellID[valid_idx]] <- bioval[[1]][valid_idx]
-      # }
       rvals[cellID] <- bioval[[1]]
-      # }
       utils::setTxtProgressBar(pb, i)
     }
     close(pb)
@@ -117,7 +111,7 @@ write_layers <- function(biovardir, save_dir = "bioclimatic",
       comienzo <- seq(1, n_target_rows, by = step_size_write)
       
       terra::writeStart(outRast, filename = output_file, overwrite = TRUE,
-                        gdal = c("COMPRESS=DEFLATE", "NBITS=16", "PREDICTOR=3", "NUM_THREADS=4"))
+                        gdal = c("COMPRESS=DEFLATE", "NBITS=16", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"))
       
       pb_write <- utils::txtProgressBar(min = 0, max = length(comienzo), style = 3, width = 50)
       
