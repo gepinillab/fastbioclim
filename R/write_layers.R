@@ -111,7 +111,7 @@ write_layers <- function(biovardir, save_dir = "bioclimatic",
       comienzo <- seq(1, n_target_rows, by = step_size_write)
       
       terra::writeStart(outRast, filename = output_file, overwrite = TRUE,
-                        gdal = c("COMPRESS=DEFLATE", "NBITS=16", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"))
+                        gdal = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"))
       
       pb_write <- utils::txtProgressBar(min = 0, max = length(comienzo), style = 3, width = 50)
       

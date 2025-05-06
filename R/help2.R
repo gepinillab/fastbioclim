@@ -497,7 +497,6 @@ define_translate <- function(ncol_src, ncol_tgt, row_offset, col_offset) {
 
     # Compute target cell ID *only* for valid indices
     result[valid] <- (row_tgt[valid] - 1L) * ncol_tgt + col_tgt[valid]
-
     result
   }
 }

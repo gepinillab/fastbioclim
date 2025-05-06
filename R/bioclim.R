@@ -229,6 +229,7 @@ bioclim_vars <- function(bios,
                   target_extent_vec <- as.vector(terra::ext(target_template_rast))
                   target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
                   target_ncol <- target_dims_vec[2]
+                  target_res <- terra::res(target_template_rast)
                   message("Target template geometry based on cropped reference raster.")
               } else {
                   warning("Cropping resulted in empty raster, using original geometry.")
@@ -251,7 +252,8 @@ bioclim_vars <- function(bios,
           target_geom = list(
               extent = target_extent_vec,
               dimensions = target_dims_vec,
-              crs = target_crs_txt
+              crs = target_crs_txt,
+              res = target_res
           )
       )
   
@@ -259,9 +261,8 @@ bioclim_vars <- function(bios,
       if (!is.null(user_region)) {
         message("Calculating cell ID translation parameters...")
       # Use the original raster *header* info (ref_rast_geom) for offset calculation
-      target_xmin <- template_info$target_geom$extent[1]
-      target_ymax <- template_info$target_geom$extent[4]
-
+      target_xmin <- template_info$target_geom$extent[1] + template_info$target_geom$res[1] / 2
+      target_ymax <- template_info$target_geom$extent[4] - template_info$target_geom$res[2] / 2
       # Handle potential floating point inaccuracies by finding the *nearest* cell
       col_offset <- tryCatch(
           terra::colFromX(ref_rast_geom, target_xmin) - 1L,
@@ -292,7 +293,7 @@ bioclim_vars <- function(bios,
           row_offset = row_offset,
           col_offset = col_offset
       )
-    }
+      }
   
       # Save the template info within that directory
       template_info_file <- file.path(bioclima_dir, "template_info.qs")
@@ -365,8 +366,12 @@ bioclim_vars <- function(bios,
             static_colnames_present <- intersect(static_colnames_expected, all_colnames)
             cell_id_col_name <- "cell"
             cell_ids_extracted <- df[[cell_id_col_name]][nonaID]
-            if (!is.null(user_region)) cell_ids_extracted <- translate_cell(cell_ids_extracted)
-            climate_df_subset <- df[nonaID, climate_colnames, drop = FALSE]
+            if (!is.null(user_region)) {
+              cell_ids_extracted <- translate_cell(cell_ids_extracted)
+              noMap <- !is.na(cell_ids_extracted)
+              cell_ids_extracted <- cell_ids_extracted[noMap]
+            }
+            climate_df_subset <- df[nonaID[noMap], climate_colnames, drop = FALSE]
             climate_mat <- Rfast::data.frame.to_matrix(climate_df_subset)
             colnames(climate_mat) <- climate_colnames
             static_idx_list <- list()
