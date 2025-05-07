@@ -378,7 +378,7 @@ bio14_fun <- function(precp, cell, index_vector = NULL) {
 bio15_fun <- function(precp, bio12V, n_units, cell) {
   bio12_vec <- if(is.matrix(bio12V)) bio12V[,1] else bio12V
   # Calculate mean precipitation per unit
-  mean_unit_prec <- (1 + bio12_vec) / n_units # Add 1 to total to avoid div by zero
+  mean_unit_prec <- 1 + (bio12_vec / n_units) # Add 1 to total to avoid div by zero
   sd_prec <- Rfast::rowVars(precp, std = TRUE)
   # Calculate CV * 100
   bio15V <- ifelse(mean_unit_prec <= 0, 0, (sd_prec / mean_unit_prec) * 100)
