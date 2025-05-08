@@ -77,6 +77,7 @@ compute_periods <- function(n_units, period_length, circular = TRUE) {
 #' @keywords internal
 var_periods <- function(variable, periodos, n_units, period_length) {
   is_temp_like <- any(grepl("tavg|tmin|tmax", colnames(variable), ignore.case = TRUE))
+  print(is_temp_like)
   num_periods_calculated <- length(periodos)
   
   if (is_temp_like) {
@@ -242,10 +243,8 @@ bio8_fun <- function(tperiod, pperiod_max_idx, period_length, cell){
     warning("BIO8: Some max_prec_period indices are out of bounds.")
     # Handle invalid indices - results will be NA due to matrix indexing rules
   }
-  # Extract the temperature sum for the wettest period
-  wettest_period_temp_sum <- tperiod[cbind(seq_len(nrow(tperiod)), pperiod_max_idx)]
-  # Calculate mean
-  bio8V <- wettest_period_temp_sum / period_length
+  # Extract the temperature mean for the wettest period
+  bio8V <- tperiod[cbind(seq_len(nrow(tperiod)), pperiod_max_idx)]
   bio8V <- cbind(bio8 = bio8V, cell = cell)
   return(bio8V)
 }
@@ -263,8 +262,7 @@ bio9_fun <- function(tperiod, pperiod_min_idx, period_length, cell){
   if (any(pperiod_min_idx < 1, na.rm=TRUE) || any(pperiod_min_idx > num_period_cols, na.rm=TRUE)) {
     warning("BIO9: Some min_prec_period indices are out of bounds.")
   }
-  driest_period_temp_sum <- tperiod[cbind(seq_len(nrow(tperiod)), pperiod_min_idx)]
-  bio9V <- driest_period_temp_sum / period_length
+  bio9V <- tperiod[cbind(seq_len(nrow(tperiod)), pperiod_min_idx)]
   bio9V <- cbind(bio9 = bio9V, cell = cell)
   return(bio9V)
 }
@@ -282,8 +280,7 @@ bio10_fun <- function(tperiod, tperiod_max_idx, period_length, cell){
   if (any(tperiod_max_idx < 1, na.rm=TRUE) || any(tperiod_max_idx > num_period_cols, na.rm=TRUE)) {
     warning("BIO10: Some max_temp_period indices are out of bounds.")
   }
-  warmest_period_temp_sum <- tperiod[cbind(seq_len(nrow(tperiod)), tperiod_max_idx)]
-  bio10V <- warmest_period_temp_sum / period_length
+  bio10V <- tperiod[cbind(seq_len(nrow(tperiod)), tperiod_max_idx)]
   bio10V <- cbind(bio10 = bio10V, cell = cell)
   return(bio10V)
 }
@@ -301,8 +298,7 @@ bio11_fun <- function(tperiod, tperiod_min_idx, period_length, cell){
   if (any(tperiod_min_idx < 1, na.rm=TRUE) || any(tperiod_min_idx > num_period_cols, na.rm=TRUE)) {
     warning("BIO11: Some min_temp_period indices are out of bounds.")
   }
-  coldest_period_temp_sum <- tperiod[cbind(seq_len(nrow(tperiod)), tperiod_min_idx)]
-  bio11V <- coldest_period_temp_sum / period_length
+  bio11V <- tperiod[cbind(seq_len(nrow(tperiod)), tperiod_min_idx)]
   bio11V <- cbind(bio11 = bio11V, cell = cell)
   return(bio11V)
 }
