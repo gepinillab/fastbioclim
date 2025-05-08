@@ -49,8 +49,7 @@ future::plan("multisession", workers = 4)
 # future::plan("sequential") 
 mex <- AOI::aoi_get(country = "Mexico")
 tictoc::tic("MEX calculation")
-j <- 18
-bioclim_mex_path <- fastbioclim::bioclim_vars(bios = j,
+bioclim_mex_path <- fastbioclim::bioclim_vars(bios = 1:19,
                                                     n_units = 12,
                                                     tmin_path = tmin_path,
                                                     tmax_path = tmax_path,
@@ -88,7 +87,7 @@ tictoc::toc()
 
 tictoc::tic("Bioclima MEX")
 bios_mex <- fastbioclim::clima(
-  bios = j,
+  bios = 1:19,
   tmax = tmax_mex,
   tmin = tmin_mex,
   prcp = prcp_mex,
@@ -98,8 +97,8 @@ tictoc::toc()
 # plot(bios_mex)
 # plot(bio01_mex - bios_mex[[1]])
 
-# CHECK BIOS: 18:19
-i <- j
+# CHECK
+i <- 19
 # r <- rast(paste0("/Users/gepb/bioclim_mex/bio", i, ".tif"))
 r <- rast(paste0("/Users/Gonzalo/bioclim_mex/bio", i, ".tif"))
 r_chk <- r - bios_mex[[paste0("bio", sprintf("%02d", i))]]

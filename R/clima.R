@@ -376,9 +376,9 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
   # Bio09
   if (9 %in% bios) bio09 <- fastbioclim::bio_09(tmp, driest_period)
   # Bio18
-  if (18 %in% bios) bio18 <- fastbioclim::bio_18(tmp, warmest_period)
+  if (18 %in% bios) bio18 <- fastbioclim::bio_18(wet, warmest_period)
   # Bio19
-  if (19 %in% bios) bio19 <- fastbioclim::bio_19(tmp, coldest_period)
+  if (19 %in% bios) bio19 <- fastbioclim::bio_19(wet, coldest_period)
   # Bio24
   if (24 %in% bios) bio24 <- fastbioclim::bio_24(prad, wettest_period)
   # Bio25

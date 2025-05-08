@@ -77,7 +77,6 @@ compute_periods <- function(n_units, period_length, circular = TRUE) {
 #' @keywords internal
 var_periods <- function(variable, periodos, n_units, period_length) {
   is_temp_like <- any(grepl("tavg|tmin|tmax", colnames(variable), ignore.case = TRUE))
-  print(is_temp_like)
   num_periods_calculated <- length(periodos)
   
   if (is_temp_like) {
