@@ -370,15 +370,21 @@ bioclim_vars <- function(bios,
               cell_ids_extracted <- translate_cell(cell_ids_extracted)
               noMap <- !is.na(cell_ids_extracted)
               cell_ids_extracted <- cell_ids_extracted[noMap]
+              climate_df_subset <- df[nonaID[noMap], climate_colnames, drop = FALSE]
+            } else {
+              climate_df_subset <- df[nonaID, climate_colnames, drop = FALSE]
             }
-            climate_df_subset <- df[nonaID[noMap], climate_colnames, drop = FALSE]
             climate_mat <- Rfast::data.frame.to_matrix(climate_df_subset)
             colnames(climate_mat) <- climate_colnames
             static_idx_list <- list()
             if (length(static_colnames_present) > 0) {
               for (sc_name in static_colnames_present) { 
                 original_idx_name <- sub("^idx_", "", sc_name)
-                static_idx_list[[original_idx_name]] <- df[[sc_name]][nonaID]
+                if (!is.null(user_region)) {
+                  static_idx_list[[original_idx_name]] <- df[[sc_name]][nonaID[noMap]]
+                } else {
+                  static_idx_list[[original_idx_name]] <- df[[sc_name]][nonaID]
+                }
               }
             }
             return(list(climate_matrix = climate_mat, 
