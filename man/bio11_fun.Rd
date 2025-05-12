@@ -2,7 +2,7 @@
 % Please edit documentation in R/help2.R
 \name{bio11_fun}
 \alias{bio11_fun}
-\title{BIO11: Mean Temperature of Coldest Period}
+\title{bio11: Mean Temperature of Coldest Period}
 \usage{
 bio11_fun(tperiod, tperiod_min_idx, period_length, cell)
 }

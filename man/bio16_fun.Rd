@@ -2,7 +2,7 @@
 % Please edit documentation in R/help2.R
 \name{bio16_fun}
 \alias{bio16_fun}
-\title{BIO16: Precipitation of Wettest Period}
+\title{bio16: Precipitation of Wettest Period}
 \usage{
 bio16_fun(pperiod, pperiod_max_idx, cell)
 }

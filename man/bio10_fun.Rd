@@ -2,7 +2,7 @@
 % Please edit documentation in R/help2.R
 \name{bio10_fun}
 \alias{bio10_fun}
-\title{BIO10: Mean Temperature of Warmest Period}
+\title{bio10: Mean Temperature of Warmest Period}
 \usage{
 bio10_fun(tperiod, tperiod_max_idx, period_length, cell)
 }

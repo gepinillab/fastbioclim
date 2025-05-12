@@ -106,167 +106,167 @@ var_periods <- function(variable, periodos, n_units, period_length) {
 }
 
 
-# --- Individual Bioclimatic Variable Functions (BIO 1-19) ---
+# --- Individual Bioclimatic Variable Functions (bio 1-19) ---
 
-#' @title BIO1: Mean Temperature of Units
+#' @title bio01: Mean Temperature of Units
 #' @description Calculates mean temperature across all temporal units.
 #' @param tavg Matrix of average temperatures for each unit.
 #' @param cell Vector of original cell IDs.
-#' @return Matrix with columns: "bio1", "cell".
+#' @return Matrix with columns: "bio01", "cell".
 #' @keywords internal
-bio1_fun <- function(tavg, cell){
-  bio1V <- Rfast::rowmeans(tavg)
-  bio1V <- cbind(bio1 = bio1V, cell = cell)
-  return(bio1V)
+bio01_fun <- function(tavg, cell){
+  bio01V <- Rfast::rowmeans(tavg)
+  bio01V <- cbind(bio01 = bio01V, cell = cell)
+  return(bio01V)
 }
 
-#' @title BIO2: Mean Diurnal Range
+#' @title bio02: Mean Diurnal Range
 #' @description Calculates the mean of (tmax - tmin) across all temporal units.
 #' @param tmin Matrix of minimum temperatures for each unit.
 #' @param tmax Matrix of maximum temperatures for each unit.
 #' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio2", "cell".
+#' @return Matrix with "bio02", "cell".
 #' @keywords internal
-bio2_fun <- function(tmin, tmax, cell){
-  bio2V <- tmax - tmin
-  bio2V <- Rfast::rowmeans(bio2V)
-  bio2V <- cbind(bio2 = bio2V, cell = cell)
-  return(bio2V)
+bio02_fun <- function(tmin, tmax, cell){
+  bio02V <- tmax - tmin
+  bio02V <- Rfast::rowmeans(bio02V)
+  bio02V <- cbind(bio02 = bio02V, cell = cell)
+  return(bio02V)
 }
 
-#' @title BIO3: Isothermality
-#' @description Calculates (BIO2 / BIO7) * 100.
-#' @param bio2V Vector or single-column matrix of BIO2 values.
-#' @param bio7V Vector or single-column matrix of BIO7 values.
+#' @title bio03: Isothermality
+#' @description Calculates (bio02 / bio07) * 100.
+#' @param bio02V Vector or single-column matrix of bio02 values.
+#' @param bio07V Vector or single-column matrix of bio07 values.
 #' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio3", "cell".
+#' @return Matrix with "bio03", "cell".
 #' @keywords internal
-bio3_fun <- function(bio2V, bio7V, cell){
+bio03_fun <- function(bio02V, bio07V, cell){
   # Ensure inputs are treated as vectors if passed as matrices
-  bio2_vec <- if(is.matrix(bio2V)) bio2V[,1] else bio2V
-  bio7_vec <- if(is.matrix(bio7V)) bio7V[,1] else bio7V
+  bio02_vec <- if(is.matrix(bio02V)) bio02V[,1] else bio02V
+  bio07_vec <- if(is.matrix(bio07V)) bio07V[,1] else bio07V
   # Avoid division by zero
-  bio3V <- ifelse(bio7_vec == 0, 0, (bio2_vec / bio7_vec) * 100)
-  bio3V <- cbind(bio3 = bio3V, cell = cell)
-  return(bio3V)
+  bio03V <- ifelse(bio07_vec == 0, 0, (bio02_vec / bio07_vec) * 100)
+  bio03V <- cbind(bio03 = bio03V, cell = cell)
+  return(bio03V)
 }
 
-#' @title BIO4: Temperature Seasonality (Std Dev * 100)
+#' @title bio04: Temperature Seasonality (Std Dev * 100)
 #' @description Calculates the standard deviation of average temperatures across units, multiplied by 100.
 #' @param tavg Matrix of average temperatures for each unit.
 #' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio4", "cell".
+#' @return Matrix with "bio04", "cell".
 #' @keywords internal
-bio4_fun <- function(tavg, cell){
+bio04_fun <- function(tavg, cell){
   # std=TRUE gives standard deviation
-  bio4V <- Rfast::rowVars(tavg, std = TRUE) * 100
-  bio4V <- cbind(bio4 = bio4V, cell = cell)
-  return(bio4V)
+  bio04V <- Rfast::rowVars(tavg, std = TRUE) * 100
+  bio04V <- cbind(bio04 = bio04V, cell = cell)
+  return(bio04V)
 }
 
-#' @title BIO5: Max Temperature of Warmest Unit
+#' @title bio05: Max Temperature of Warmest Unit
 #' @description Identifies max temperature of the warmest unit, potentially using a static index.
 #' @param tmax Matrix of maximum temperatures for each unit.
 #' @param cell Vector of original cell IDs.
 #' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Tmax for that unit. If NULL, finds overall max Tmax.
-#' @return Matrix with "bio5", "cell".
+#' @return Matrix with "bio05", "cell".
 #' @keywords internal
-bio5_fun <- function(tmax, cell, index_vector = NULL) {
+bio05_fun <- function(tmax, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
-    if (length(index_vector) != nrow(tmax)) stop("BIO5: Length mismatch: index_vector vs tmax rows.")
+    if (length(index_vector) != nrow(tmax)) stop("bio05: Length mismatch: index_vector vs tmax rows.")
     # Handle potential NA indices or out-of-bounds indices gracefully
     is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(tmax)
     valid_rows <- which(!is_invalid_idx)
-    bio5V <- rep(NA_real_, nrow(tmax)) # Initialize with NA
+    bio05V <- rep(NA_real_, nrow(tmax)) # Initialize with NA
     if(length(valid_rows) > 0) {
-        bio5V[valid_rows] <- tmax[cbind(valid_rows, index_vector[valid_rows])]
+        bio05V[valid_rows] <- tmax[cbind(valid_rows, index_vector[valid_rows])]
     }
-    if(any(is_invalid_idx)) warning("BIO5: Some static indices were NA or out of bounds.")
+    if(any(is_invalid_idx)) warning("bio05: Some static indices were NA or out of bounds.")
   } else {
-    bio5V <- Rfast::rowMaxs(tmax, value = TRUE)
+    bio05V <- Rfast::rowMaxs(tmax, value = TRUE)
   }
-  bio5V <- cbind(bio5 = bio5V, cell = cell)
-  return(bio5V)
+  bio05V <- cbind(bio05 = bio05V, cell = cell)
+  return(bio05V)
 }
 
-#' @title BIO6: Min Temperature of Coldest Unit
+#' @title bio06: Min Temperature of Coldest Unit
 #' @description Identifies min temperature of the coldest unit, potentially using a static index.
 #' @param tmin Matrix of minimum temperatures for each unit.
 #' @param cell Vector of original cell IDs.
 #' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Tmin for that unit. If NULL, finds overall min Tmin.
-#' @return Matrix with "bio6", "cell".
+#' @return Matrix with "bio06", "cell".
 #' @keywords internal
-bio6_fun <- function(tmin, cell, index_vector = NULL) {
+bio06_fun <- function(tmin, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
-     if (length(index_vector) != nrow(tmin)) stop("BIO6: Length mismatch: index_vector vs tmin rows.")
+     if (length(index_vector) != nrow(tmin)) stop("bio06: Length mismatch: index_vector vs tmin rows.")
      is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(tmin)
      valid_rows <- which(!is_invalid_idx)
-     bio6V <- rep(NA_real_, nrow(tmin))
+     bio06V <- rep(NA_real_, nrow(tmin))
      if(length(valid_rows) > 0) {
-        bio6V[valid_rows] <- tmin[cbind(valid_rows, index_vector[valid_rows])]
+        bio06V[valid_rows] <- tmin[cbind(valid_rows, index_vector[valid_rows])]
      }
-     if(any(is_invalid_idx)) warning("BIO6: Some static indices were NA or out of bounds.")
+     if(any(is_invalid_idx)) warning("bio06: Some static indices were NA or out of bounds.")
   } else {
-    bio6V <- Rfast::rowMins(tmin, value = TRUE)
+    bio06V <- Rfast::rowMins(tmin, value = TRUE)
   }
-  bio6V <- cbind(bio6 = bio6V, cell = cell)
-  return(bio6V)
+  bio06V <- cbind(bio06 = bio06V, cell = cell)
+  return(bio06V)
 }
 
-#' @title BIO7: Temperature Annual Range (BIO5 - BIO6)
-#' @description Calculates the difference between BIO5 and BIO6.
-#' @param bio5V Vector or single-column matrix of BIO5 values.
-#' @param bio6V Vector or single-column matrix of BIO6 values.
+#' @title bio07: Temperature Annual Range (bio05 - bio06)
+#' @description Calculates the difference between bio05 and bio06.
+#' @param bio05V Vector or single-column matrix of bio05 values.
+#' @param bio06V Vector or single-column matrix of bio06 values.
 #' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio7", "cell".
+#' @return Matrix with "bio07", "cell".
 #' @keywords internal
-bio7_fun <- function(bio5V, bio6V, cell){
-  bio5_vec <- if(is.matrix(bio5V)) bio5V[,1] else bio5V
-  bio6_vec <- if(is.matrix(bio6V)) bio6V[,1] else bio6V
-  bio7V <- bio5_vec - bio6_vec
-  bio7V <- cbind(bio7 = bio7V, cell = cell)
-  return(bio7V)
+bio07_fun <- function(bio05V, bio06V, cell){
+  bio05_vec <- if(is.matrix(bio05V)) bio05V[,1] else bio05V
+  bio06_vec <- if(is.matrix(bio06V)) bio06V[,1] else bio06V
+  bio07V <- bio05_vec - bio06_vec
+  bio07V <- cbind(bio07 = bio07V, cell = cell)
+  return(bio07V)
 }
 
-#' @title BIO8: Mean Temperature of Wettest Period
+#' @title bio08: Mean Temperature of Wettest Period
 #' @description Calculates mean temperature of the period with the highest precipitation sum.
 #' @param tperiod Matrix of temperature period sums (output from `var_periods`).
 #' @param pperiod_max_idx Vector indicating the index (1-based) of the wettest period for each row.
 #' @param period_length Integer. Number of units per period.
 #' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio8", "cell".
+#' @return Matrix with "bio08", "cell".
 #' @keywords internal
-bio8_fun <- function(tperiod, pperiod_max_idx, period_length, cell){
+bio08_fun <- function(tperiod, pperiod_max_idx, period_length, cell){
   num_period_cols <- ncol(tperiod) - 2 # Exclude min/max ID columns
   if (any(pperiod_max_idx < 1, na.rm=TRUE) || any(pperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("BIO8: Some max_prec_period indices are out of bounds.")
+    warning("bio08: Some max_prec_period indices are out of bounds.")
     # Handle invalid indices - results will be NA due to matrix indexing rules
   }
   # Extract the temperature mean for the wettest period
-  bio8V <- tperiod[cbind(seq_len(nrow(tperiod)), pperiod_max_idx)]
-  bio8V <- cbind(bio8 = bio8V, cell = cell)
-  return(bio8V)
+  bio08V <- tperiod[cbind(seq_len(nrow(tperiod)), pperiod_max_idx)]
+  bio08V <- cbind(bio08 = bio08V, cell = cell)
+  return(bio08V)
 }
 
-#' @title BIO9: Mean Temperature of Driest Period
+#' @title bio09: Mean Temperature of Driest Period
 #' @description Calculates mean temperature of the period with the lowest precipitation sum.
 #' @param tperiod Matrix of temperature period sums.
 #' @param pperiod_min_idx Vector indicating the index (1-based) of the driest period.
 #' @param period_length Integer. Number of units per period.
 #' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio9", "cell".
+#' @return Matrix with "bio09", "cell".
 #' @keywords internal
-bio9_fun <- function(tperiod, pperiod_min_idx, period_length, cell){
+bio09_fun <- function(tperiod, pperiod_min_idx, period_length, cell){
   num_period_cols <- ncol(tperiod) - 2
   if (any(pperiod_min_idx < 1, na.rm=TRUE) || any(pperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("BIO9: Some min_prec_period indices are out of bounds.")
+    warning("bio09: Some min_prec_period indices are out of bounds.")
   }
-  bio9V <- tperiod[cbind(seq_len(nrow(tperiod)), pperiod_min_idx)]
-  bio9V <- cbind(bio9 = bio9V, cell = cell)
-  return(bio9V)
+  bio09V <- tperiod[cbind(seq_len(nrow(tperiod)), pperiod_min_idx)]
+  bio09V <- cbind(bio09 = bio09V, cell = cell)
+  return(bio09V)
 }
 
-#' @title BIO10: Mean Temperature of Warmest Period
+#' @title bio10: Mean Temperature of Warmest Period
 #' @description Calculates mean temperature of the period with the highest temperature sum.
 #' @param tperiod Matrix of temperature period sums.
 #' @param tperiod_max_idx Vector indicating the index (1-based) of the warmest period.
@@ -277,14 +277,14 @@ bio9_fun <- function(tperiod, pperiod_min_idx, period_length, cell){
 bio10_fun <- function(tperiod, tperiod_max_idx, period_length, cell){
   num_period_cols <- ncol(tperiod) - 2
   if (any(tperiod_max_idx < 1, na.rm=TRUE) || any(tperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("BIO10: Some max_temp_period indices are out of bounds.")
+    warning("bio10: Some max_temp_period indices are out of bounds.")
   }
   bio10V <- tperiod[cbind(seq_len(nrow(tperiod)), tperiod_max_idx)]
   bio10V <- cbind(bio10 = bio10V, cell = cell)
   return(bio10V)
 }
 
-#' @title BIO11: Mean Temperature of Coldest Period
+#' @title bio11: Mean Temperature of Coldest Period
 #' @description Calculates mean temperature of the period with the lowest temperature sum.
 #' @param tperiod Matrix of temperature period sums.
 #' @param tperiod_min_idx Vector indicating the index (1-based) of the coldest period.
@@ -295,14 +295,14 @@ bio10_fun <- function(tperiod, tperiod_max_idx, period_length, cell){
 bio11_fun <- function(tperiod, tperiod_min_idx, period_length, cell){
   num_period_cols <- ncol(tperiod) - 2
   if (any(tperiod_min_idx < 1, na.rm=TRUE) || any(tperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("BIO11: Some min_temp_period indices are out of bounds.")
+    warning("bio11: Some min_temp_period indices are out of bounds.")
   }
   bio11V <- tperiod[cbind(seq_len(nrow(tperiod)), tperiod_min_idx)]
   bio11V <- cbind(bio11 = bio11V, cell = cell)
   return(bio11V)
 }
 
-#' @title BIO12: Total Precipitation
+#' @title bio12: Total Precipitation
 #' @description Calculates the sum of precipitation values across all units.
 #' @param precp Matrix of precipitation values for each unit.
 #' @param cell Vector of original cell IDs.
@@ -314,7 +314,7 @@ bio12_fun <- function(precp, cell){
   return(bio12V)
 }
 
-#' @title BIO13: Precipitation of Wettest Unit
+#' @title bio13: Precipitation of Wettest Unit
 #' @description Identifies precipitation of the wettest unit, potentially using a static index.
 #' @param precp Matrix of precipitation values for each unit.
 #' @param cell Vector of original cell IDs.
@@ -323,14 +323,14 @@ bio12_fun <- function(precp, cell){
 #' @keywords internal
 bio13_fun <- function(precp, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
-     if (length(index_vector) != nrow(precp)) stop("BIO13: Length mismatch: index_vector vs precp rows.")
+     if (length(index_vector) != nrow(precp)) stop("bio13: Length mismatch: index_vector vs precp rows.")
      is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(precp)
      valid_rows <- which(!is_invalid_idx)
      bio13V <- rep(NA_real_, nrow(precp))
      if(length(valid_rows) > 0) {
         bio13V[valid_rows] <- precp[cbind(valid_rows, index_vector[valid_rows])]
      }
-     if(any(is_invalid_idx)) warning("BIO13: Some static indices were NA or out of bounds.")
+     if(any(is_invalid_idx)) warning("bio13: Some static indices were NA or out of bounds.")
   } else {
     bio13V <- Rfast::rowMaxs(precp, value = TRUE)
   }
@@ -338,7 +338,7 @@ bio13_fun <- function(precp, cell, index_vector = NULL) {
   return(bio13V)
 }
 
-#' @title BIO14: Precipitation of Driest Unit
+#' @title bio14: Precipitation of Driest Unit
 #' @description Identifies precipitation of the driest unit, potentially using a static index.
 #' @param precp Matrix of precipitation values for each unit.
 #' @param cell Vector of original cell IDs.
@@ -347,14 +347,14 @@ bio13_fun <- function(precp, cell, index_vector = NULL) {
 #' @keywords internal
 bio14_fun <- function(precp, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
-     if (length(index_vector) != nrow(precp)) stop("BIO14: Length mismatch: index_vector vs precp rows.")
+     if (length(index_vector) != nrow(precp)) stop("bio14: Length mismatch: index_vector vs precp rows.")
      is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(precp)
      valid_rows <- which(!is_invalid_idx)
      bio14V <- rep(NA_real_, nrow(precp))
      if(length(valid_rows) > 0) {
         bio14V[valid_rows] <- precp[cbind(valid_rows, index_vector[valid_rows])]
      }
-     if(any(is_invalid_idx)) warning("BIO14: Some static indices were NA or out of bounds.")
+     if(any(is_invalid_idx)) warning("bio14: Some static indices were NA or out of bounds.")
   } else {
     bio14V <- Rfast::rowMins(precp, value = TRUE)
   }
@@ -362,7 +362,7 @@ bio14_fun <- function(precp, cell, index_vector = NULL) {
   return(bio14V)
 }
 
-#' @title BIO15: Precipitation Seasonality (CV)
+#' @title bio15: Precipitation Seasonality (CV)
 #' @description Calculates coefficient of variation in precipitation across units.
 #' @param precp Matrix containing precipitation values for each unit.
 #' @param bio12V Precomputed total precipitation (BIO12 value).
@@ -381,7 +381,7 @@ bio15_fun <- function(precp, bio12V, n_units, cell) {
   return(bio15V)
 }
 
-#' @title BIO16: Precipitation of Wettest Period
+#' @title bio16: Precipitation of Wettest Period
 #' @description Calculates precipitation sum of the period with the highest precipitation sum.
 #' @param pperiod Matrix of precipitation period sums (output from `var_periods`).
 #' @param pperiod_max_idx Vector indicating the index (1-based) of the wettest period.
@@ -391,7 +391,7 @@ bio15_fun <- function(precp, bio12V, n_units, cell) {
 bio16_fun <- function(pperiod, pperiod_max_idx, cell){
   num_period_cols <- ncol(pperiod) - 2
   if (any(pperiod_max_idx < 1, na.rm=TRUE) || any(pperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("BIO16: Some max_prec_period indices are out of bounds.")
+    warning("bio16: Some max_prec_period indices are out of bounds.")
   }
   # Extract the sum for the wettest period
   bio16V <- pperiod[cbind(seq_len(nrow(pperiod)), pperiod_max_idx)]
@@ -399,7 +399,7 @@ bio16_fun <- function(pperiod, pperiod_max_idx, cell){
   return(bio16V)
 }
 
-#' @title BIO17: Precipitation of Driest Period
+#' @title bio17: Precipitation of Driest Period
 #' @description Calculates precipitation sum of the period with the lowest precipitation sum.
 #' @param pperiod Matrix of precipitation period sums.
 #' @param pperiod_min_idx Vector indicating the index (1-based) of the driest period.
@@ -409,14 +409,14 @@ bio16_fun <- function(pperiod, pperiod_max_idx, cell){
 bio17_fun <- function(pperiod, pperiod_min_idx, cell){
   num_period_cols <- ncol(pperiod) - 2
   if (any(pperiod_min_idx < 1, na.rm=TRUE) || any(pperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("BIO17: Some min_prec_period indices are out of bounds.")
+    warning("bio17: Some min_prec_period indices are out of bounds.")
   }
   bio17V <- pperiod[cbind(seq_len(nrow(pperiod)), pperiod_min_idx)]
   bio17V <- cbind(bio17 = bio17V, cell = cell)
   return(bio17V)
 }
 
-#' @title BIO18: Precipitation of Warmest Period
+#' @title bio18: Precipitation of Warmest Period
 #' @description Calculates precipitation sum of the period with the highest temperature sum.
 #' @param pperiod Matrix of precipitation period sums.
 #' @param tperiod_max_idx Vector indicating the index (1-based) of the warmest period.
@@ -426,14 +426,14 @@ bio17_fun <- function(pperiod, pperiod_min_idx, cell){
 bio18_fun <- function(pperiod, tperiod_max_idx, cell){
   num_period_cols <- ncol(pperiod) - 2
   if (any(tperiod_max_idx < 1, na.rm=TRUE) || any(tperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("BIO18: Some max_temp_period indices are out of bounds.")
+    warning("bio18: Some max_temp_period indices are out of bounds.")
   }
   bio18V <- pperiod[cbind(seq_len(nrow(pperiod)), tperiod_max_idx)]
   bio18V <- cbind(bio18 = bio18V, cell = cell)
   return(bio18V)
 }
 
-#' @title BIO19: Precipitation of Coldest Period
+#' @title bio19: Precipitation of Coldest Period
 #' @description Calculates precipitation sum of the period with the lowest temperature sum.
 #' @param pperiod Matrix of precipitation period sums.
 #' @param tperiod_min_idx Vector indicating the index (1-based) of the coldest period.
@@ -443,7 +443,7 @@ bio18_fun <- function(pperiod, tperiod_max_idx, cell){
 bio19_fun <- function(pperiod, tperiod_min_idx, cell){
   num_period_cols <- ncol(pperiod) - 2
   if (any(tperiod_min_idx < 1, na.rm=TRUE) || any(tperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("BIO19: Some min_temp_period indices are out of bounds.")
+    warning("bio19: Some min_temp_period indices are out of bounds.")
   }
   bio19V <- pperiod[cbind(seq_len(nrow(pperiod)), tperiod_min_idx)]
   bio19V <- cbind(bio19 = bio19V, cell = cell)

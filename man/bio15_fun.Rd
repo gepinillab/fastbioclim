@@ -2,7 +2,7 @@
 % Please edit documentation in R/help2.R
 \name{bio15_fun}
 \alias{bio15_fun}
-\title{BIO15: Precipitation Seasonality (CV)}
+\title{bio15: Precipitation Seasonality (CV)}
 \usage{
 bio15_fun(precp, bio12V, n_units, cell)
 }

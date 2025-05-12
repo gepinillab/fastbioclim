@@ -2,7 +2,7 @@
 % Please edit documentation in R/help2.R
 \name{bio19_fun}
 \alias{bio19_fun}
-\title{BIO19: Precipitation of Coldest Period}
+\title{bio19: Precipitation of Coldest Period}
 \usage{
 bio19_fun(pperiod, tperiod_min_idx, cell)
 }

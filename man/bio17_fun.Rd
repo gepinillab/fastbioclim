@@ -2,7 +2,7 @@
 % Please edit documentation in R/help2.R
 \name{bio17_fun}
 \alias{bio17_fun}
-\title{BIO17: Precipitation of Driest Period}
+\title{bio17: Precipitation of Driest Period}
 \usage{
 bio17_fun(pperiod, pperiod_min_idx, cell)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/help2.R
 \name{bio13_fun}
 \alias{bio13_fun}
-\title{BIO13: Precipitation of Wettest Unit}
+\title{bio13: Precipitation of Wettest Unit}
 \usage{
 bio13_fun(precp, cell, index_vector = NULL)
 }

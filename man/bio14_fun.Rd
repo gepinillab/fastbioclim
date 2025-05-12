@@ -2,7 +2,7 @@
 % Please edit documentation in R/help2.R
 \name{bio14_fun}
 \alias{bio14_fun}
-\title{BIO14: Precipitation of Driest Unit}
+\title{bio14: Precipitation of Driest Unit}
 \usage{
 bio14_fun(precp, cell, index_vector = NULL)
 }

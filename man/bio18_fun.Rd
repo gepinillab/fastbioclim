@@ -2,7 +2,7 @@
 % Please edit documentation in R/help2.R
 \name{bio18_fun}
 \alias{bio18_fun}
-\title{BIO18: Precipitation of Warmest Period}
+\title{bio18: Precipitation of Warmest Period}
 \usage{
 bio18_fun(pperiod, tperiod_max_idx, cell)
 }

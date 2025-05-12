@@ -2,7 +2,7 @@
 % Please edit documentation in R/help2.R
 \name{bio12_fun}
 \alias{bio12_fun}
-\title{BIO12: Total Precipitation}
+\title{bio12: Total Precipitation}
 \usage{
 bio12_fun(precp, cell)
 }

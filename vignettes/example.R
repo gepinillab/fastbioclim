@@ -63,7 +63,7 @@ fastbioclim::write_layers(biovardir = bioclim_mex_path ,
   # save_dir = "/Users/gepb/bioclim_mex",
   clean_temporary_files = FALSE)
 tictoc::toc()
-bio01_mex <- rast("/Users/Gonzalo/bioclim_mex/bio1.tif")
+bio01_mex <- rast("/Users/Gonzalo/bioclim_mex/bio01.tif")
 # bio01_mex <- rast("/Users/gepb/bioclim_mex/bio1.tif")
 plot(bio01_mex)
 
@@ -93,12 +93,12 @@ tictoc::toc()
 
 
 # CHECK
-i <- 19
-# r <- rast(paste0("/Users/gepb/bioclim_mex/bio", i, ".tif"))
-r <- rast(paste0("/Users/Gonzalo/bioclim_mex/bio", i, ".tif"))
-r_chk <- r - bios_mex[[paste0("bio", sprintf("%02d", i))]]
-terra::minmax(r_chk)
-plot(r_chk, main = i)
+# i <- 19
+# # r <- rast(paste0("/Users/gepb/bioclim_mex/bio", sprintf("%02d", i), ".tif"))
+# r <- rast(paste0("/Users/Gonzalo/bioclim_mex/bio", sprintf("%02d", i), ".tif"))
+# r_chk <- r - bios_mex[[paste0("bio", sprintf("%02d", i))]]
+# terra::minmax(r_chk)
+# plot(r_chk, main = i)
 
 # COLOMBIA
 # M1 (8 Gb)
@@ -132,8 +132,8 @@ fastbioclim::write_layers(biovardir = bioclim_col_path ,
   # save_dir = "/Users/gepb/bioclim_col",
   clean_temporary_files = FALSE)
 tictoc::toc()
-bio01_col <- rast("/Users/Gonzalo/bioclim_col/bio1.tif")
-# bio01_col <- rast("/Users/gepb/bioclim_col/bio1.tif")
+bio01_col <- rast("/Users/Gonzalo/bioclim_col/bio01.tif")
+# bio01_col <- rast("/Users/gepb/bioclim_col/bio01.tif")
 plot(bio01_col)
 
 # BIOCLIMA
@@ -160,7 +160,7 @@ bios_col <- fastbioclim::clima(
 )
 tictoc::toc()
 
-# COLOMBIA
+# SOUTH AMERICA
 # M1 (8 Gb)
 # [seq] X + X = X
 # [w4] X + X = X
@@ -255,15 +255,15 @@ bioclim_sta_path <- fastbioclim::bioclim_vars(bios = 1:19,
 fastbioclim::write_layers(biovardir = bioclim_sta_path,
   save_dir = "/Users/Gonzalo/bioclim_sta",
   clean_temporary_files = FALSE)
-bio05_mex <- rast("/Users/Gonzalo/bioclim_mex/bio5.tif")
-bio05_sta <- rast("/Users/Gonzalo/bioclim_sta/bio5.tif")
+bio05_mex <- rast("/Users/Gonzalo/bioclim_mex/bio05.tif")
+bio05_sta <- rast("/Users/Gonzalo/bioclim_sta/bio05.tif")
 plot(bio05_mex)
 plot(bio05_sta)
-bio06_mex <- rast("/Users/Gonzalo/bioclim_mex/bio6.tif")
-bio06_sta <- rast("/Users/Gonzalo/bioclim_sta/bio6.tif")
+bio06_mex <- rast("/Users/Gonzalo/bioclim_mex/bio06.tif")
+bio06_sta <- rast("/Users/Gonzalo/bioclim_sta/bio06.tif")
 plot(bio06_mex)
 plot(bio06_sta)
 i <- 10
-bio_sta <- rast(paste0("/Users/Gonzalo/bioclim_sta/bio", i, ".tif"))
-bio_mex <- rast(paste0("/Users/Gonzalo/bioclim_mex/bio", i, ".tif"))
+bio_sta <- rast(paste0("/Users/Gonzalo/bioclim_sta/bio", sprintf("%02d", i), ".tif"))
+bio_mex <- rast(paste0("/Users/Gonzalo/bioclim_mex/bio", sprintf("%02d", i), ".tif"))
 plot(bio_sta - bio_mex, main = i)

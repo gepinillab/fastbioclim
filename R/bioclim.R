@@ -321,7 +321,7 @@ bioclim_vars <- function(bios,
       # --- 5. Define Intermediate File Paths (.qs) ---
       bios_qs_paths <- list()
       for (bio_num in bios) { 
-        bio_name <- paste0("bio", bio_num)
+        bio_name <- paste0("bio", sprintf("%02d", bio_num))
         bios_qs_paths[[bio_name]] <- file.path(bioclima_dir, paste0(bio_name, "_", seq_len(ntiles), ".qs"))
       }
       if (write_raw_vars) {
@@ -419,7 +419,7 @@ bioclim_vars <- function(bios,
           if (req_prec_path) {
             tile_results$prec_vals <- check_evar(climate_matrix[, grep(pattern = "^prec_", path_variables$climate), drop = FALSE])
             if (write_raw_vars && "prec" %in% names(raw_paths_list)) {
-              rio::export(cbind(tile_results$prec_vals, cell=cell_ids), raw_paths_list$prec[x])
+              rio::export(cbind(tile_results$prec_vals, cell = cell_ids), raw_paths_list$prec[x])
             }
           }
           tavg_available <- FALSE
@@ -430,7 +430,7 @@ bioclim_vars <- function(bios,
                 tile_results$temperature_avg <- check_evar(climate_matrix[, tavg_cols, drop = FALSE])
                 tavg_available < TRUE
                 if (write_raw_vars && "tavg" %in% names(raw_paths_list)) {
-                  rio::export(cbind(tile_results$temperature_avg,cell=cell_ids),raw_paths_list$tavg[x])
+                  rio::export(cbind(tile_results$temperature_avg, cell = cell_ids), raw_paths_list$tavg[x])
                 }
               } else { 
                 warning("Tile ", x, ": Failed Tavg load.")
@@ -492,8 +492,8 @@ bioclim_vars <- function(bios,
             if (bio_num %in% c(8, 9, 10, 11) && (!temp_p_available)) {can_calculate <- FALSE}
             if (bio_num %in% c(16, 17) && (!prec_p_available)) {can_calculate <- FALSE}
             if (bio_num %in% c(18, 19) && (!temp_p_available || !prec_p_available)) {can_calculate <- FALSE}
-            if (bio_num == 7 && (is.null(calculated_bios_in_tile$bio5) || is.null(calculated_bios_in_tile$bio6))) {can_calculate <- FALSE}
-            if (bio_num == 3 && (is.null(calculated_bios_in_tile$bio2) || is.null(calculated_bios_in_tile$bio7))) {can_calculate <- FALSE}
+            if (bio_num == 7 && (is.null(calculated_bios_in_tile$bio05) || is.null(calculated_bios_in_tile$bio06))) {can_calculate <- FALSE}
+            if (bio_num == 3 && (is.null(calculated_bios_in_tile$bio02) || is.null(calculated_bios_in_tile$bio07))) {can_calculate <- FALSE}
             if (bio_num == 15 && (is.null(tile_results$prec_vals) || is.null(calculated_bios_in_tile$bio12))) {can_calculate <- FALSE}
             if (!can_calculate) { 
               if(bio_num %in% bios) warning("Tile ", x, ": Skip BIO", bio_num, " prereqs.")
@@ -515,47 +515,60 @@ bioclim_vars <- function(bios,
             if (bio_num == 19) idx_vec_period <- static_indices_tile$coldest_period %||% tile_results$tempr_periods[, "min_idx"]
             
             result_var <- NULL
-            bio_output_name <- paste0("bio", bio_num)
+            bio_output_name <- paste0("bio", sprintf("%02d", bio_num))
             # Call BIOS_fun 
             if (bio_num == 1) {
-              result_var <- bio1_fun(tavg = tile_results$temperature_avg, cell = cell_ids)
+              result_var <- bio01_fun(tavg = tile_results$temperature_avg, 
+                                      cell = cell_ids)
             } else if (bio_num == 2) {
-              result_var <- bio2_fun(tmin = tile_results$tmin, tmax = tile_results$tmax, cell = cell_ids)
+              result_var <- bio02_fun(tmin = tile_results$tmin, 
+                                      tmax = tile_results$tmax, 
+                                      cell = cell_ids)
             } else if (bio_num == 4) {
-              result_var <- bio4_fun(tavg = tile_results$temperature_avg, cell = cell_ids)
+              result_var <- bio04_fun(tavg = tile_results$temperature_avg, 
+                                      cell = cell_ids)
             } else if (bio_num == 5) {
-              result_var <- bio5_fun(tmax = tile_results$tmax, cell = cell_ids, index_vector = idx_vec_unit)
+              result_var <- bio05_fun(tmax = tile_results$tmax, 
+                                      cell = cell_ids, 
+                                      index_vector = idx_vec_unit)
             } else if (bio_num == 6) {
-              result_var <- bio6_fun(tmin = tile_results$tmin, cell = cell_ids, index_vector = idx_vec_unit)
+              result_var <- bio06_fun(tmin = tile_results$tmin, 
+                                      cell = cell_ids, 
+                                      index_vector = idx_vec_unit)
             } else if (bio_num == 13) {
-              result_var <- bio13_fun(precp = tile_results$prec_vals, cell = cell_ids, index_vector = idx_vec_unit)
+              result_var <- bio13_fun(precp = tile_results$prec_vals, 
+                                      cell = cell_ids, 
+                                      index_vector = idx_vec_unit)
             } else if (bio_num == 14) {
-              result_var <- bio14_fun(precp = tile_results$prec_vals, cell=cell_ids, index_vector = idx_vec_unit)
+              result_var <- bio14_fun(precp = tile_results$prec_vals, 
+                                      cell = cell_ids, 
+                                      index_vector = idx_vec_unit)
             } else if (bio_num == 12) {
-              result_var <- bio12_fun(precp = tile_results$prec_vals, cell = cell_ids)
+              result_var <- bio12_fun(precp = tile_results$prec_vals, 
+                                      cell = cell_ids)
             } else if (bio_num == 7) {
-              result_var <- bio7_fun(bio5V = calculated_bios_in_tile$bio5[, 1, drop = TRUE], 
-                                     bio6V = calculated_bios_in_tile$bio6[, 1, drop = TRUE],
-                                     cell = cell_ids)
+              result_var <- bio07_fun(bio05V = calculated_bios_in_tile$bio05[, 1, drop = TRUE], 
+                                      bio06V = calculated_bios_in_tile$bio06[, 1, drop = TRUE],
+                                      cell = cell_ids)
             } else if (bio_num == 3) {
-              result_var <- bio3_fun(bio2V = calculated_bios_in_tile$bio2[, 1, drop = TRUE],
-                                     bio7V = calculated_bios_in_tile$bio7[, 1, drop = TRUE],
-                                     cell = cell_ids)
+              result_var <- bio03_fun(bio02V = calculated_bios_in_tile$bio02[, 1, drop = TRUE],
+                                      bio07V = calculated_bios_in_tile$bio07[, 1, drop = TRUE],
+                                      cell = cell_ids)
             } else if (bio_num == 15) {
               result_var <- bio15_fun(precp = tile_results$prec_vals,
                                       bio12V = calculated_bios_in_tile$bio12[, 1, drop = TRUE],
                                       n_units = n_units, 
                                       cell = cell_ids)
             } else if (bio_num == 8) {
-              result_var <- bio8_fun(tperiod = tile_results$tempr_periods,
-                                     pperiod_max_idx = idx_vec_period,
-                                     period_length = period_length,
-                                     cell = cell_ids)
+              result_var <- bio08_fun(tperiod = tile_results$tempr_periods,
+                                      pperiod_max_idx = idx_vec_period,
+                                      period_length = period_length,
+                                      cell = cell_ids)
             } else if (bio_num == 9) {
-              result_var <- bio9_fun(tperiod = tile_results$tempr_periods,
-                                     pperiod_min_idx = idx_vec_period,
-                                     period_length = period_length,
-                                     cell = cell_ids)
+              result_var <- bio09_fun(tperiod = tile_results$tempr_periods,
+                                      pperiod_min_idx = idx_vec_period,
+                                      period_length = period_length,
+                                      cell = cell_ids)
             } else if (bio_num == 10) {
               result_var <- bio10_fun(tperiod = tile_results$tempr_periods,
                                       tperiod_max_idx = idx_vec_period,
