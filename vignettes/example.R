@@ -1,3 +1,6 @@
+# ACTIVATE PRROGRESS BAR
+progressr::handlers(global = TRUE)
+
 tmin_path <- list.files(
   # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmin",
   "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmin",

@@ -332,295 +332,300 @@ bioclim_vars <- function(bios,
         if(req_tavg_value) raw_paths_list$tavg <- file.path(bioclima_dir, paste0("raw_tavg_", seq_len(ntiles), ".qs"))
       }
       # --- 6. Parallel Processing Loop ---
-      progressr::with_progress({
-        p <- progressr::progressor(steps = ntiles)
-        worker_req_tavg <- any(needs$tavg %in% bios_to_calculate) || any(needs$temp_p %in% bios_to_calculate)
-        worker_req_temp_p <- any(needs$temp_p %in% bios_to_calculate)
-        worker_req_prec_p <- any(needs$prec_p %in% bios_to_calculate)
-        export_vars <- c("paths", "path_variables", "rtt", "ntiles", "bios", "bios_to_calculate", 
-                         "n_units", "period_length", "circular", "req_tmin_path", "req_tmax_path", 
-                         "req_prec_path", "req_tavg_load", "req_tavg_calc", 
-                         "worker_req_tavg", "worker_req_temp_p", "worker_req_prec_p", 
-                         "check_evar", "compute_periods", "var_periods", 
-                         paste0("bio", 1:19, "_fun"), "bios_qs_paths", "write_raw_vars", "bioclima_dir")
-        if (exists("raw_paths_list")) export_vars <- c(export_vars, "raw_paths_list")
-        vals <- future.apply::future_lapply(seq_len(ntiles), function(x) {
-          p(message = sprintf("Processing tile %d of %d", x, ntiles))
-          tile_results <- list()
-          static_indices_tile <- list()
-          evars_stack_tile <- tryCatch({ terra::rast(paths) }, error = function(e) { NULL })
-          if (is.null(evars_stack_tile)) { 
-            warning(sprintf("Tile %d: Failed load",x))
-            return(NULL)
-          }
-          names(evars_stack_tile) <- names(paths)
-          rt0_geom <- sf::st_geometry(rtt[x, ])
-
-          exct_fun_combined <- function(df, coverage_fractions) {
-            ref_col_name <- path_variables$climate[1]
-            nonaID <- which(!is.na(df[[ref_col_name]]))
-            if (length(nonaID) == 0L) return(NULL)
-            all_colnames <- names(df)
-            climate_colnames <- path_variables$climate
-            static_colnames_expected <- names(paths)[grepl("^idx_", names(paths))]
-            static_colnames_present <- intersect(static_colnames_expected, all_colnames)
-            cell_id_col_name <- "cell"
-            cell_ids_extracted <- df[[cell_id_col_name]][nonaID]
-            if (!is.null(user_region)) {
-              cell_ids_extracted <- translate_cell(cell_ids_extracted)
-              noMap <- !is.na(cell_ids_extracted)
-              cell_ids_extracted <- cell_ids_extracted[noMap]
-              climate_df_subset <- df[nonaID[noMap], climate_colnames, drop = FALSE]
-            } else {
-              climate_df_subset <- df[nonaID, climate_colnames, drop = FALSE]
-            }
-            climate_mat <- Rfast::data.frame.to_matrix(climate_df_subset)
-            colnames(climate_mat) <- climate_colnames
-            static_idx_list <- list()
-            if (length(static_colnames_present) > 0) {
-              for (sc_name in static_colnames_present) { 
-                original_idx_name <- sub("^idx_", "", sc_name)
-                if (!is.null(user_region)) {
-                  static_idx_list[[original_idx_name]] <- df[[sc_name]][nonaID[noMap]]
-                } else {
-                  static_idx_list[[original_idx_name]] <- df[[sc_name]][nonaID]
-                }
-              }
-            }
-            return(list(climate_matrix = climate_mat, 
-                        static_indices = static_idx_list,
-                        cell_ids = cell_ids_extracted))
-          }
-          
-          # Perform Extraction
-          extracted_data_list <- tryCatch({ 
-            exactextractr::exact_extract(evars_stack_tile, rt0_geom, fun = exct_fun_combined, include_cell = TRUE) 
-          }, error = function(e){ NULL })
-          if (is.null(extracted_data_list) || length(extracted_data_list) == 0 || is.null(extracted_data_list[[1]])) return(NULL)
-          extracted_data <- extracted_data_list[, 1]
-          if (!is.list(extracted_data) || is.null(extracted_data$climate_matrix) || nrow(extracted_data$climate_matrix) == 0) return(NULL)
-          climate_matrix <- extracted_data$climate_matrix
-          static_indices_tile <- extracted_data$static_indices
-          cell_ids <- extracted_data$cell_ids
-          
-          # Conditional Data Prep
-          if (req_tmin_path) {
-            tile_results$tmin <- check_evar(climate_matrix[, grep(pattern = "^tmin_", path_variables$climate), drop = FALSE])
-            if (write_raw_vars && "tmin" %in% names(raw_paths_list)) {
-              rio::export(cbind(tile_results$tmin, cell = cell_ids), raw_paths_list$tmin[x])
-            }
-          }
-          if (req_tmax_path) {
-            tile_results$tmax <- check_evar(climate_matrix[, grep(pattern = "^tmax_", path_variables$climate), drop = FALSE])
-            if (write_raw_vars && "tmax" %in% names(raw_paths_list)) {
-              rio::export(cbind(tile_results$tmax, cell = cell_ids), raw_paths_list$tmax[x])
-            }
-          }
-          if (req_prec_path) {
-            tile_results$prec_vals <- check_evar(climate_matrix[, grep(pattern = "^prec_", path_variables$climate), drop = FALSE])
-            if (write_raw_vars && "prec" %in% names(raw_paths_list)) {
-              rio::export(cbind(tile_results$prec_vals, cell = cell_ids), raw_paths_list$prec[x])
-            }
-          }
-          tavg_available <- FALSE
-          if (worker_req_tavg) { 
-            if (req_tavg_load) {
-              tavg_cols <- grep(pattern = "^tavg_", path_variables$climate)
-              if (all(tavg_cols %in% colnames(climate_matrix))) {
-                tile_results$temperature_avg <- check_evar(climate_matrix[, tavg_cols, drop = FALSE])
-                tavg_available < TRUE
-                if (write_raw_vars && "tavg" %in% names(raw_paths_list)) {
-                  rio::export(cbind(tile_results$temperature_avg, cell = cell_ids), raw_paths_list$tavg[x])
-                }
-              } else { 
-                warning("Tile ", x, ": Failed Tavg load.")
-              }
-            } else if (req_tavg_calc) { 
-              if (!is.null(tile_results$tmin) && !is.null(tile_results$tmax)) { 
-                tile_results$temperature_avg <- (tile_results$tmax + tile_results$tmin) / 2
-                tavg_available <- TRUE
-                if (is.vector(tile_results$temperature_avg)) {
-                  tile_results$temperature_avg <- t(tile_results$temperature_avg)
-                  colnames(tile_results$temperature_avg) <- paste0("tavg_",seq_len(n_units))
-                }
-                if (write_raw_vars && ("tavg" %in% names(raw_paths_list))) {
-                  rio::export(cbind(tile_results$temperature_avg, cell = cell_ids),raw_paths_list$tavg[x])
-                  
-                }
-              } else { 
-                warning("Tile ", x, ": Cannot calc Tavg.") 
-              } 
-            } 
-          }
-          temp_p_available <- FALSE
-          prec_p_available <- FALSE
-          if (worker_req_temp_p || worker_req_prec_p) { 
-            periodos <- compute_periods(n_units = n_units, period_length = period_length, circular = circular)
-            if (worker_req_temp_p && tavg_available) { 
-              tile_results$tempr_periods <- var_periods(variable = tile_results$temperature_avg, 
-                                                        periodos = periodos,
-                                                        n_units = n_units,
-                                                        period_length = period_length)
-              temp_p_available <- TRUE
-            } else if (worker_req_temp_p) {
-              warning("Tile ", x, ": Cannot calc Temp Periods.")
-            } 
-            if (worker_req_prec_p && !is.null(tile_results$prec_vals)) {
-              tile_results$preci_periods <- var_periods(variable = tile_results$prec_vals, 
-                                                        periodos = periodos, 
-                                                        n_units = n_units, 
-                                                        period_length = period_length)
-              prec_p_available <- TRUE
-            } else if (worker_req_prec_p) {
-              warning("Tile ",x,": Cannot calc Prec Periods.")
-            }
-          }
-          
-          # Calculate BIOs
-          calculated_bios_in_tile <- list()
-          # Order bios
-          bios_order <- c(1, 2, 4, 5, 6, 7, 3, 12, 13, 14, 15, 16, 17, 10, 11, 8, 9, 18, 19)
-          bios_to_calculate <- bios_order[bios_order %in% bios_to_calculate]
-          for (bio_num in bios_to_calculate) {
-            can_calculate <- TRUE
-            if (bio_num %in% c(1, 4) && !tavg_available) {can_calculate <- FALSE}
-            if (bio_num %in% c(5, 6) && is.null(static_indices_tile[[paste0(ifelse(bio_num == 5, "warmest", "coldest"), "_unit")]]) && !tavg_available) {can_calculate <- FALSE}
-            if (bio_num == 5 && is.null(static_indices_tile[["warmest_unit"]]) && is.null(tile_results$tmax)) {can_calculate <- FALSE}
-            if (bio_num == 6 && is.null(static_indices_tile[["coldest_unit"]]) && is.null(tile_results$tmin)) {can_calculate <- FALSE}
-            if (bio_num %in% c(2, 3, 7) && (is.null(tile_results$tmin) || is.null(tile_results$tmax))) {can_calculate <- FALSE}
-            if (bio_num %in% c(12, 13, 14) && is.null(tile_results$prec_vals)) {can_calculate <- FALSE}
-            if (bio_num %in% c(8, 9, 10, 11) && (!temp_p_available)) {can_calculate <- FALSE}
-            if (bio_num %in% c(16, 17) && (!prec_p_available)) {can_calculate <- FALSE}
-            if (bio_num %in% c(18, 19) && (!temp_p_available || !prec_p_available)) {can_calculate <- FALSE}
-            if (bio_num == 7 && (is.null(calculated_bios_in_tile$bio05) || is.null(calculated_bios_in_tile$bio06))) {can_calculate <- FALSE}
-            if (bio_num == 3 && (is.null(calculated_bios_in_tile$bio02) || is.null(calculated_bios_in_tile$bio07))) {can_calculate <- FALSE}
-            if (bio_num == 15 && (is.null(tile_results$prec_vals) || is.null(calculated_bios_in_tile$bio12))) {can_calculate <- FALSE}
-            if (!can_calculate) { 
-              if(bio_num %in% bios) warning("Tile ", x, ": Skip BIO", bio_num, " prereqs.")
-              next
-            }
-            idx_vec_unit <- NULL
-            idx_vec_period <- NULL
-            if (bio_num == 5) idx_vec_unit <- static_indices_tile$warmest_unit
-            if (bio_num == 6) idx_vec_unit <- static_indices_tile$coldest_unit
-            if (bio_num == 13) idx_vec_unit <- static_indices_tile$wettest_unit
-            if (bio_num == 14) idx_vec_unit <- static_indices_tile$driest_unit
-            if (bio_num == 8) idx_vec_period <- static_indices_tile$wettest_period %||% tile_results$preci_periods[, "max_idx"]
-            if (bio_num == 9) idx_vec_period <- static_indices_tile$driest_period %||% tile_results$preci_periods[, "min_idx"]
-            if (bio_num == 10) idx_vec_period <- static_indices_tile$warmest_period %||% tile_results$tempr_periods[, "max_idx"]
-            if (bio_num == 11) idx_vec_period <- static_indices_tile$coldest_period %||% tile_results$tempr_periods[, "min_idx"]
-            if (bio_num == 16) idx_vec_period <- static_indices_tile$wettest_period %||% tile_results$preci_periods[, "max_idx"]
-            if (bio_num == 17) idx_vec_period <- static_indices_tile$driest_period %||% tile_results$preci_periods[, "min_idx"]
-            if (bio_num == 18) idx_vec_period <- static_indices_tile$warmest_period %||% tile_results$tempr_periods[, "max_idx"]
-            if (bio_num == 19) idx_vec_period <- static_indices_tile$coldest_period %||% tile_results$tempr_periods[, "min_idx"]
-            
-            result_var <- NULL
-            bio_output_name <- paste0("bio", sprintf("%02d", bio_num))
-            # Call BIOS_fun 
-            if (bio_num == 1) {
-              result_var <- bio01_fun(tavg = tile_results$temperature_avg, 
-                                      cell = cell_ids)
-            } else if (bio_num == 2) {
-              result_var <- bio02_fun(tmin = tile_results$tmin, 
-                                      tmax = tile_results$tmax, 
-                                      cell = cell_ids)
-            } else if (bio_num == 4) {
-              result_var <- bio04_fun(tavg = tile_results$temperature_avg, 
-                                      cell = cell_ids)
-            } else if (bio_num == 5) {
-              result_var <- bio05_fun(tmax = tile_results$tmax, 
-                                      cell = cell_ids, 
-                                      index_vector = idx_vec_unit)
-            } else if (bio_num == 6) {
-              result_var <- bio06_fun(tmin = tile_results$tmin, 
-                                      cell = cell_ids, 
-                                      index_vector = idx_vec_unit)
-            } else if (bio_num == 13) {
-              result_var <- bio13_fun(precp = tile_results$prec_vals, 
-                                      cell = cell_ids, 
-                                      index_vector = idx_vec_unit)
-            } else if (bio_num == 14) {
-              result_var <- bio14_fun(precp = tile_results$prec_vals, 
-                                      cell = cell_ids, 
-                                      index_vector = idx_vec_unit)
-            } else if (bio_num == 12) {
-              result_var <- bio12_fun(precp = tile_results$prec_vals, 
-                                      cell = cell_ids)
-            } else if (bio_num == 7) {
-              result_var <- bio07_fun(bio05V = calculated_bios_in_tile$bio05[, 1, drop = TRUE], 
-                                      bio06V = calculated_bios_in_tile$bio06[, 1, drop = TRUE],
-                                      cell = cell_ids)
-            } else if (bio_num == 3) {
-              result_var <- bio03_fun(bio02V = calculated_bios_in_tile$bio02[, 1, drop = TRUE],
-                                      bio07V = calculated_bios_in_tile$bio07[, 1, drop = TRUE],
-                                      cell = cell_ids)
-            } else if (bio_num == 15) {
-              result_var <- bio15_fun(precp = tile_results$prec_vals,
-                                      bio12V = calculated_bios_in_tile$bio12[, 1, drop = TRUE],
-                                      n_units = n_units, 
-                                      cell = cell_ids)
-            } else if (bio_num == 8) {
-              result_var <- bio08_fun(tperiod = tile_results$tempr_periods,
-                                      pperiod_max_idx = idx_vec_period,
-                                      period_length = period_length,
-                                      cell = cell_ids)
-            } else if (bio_num == 9) {
-              result_var <- bio09_fun(tperiod = tile_results$tempr_periods,
-                                      pperiod_min_idx = idx_vec_period,
-                                      period_length = period_length,
-                                      cell = cell_ids)
-            } else if (bio_num == 10) {
-              result_var <- bio10_fun(tperiod = tile_results$tempr_periods,
-                                      tperiod_max_idx = idx_vec_period,
-                                      period_length = period_length,
-                                      cell = cell_ids)
-            } else if (bio_num == 11) {
-              result_var <- bio11_fun(tperiod = tile_results$tempr_periods,
-                                      tperiod_min_idx = idx_vec_period,
-                                      period_length = period_length,
-                                      cell = cell_ids)
-            } else if (bio_num == 16) {
-              result_var <- bio16_fun(pperiod = tile_results$preci_periods,
-                                      pperiod_max_idx = idx_vec_period,
-                                      cell = cell_ids)
-            } else if (bio_num == 17) {
-              result_var <- bio17_fun(pperiod = tile_results$preci_periods,
-                                      pperiod_min_idx = idx_vec_period,
-                                      cell = cell_ids)
-            } else if (bio_num == 18) {
-              result_var <- bio18_fun(pperiod = tile_results$preci_periods,
-                                      tperiod_max_idx = idx_vec_period,
-                                      cell = cell_ids)
-            } else if (bio_num == 19) {
-              result_var <- bio19_fun(pperiod = tile_results$preci_periods,
-                                      tperiod_min_idx = idx_vec_period,
-                                      cell = cell_ids)
-            }
-            
-            if (!is.null(result_var)) { 
-              calculated_bios_in_tile[[bio_output_name]] <- result_var
-              if (bio_num %in% bios) { 
-                rio::export(result_var, 
-                  bios_qs_paths[[bio_output_name]][x])
-              }
-            }
-          }
-          
-          # --- Cleanup ---
-          rm(tile_results, 
-            calculated_bios_in_tile, 
-            static_indices_tile, 
-            climate_matrix, 
-            evars_stack_tile, 
-            rt0_geom, 
-            extracted_data)
-          gc()
+      # progressr::with_progress({
+      p <- progressr::progressor(steps = ntiles)
+      worker_req_tavg <- any(needs$tavg %in% bios_to_calculate) || any(needs$temp_p %in% bios_to_calculate)
+      worker_req_temp_p <- any(needs$temp_p %in% bios_to_calculate)
+      worker_req_prec_p <- any(needs$prec_p %in% bios_to_calculate)
+      export_vars <- c("paths", "path_variables", "rtt", "ntiles", "bios", "bios_to_calculate", 
+                        "n_units", "period_length", "circular", "req_tmin_path", "req_tmax_path", 
+                        "req_prec_path", "req_tavg_load", "req_tavg_calc", 
+                        "worker_req_tavg", "worker_req_temp_p", "worker_req_prec_p", 
+                        "check_evar", "compute_periods", "var_periods", 
+                        paste0("bio", 1:19, "_fun"), "bios_qs_paths", "write_raw_vars", "bioclima_dir")
+      if (exists("raw_paths_list")) export_vars <- c(export_vars, "raw_paths_list")
+      vals <- future.apply::future_lapply(seq_len(ntiles), function(x) {
+        p(message = sprintf("Processing tile %d of %d", x, ntiles))
+        # p(message = "HOLA")
+        tile_results <- list()
+        static_indices_tile <- list()
+        evars_stack_tile <- tryCatch({ terra::rast(paths) }, error = function(e) { NULL })
+        if (is.null(evars_stack_tile)) { 
+          warning(sprintf("Tile %d: Failed load",x))
           return(NULL)
-        }, 
-        future.seed = TRUE, 
-        future.globals = export_vars, 
-        future.packages = c("sf", "terra", "exactextractr", "Rfast", "rio", "purrr"))
-      })
+        }
+        names(evars_stack_tile) <- names(paths)
+        rt0_geom <- sf::st_geometry(rtt[x, ])
+
+        exct_fun_combined <- function(df, coverage_fractions) {
+          ref_col_name <- path_variables$climate[1]
+          nonaID <- which(!is.na(df[[ref_col_name]]))
+          if (length(nonaID) == 0L) return(NULL)
+          all_colnames <- names(df)
+          climate_colnames <- path_variables$climate
+          static_colnames_expected <- names(paths)[grepl("^idx_", names(paths))]
+          static_colnames_present <- intersect(static_colnames_expected, all_colnames)
+          cell_id_col_name <- "cell"
+          cell_ids_extracted <- df[[cell_id_col_name]][nonaID]
+          if (!is.null(user_region)) {
+            cell_ids_extracted <- translate_cell(cell_ids_extracted)
+            noMap <- !is.na(cell_ids_extracted)
+            cell_ids_extracted <- cell_ids_extracted[noMap]
+            climate_df_subset <- df[nonaID[noMap], climate_colnames, drop = FALSE]
+          } else {
+            climate_df_subset <- df[nonaID, climate_colnames, drop = FALSE]
+          }
+          climate_mat <- Rfast::data.frame.to_matrix(climate_df_subset)
+          colnames(climate_mat) <- climate_colnames
+          static_idx_list <- list()
+          if (length(static_colnames_present) > 0) {
+            for (sc_name in static_colnames_present) { 
+              original_idx_name <- sub("^idx_", "", sc_name)
+              if (!is.null(user_region)) {
+                static_idx_list[[original_idx_name]] <- df[[sc_name]][nonaID[noMap]]
+              } else {
+                static_idx_list[[original_idx_name]] <- df[[sc_name]][nonaID]
+              }
+            }
+          }
+          return(list(climate_matrix = climate_mat, 
+                      static_indices = static_idx_list,
+                      cell_ids = cell_ids_extracted))
+        }
+        
+        # Perform Extraction
+        extracted_data_list <- tryCatch({ 
+          exactextractr::exact_extract(evars_stack_tile, rt0_geom, fun = exct_fun_combined, include_cell = TRUE) 
+        }, error = function(e){ NULL })
+        if (is.null(extracted_data_list) || length(extracted_data_list) == 0 || is.null(extracted_data_list[[1]])) return(NULL)
+        extracted_data <- extracted_data_list[, 1]
+        if (!is.list(extracted_data) || is.null(extracted_data$climate_matrix) || nrow(extracted_data$climate_matrix) == 0) return(NULL)
+        climate_matrix <- extracted_data$climate_matrix
+        static_indices_tile <- extracted_data$static_indices
+        cell_ids <- extracted_data$cell_ids
+        
+        # Conditional Data Prep
+        if (req_tmin_path) {
+          tile_results$tmin <- check_evar(climate_matrix[, grep(pattern = "^tmin_", path_variables$climate), drop = FALSE])
+          if (write_raw_vars && "tmin" %in% names(raw_paths_list)) {
+            rio::export(cbind(tile_results$tmin, cell = cell_ids), raw_paths_list$tmin[x])
+          }
+        }
+        if (req_tmax_path) {
+          tile_results$tmax <- check_evar(climate_matrix[, grep(pattern = "^tmax_", path_variables$climate), drop = FALSE])
+          if (write_raw_vars && "tmax" %in% names(raw_paths_list)) {
+            rio::export(cbind(tile_results$tmax, cell = cell_ids), raw_paths_list$tmax[x])
+          }
+        }
+        if (req_prec_path) {
+          tile_results$prec_vals <- check_evar(climate_matrix[, grep(pattern = "^prec_", path_variables$climate), drop = FALSE])
+          if (write_raw_vars && "prec" %in% names(raw_paths_list)) {
+            rio::export(cbind(tile_results$prec_vals, cell = cell_ids), raw_paths_list$prec[x])
+          }
+        }
+        tavg_available <- FALSE
+        if (worker_req_tavg) { 
+          if (req_tavg_load) {
+            tavg_cols <- grep(pattern = "^tavg_", path_variables$climate)
+            if (all(tavg_cols %in% colnames(climate_matrix))) {
+              tile_results$temperature_avg <- check_evar(climate_matrix[, tavg_cols, drop = FALSE])
+              tavg_available < TRUE
+              if (write_raw_vars && "tavg" %in% names(raw_paths_list)) {
+                rio::export(cbind(tile_results$temperature_avg, cell = cell_ids), raw_paths_list$tavg[x])
+              }
+            } else { 
+              warning("Tile ", x, ": Failed Tavg load.")
+            }
+          } else if (req_tavg_calc) { 
+            if (!is.null(tile_results$tmin) && !is.null(tile_results$tmax)) { 
+              tile_results$temperature_avg <- (tile_results$tmax + tile_results$tmin) / 2
+              tavg_available <- TRUE
+              if (is.vector(tile_results$temperature_avg)) {
+                tile_results$temperature_avg <- t(tile_results$temperature_avg)
+                colnames(tile_results$temperature_avg) <- paste0("tavg_",seq_len(n_units))
+              }
+              if (write_raw_vars && ("tavg" %in% names(raw_paths_list))) {
+                rio::export(cbind(tile_results$temperature_avg, cell = cell_ids),raw_paths_list$tavg[x])
+                
+              }
+            } else { 
+              warning("Tile ", x, ": Cannot calc Tavg.") 
+            } 
+          } 
+        }
+        temp_p_available <- FALSE
+        prec_p_available <- FALSE
+        if (worker_req_temp_p || worker_req_prec_p) { 
+          periodos <- compute_periods(n_units = n_units, period_length = period_length, circular = circular)
+          if (worker_req_temp_p && tavg_available) { 
+            tile_results$tempr_periods <- var_periods(variable = tile_results$temperature_avg, 
+                                                      periodos = periodos,
+                                                      n_units = n_units,
+                                                      period_length = period_length)
+            temp_p_available <- TRUE
+          } else if (worker_req_temp_p) {
+            warning("Tile ", x, ": Cannot calc Temp Periods.")
+          } 
+          if (worker_req_prec_p && !is.null(tile_results$prec_vals)) {
+            tile_results$preci_periods <- var_periods(variable = tile_results$prec_vals, 
+                                                      periodos = periodos, 
+                                                      n_units = n_units, 
+                                                      period_length = period_length)
+            prec_p_available <- TRUE
+          } else if (worker_req_prec_p) {
+            warning("Tile ",x,": Cannot calc Prec Periods.")
+          }
+        }
+        
+        # Calculate BIOs
+        calculated_bios_in_tile <- list()
+        # Order bios
+        bios_order <- c(1, 2, 4, 5, 6, 7, 3, 12, 13, 14, 15, 16, 17, 10, 11, 8, 9, 18, 19)
+        bios_to_calculate <- bios_order[bios_order %in% bios_to_calculate]
+        for (bio_num in bios_to_calculate) {
+          can_calculate <- TRUE
+          if (bio_num %in% c(1, 4) && !tavg_available) {can_calculate <- FALSE}
+          if (bio_num %in% c(5, 6) && 
+            is.null(static_indices_tile[[paste0(ifelse(bio_num == 5, "warmest", "coldest"), "_unit")]]) && 
+            !tavg_available) {
+            can_calculate <- FALSE
+          }
+          if (bio_num == 5 && is.null(static_indices_tile[["warmest_unit"]]) && is.null(tile_results$tmax)) {can_calculate <- FALSE}
+          if (bio_num == 6 && is.null(static_indices_tile[["coldest_unit"]]) && is.null(tile_results$tmin)) {can_calculate <- FALSE}
+          if (bio_num %in% c(2, 3, 7) && (is.null(tile_results$tmin) || is.null(tile_results$tmax))) {can_calculate <- FALSE}
+          if (bio_num %in% c(12, 13, 14) && is.null(tile_results$prec_vals)) {can_calculate <- FALSE}
+          if (bio_num %in% c(8, 9, 10, 11) && (!temp_p_available)) {can_calculate <- FALSE}
+          if (bio_num %in% c(16, 17) && (!prec_p_available)) {can_calculate <- FALSE}
+          if (bio_num %in% c(18, 19) && (!temp_p_available || !prec_p_available)) {can_calculate <- FALSE}
+          if (bio_num == 7 && (is.null(calculated_bios_in_tile$bio05) || is.null(calculated_bios_in_tile$bio06))) {can_calculate <- FALSE}
+          if (bio_num == 3 && (is.null(calculated_bios_in_tile$bio02) || is.null(calculated_bios_in_tile$bio07))) {can_calculate <- FALSE}
+          if (bio_num == 15 && (is.null(tile_results$prec_vals) || is.null(calculated_bios_in_tile$bio12))) {can_calculate <- FALSE}
+          if (!can_calculate) { 
+            if(bio_num %in% bios) warning("Tile ", x, ": Skip BIO", bio_num, " prereqs.")
+            next
+          }
+          idx_vec_unit <- NULL
+          idx_vec_period <- NULL
+          if (bio_num == 5) idx_vec_unit <- static_indices_tile$warmest_unit
+          if (bio_num == 6) idx_vec_unit <- static_indices_tile$coldest_unit
+          if (bio_num == 13) idx_vec_unit <- static_indices_tile$wettest_unit
+          if (bio_num == 14) idx_vec_unit <- static_indices_tile$driest_unit
+          if (bio_num == 8) idx_vec_period <- static_indices_tile$wettest_period %||% tile_results$preci_periods[, "max_idx"]
+          if (bio_num == 9) idx_vec_period <- static_indices_tile$driest_period %||% tile_results$preci_periods[, "min_idx"]
+          if (bio_num == 10) idx_vec_period <- static_indices_tile$warmest_period %||% tile_results$tempr_periods[, "max_idx"]
+          if (bio_num == 11) idx_vec_period <- static_indices_tile$coldest_period %||% tile_results$tempr_periods[, "min_idx"]
+          if (bio_num == 16) idx_vec_period <- static_indices_tile$wettest_period %||% tile_results$preci_periods[, "max_idx"]
+          if (bio_num == 17) idx_vec_period <- static_indices_tile$driest_period %||% tile_results$preci_periods[, "min_idx"]
+          if (bio_num == 18) idx_vec_period <- static_indices_tile$warmest_period %||% tile_results$tempr_periods[, "max_idx"]
+          if (bio_num == 19) idx_vec_period <- static_indices_tile$coldest_period %||% tile_results$tempr_periods[, "min_idx"]
+          
+          result_var <- NULL
+          bio_output_name <- paste0("bio", sprintf("%02d", bio_num))
+          # Call BIOS_fun 
+          if (bio_num == 1) {
+            result_var <- bio01_fun(tavg = tile_results$temperature_avg, 
+                                    cell = cell_ids)
+          } else if (bio_num == 2) {
+            result_var <- bio02_fun(tmin = tile_results$tmin, 
+                                    tmax = tile_results$tmax, 
+                                    cell = cell_ids)
+          } else if (bio_num == 4) {
+            result_var <- bio04_fun(tavg = tile_results$temperature_avg, 
+                                    cell = cell_ids)
+          } else if (bio_num == 5) {
+            result_var <- bio05_fun(tmax = tile_results$tmax, 
+                                    cell = cell_ids, 
+                                    index_vector = idx_vec_unit)
+          } else if (bio_num == 6) {
+            result_var <- bio06_fun(tmin = tile_results$tmin, 
+                                    cell = cell_ids, 
+                                    index_vector = idx_vec_unit)
+          } else if (bio_num == 13) {
+            result_var <- bio13_fun(precp = tile_results$prec_vals, 
+                                    cell = cell_ids, 
+                                    index_vector = idx_vec_unit)
+          } else if (bio_num == 14) {
+            result_var <- bio14_fun(precp = tile_results$prec_vals, 
+                                    cell = cell_ids, 
+                                    index_vector = idx_vec_unit)
+          } else if (bio_num == 12) {
+            result_var <- bio12_fun(precp = tile_results$prec_vals, 
+                                    cell = cell_ids)
+          } else if (bio_num == 7) {
+            result_var <- bio07_fun(bio05V = calculated_bios_in_tile$bio05[, 1, drop = TRUE], 
+                                    bio06V = calculated_bios_in_tile$bio06[, 1, drop = TRUE],
+                                    cell = cell_ids)
+          } else if (bio_num == 3) {
+            result_var <- bio03_fun(bio02V = calculated_bios_in_tile$bio02[, 1, drop = TRUE],
+                                    bio07V = calculated_bios_in_tile$bio07[, 1, drop = TRUE],
+                                    cell = cell_ids)
+          } else if (bio_num == 15) {
+            result_var <- bio15_fun(precp = tile_results$prec_vals,
+                                    bio12V = calculated_bios_in_tile$bio12[, 1, drop = TRUE],
+                                    n_units = n_units, 
+                                    cell = cell_ids)
+          } else if (bio_num == 8) {
+            result_var <- bio08_fun(tperiod = tile_results$tempr_periods,
+                                    pperiod_max_idx = idx_vec_period,
+                                    period_length = period_length,
+                                    cell = cell_ids)
+          } else if (bio_num == 9) {
+            result_var <- bio09_fun(tperiod = tile_results$tempr_periods,
+                                    pperiod_min_idx = idx_vec_period,
+                                    period_length = period_length,
+                                    cell = cell_ids)
+          } else if (bio_num == 10) {
+            result_var <- bio10_fun(tperiod = tile_results$tempr_periods,
+                                    tperiod_max_idx = idx_vec_period,
+                                    period_length = period_length,
+                                    cell = cell_ids)
+          } else if (bio_num == 11) {
+            result_var <- bio11_fun(tperiod = tile_results$tempr_periods,
+                                    tperiod_min_idx = idx_vec_period,
+                                    period_length = period_length,
+                                    cell = cell_ids)
+          } else if (bio_num == 16) {
+            result_var <- bio16_fun(pperiod = tile_results$preci_periods,
+                                    pperiod_max_idx = idx_vec_period,
+                                    cell = cell_ids)
+          } else if (bio_num == 17) {
+            result_var <- bio17_fun(pperiod = tile_results$preci_periods,
+                                    pperiod_min_idx = idx_vec_period,
+                                    cell = cell_ids)
+          } else if (bio_num == 18) {
+            result_var <- bio18_fun(pperiod = tile_results$preci_periods,
+                                    tperiod_max_idx = idx_vec_period,
+                                    cell = cell_ids)
+          } else if (bio_num == 19) {
+            result_var <- bio19_fun(pperiod = tile_results$preci_periods,
+                                    tperiod_min_idx = idx_vec_period,
+                                    cell = cell_ids)
+          }
+          
+          if (!is.null(result_var)) { 
+            calculated_bios_in_tile[[bio_output_name]] <- result_var
+            if (bio_num %in% bios) { 
+              rio::export(result_var, 
+                bios_qs_paths[[bio_output_name]][x])
+            }
+          }
+        }
+        
+        # --- Cleanup ---
+        rm(tile_results, 
+          calculated_bios_in_tile, 
+          static_indices_tile, 
+          climate_matrix, 
+          evars_stack_tile, 
+          rt0_geom, 
+          extracted_data)
+        gc()
+        return(NULL)
+      }, 
+      future.seed = TRUE, 
+      future.globals = export_vars, 
+      future.packages = c("sf", "terra", "exactextractr", "Rfast", "rio", "purrr"))
+      # })
       
       message("Parallel computation finished.")
       return(bioclima_dir)
