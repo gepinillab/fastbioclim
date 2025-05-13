@@ -4,7 +4,7 @@
 \alias{var_periods}
 \title{Calculate Temporal Period Aggregates}
 \usage{
-var_periods(variable, periodos, n_units, period_length)
+var_periods(variable, periodos, n_units, period_length, stat)
 }
 \arguments{
 \item{variable}{Matrix of temporal values (rows=pixels/cells, cols=units).}
@@ -14,12 +14,14 @@ var_periods(variable, periodos, n_units, period_length)
 \item{n_units}{Integer. Total number of temporal units.}
 
 \item{period_length}{Integer. Length of each period.}
+
+\item{stat}{Character. Either `"mean"` or `"sum"`, specifying whether to calculate the average or total}
 }
 \value{
-Matrix with period sums (`num_periods` columns named "var_period_X"),
-  "min_periodID", and "max_periodID" columns.
+Matrix with period sums (`num_periods` columns named "period_X"),
+  "min_idx", and "max_idx" columns.
 }
 \description{
-Computes aggregates (sums) over defined temporal periods and identifies min/max periods.
+Computes aggregates (sums or mean) over defined temporal periods and identifies min/max periods.
 }
 \keyword{internal}

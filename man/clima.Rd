@@ -11,7 +11,7 @@ clima(
   tavg = NULL,
   prcp = NULL,
   srad = NULL,
-  soilm = NULL,
+  mois = NULL,
   period = 3,
   circular = TRUE,
   checkNA = TRUE,
@@ -33,7 +33,7 @@ tmax are provided}
 
 \item{srad}{spatRaster with solar radiation}
 
-\item{soilm}{spatRaster with soil moisture}
+\item{mois}{spatRaster with moisture}
 
 \item{period}{numeric. Length of period to summarize data (e.g., quarters,
 semesters). If using monthly data, a quarter (3-months) will be used to
@@ -55,16 +55,16 @@ index along a time series or define a static season of interest, including:
     \item{coldest_period}{Description of param1 (default: NULL)}
     \item{wettest_period}{Description of param1 (default: NULL)}
     \item{driest_period}{Description of param1 (default: NULL)}
-    \item{high_soil_period}{Description of param1 (default: NULL)}
-    \item{low_soil_period}{Description of param1 (default: NULL)}
+    \item{high_mois_period}{Description of param1 (default: NULL)}
+    \item{low_mois_period}{Description of param1 (default: NULL)}
     \item{warmest_unit}{Description of param1 (default: NULL)}
     \item{coldest_unit}{Description of param1 (default: NULL)}
     \item{wettest_unit}{Description of param1 (default: NULL)}
     \item{driest_unit}{Description of param1 (default: NULL)}
     \item{high_rad_unit}{Description of param1 (default: NULL)}
     \item{low_rad_unit}{Description of param1 (default: NULL)}
-    \item{high_soil_unit}{Description of param1 (default: NULL)}
-    \item{low_soil_unit}{Description of param1 (default: NULL)}
+    \item{high_mois_unit}{Description of param1 (default: NULL)}
+    \item{low_mois_unit}{Description of param1 (default: NULL)}
   }}
 }
 \value{
@@ -97,14 +97,14 @@ An SpatRaster with 35 bioclimatic variables or a subset of them:
   \item{bio25}{Radiation of Driest Period}
   \item{bio26}{Radiation of Warmest Period}
   \item{bio27}{Radiation of Coldest Period}
-  \item{bio28*}{Mean Soil Moisture Content Of Units}
-  \item{bio29*}{Highest Soil Moisture Content Unit}
-  \item{bio30*}{Lowest Soil Moisture Content Unit}
-  \item{bio31*}{Soil Moisture Content Seasonality}
-  \item{bio32*}{Mean Soil Moisture Content of Most Moist Period}
-  \item{bio33*}{Mean Soil Moisture Content of Least Moist Period}
-  \item{bio34*}{Mean Soil Moisture Content of Warmest Period}
-  \item{bio35*}{Mean Soil Moisture Content of Coldest Period}
+  \item{bio28*}{Mean Moisture Content Of Units}
+  \item{bio29*}{Highest Moisture Content Unit}
+  \item{bio30*}{Lowest Moisture Content Unit}
+  \item{bio31*}{Moisture Content Seasonality}
+  \item{bio32*}{Mean Moisture Content of Most Moist Period}
+  \item{bio33*}{Mean Moisture Content of Least Moist Period}
+  \item{bio34*}{Mean Moisture Content of Warmest Period}
+  \item{bio35*}{Mean Moisture Content of Coldest Period}
 }
 }
 \description{
@@ -114,7 +114,7 @@ the dismo package and adheres to the methodologies outlined in the ANUCLIM 6.1 m
 and O’Donnell & Ignizio (2012). It calculates a comprehensive set of 35 
 bioclimatic variables based on input rasters for minimum temperature, 
 maximum temperature, average temperature, precipitation, solar radiation, 
-and soil moisture. Users can specify which bioclimatic variables to compute 
+and moisture. Users can specify which bioclimatic variables to compute 
 using the bios parameter. The function supports customizable temporal 
 aggregation (e.g., quarters or semesters) and includes options for circular 
 period calculations. Input consistency is validated to ensure matching 
@@ -123,9 +123,9 @@ spatial applications. Outputs are returned as a SpatRaster object
 containing the selected bioclimatic layers, ready for downstream analysis.
 }
 \note{
-*The original soil moisture variables proposed in the ANUCLIM manual are based 
+*The original moisture variables proposed in the ANUCLIM manual are based 
 on the Moisture Index (MI). However, this function allows users to calculate 
-soil moisture-based bioclimatic variables using other units of soil moisture 
+moisture-based bioclimatic variables using other units of moisture 
 as inputs, offering greater flexibility in input data usage.
 }
 \references{

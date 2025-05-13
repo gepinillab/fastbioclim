@@ -1,27 +1,48 @@
-# ACTIVATE PRROGRESS BAR
+# ACTIVATE PROGRESS BAR
 progressr::handlers(global = TRUE)
 
 tmin_path <- list.files(
   # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmin",
-  "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmin",
-  #"~/Downloads/tmin/",
-  pattern = "\\.tif$",
+  # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmin",
+  # "~/Downloads/tmin/",
+  "/Users/Gonzalo/Library/CloudStorage/GoogleDrive-gepinillab@iecologia.unam.mx/My Drive/data/raster/chelsa/1981-2010",
+  pattern = "tmin.*\\.tif$",
   full.names = TRUE
 )
 
 tmax_path <- list.files(
   # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmax",
-  "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmax",
-  #"~/Downloads/tmax",
-  pattern = "\\.tif$",
+  # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmax",
+  # "~/Downloads/tmax",
+  "/Users/Gonzalo/Library/CloudStorage/GoogleDrive-gepinillab@iecologia.unam.mx/My Drive/data/raster/chelsa/1981-2010",
+  pattern = "tmax.*\\.tif$",
   full.names = TRUE
 )
 
 prec_path <- list.files(
   # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
-  "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
-  #"~/Downloads/prcp/",
-  pattern = "\\.tif$",
+  # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
+  # "~/Downloads/prcp/",
+  "/Users/Gonzalo/Library/CloudStorage/GoogleDrive-gepinillab@iecologia.unam.mx/My Drive/data/raster/chelsa/1981-2010",
+  pattern = "prcp.*\\.tif$",
+  full.names = TRUE
+)
+
+srad_path <- list.files(
+  # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
+  # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
+  # "~/Downloads/prcp/",
+  "/Users/Gonzalo/Library/CloudStorage/GoogleDrive-gepinillab@iecologia.unam.mx/My Drive/data/raster/chelsa/1981-2010",
+  pattern = "srad.*\\.tif$",
+  full.names = TRUE
+)
+
+cmi_path <- list.files(
+  # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
+  # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
+  # "~/Downloads/prcp/",
+  "/Users/Gonzalo/Library/CloudStorage/GoogleDrive-gepinillab@iecologia.unam.mx/My Drive/data/raster/chelsa/1981-2010",
+  pattern = "cmi.*\\.tif$",
   full.names = TRUE
 )
 
@@ -270,3 +291,43 @@ i <- 10
 bio_sta <- rast(paste0("/Users/Gonzalo/bioclim_sta/bio", sprintf("%02d", i), ".tif"))
 bio_mex <- rast(paste0("/Users/Gonzalo/bioclim_mex/bio", sprintf("%02d", i), ".tif"))
 plot(bio_sta - bio_mex, main = i)
+
+# MEXICO - 35 BIOS
+# M1 (8Gb)
+# [seq] X + X = 2X
+# [w4] X + X = 2X
+# [w4] X + X = 2X
+# M2 (16Gb)
+# [seq] X + X = 2X
+# [w4] X + X = 2X
+# [w4] X + X = 2X
+gc()
+future::plan("multisession", workers = 4)
+# future::plan("sequential") 
+mex <- AOI::aoi_get(country = "Mexico")
+tictoc::tic("MEX calculation")
+i <- 31
+bioclim_mex_path <- fastbioclim::bioclim_vars(bios = 1:35,
+                                              n_units = 12,
+                                              tmin_path = tmin_path,
+                                              tmax_path = tmax_path,
+                                              prec_path = prec_path,
+                                              srad_path = srad_path,
+                                              mois_path = cmi_path, 
+                                              user_region = mex, 
+                                              write_raw_vars = FALSE,
+                                              temp_dir = "/Users/Gonzalo/bioclim_qs")
+                                              # temp_dir = "/Users/gepb/bioclim_qs")
+tictoc::toc()
+gc()
+future::plan("sequential") 
+tictoc::tic("Write MEX")
+fastbioclim::write_layers(biovardir = bioclim_mex_path ,
+  save_dir = "/Users/Gonzalo/bioclim_mex",
+  # save_dir = "/Users/gepb/bioclim_mex",
+  clean_temporary_files = FALSE)
+tictoc::toc()
+biocheck <- rast(paste0("/Users/Gonzalo/bioclim_mex/bio", 
+                        sprintf("%02d", i), ".tif"))
+# bio01_mex <- rast("/Users/gepb/bioclim_mex/bio1.tif")
+plot(biocheck)

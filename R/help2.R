@@ -66,43 +66,47 @@ compute_periods <- function(n_units, period_length, circular = TRUE) {
 
 #' Calculate Temporal Period Aggregates
 #'
-#' Computes aggregates (sums) over defined temporal periods and identifies min/max periods.
+#' Computes aggregates (sums or mean) over defined temporal periods and identifies min/max periods.
 #'
 #' @param variable Matrix of temporal values (rows=pixels/cells, cols=units).
 #' @param periodos List of unit groupings (output from compute_periods).
 #' @param n_units Integer. Total number of temporal units.
 #' @param period_length Integer. Length of each period.
-#' @return Matrix with period sums (`num_periods` columns named "var_period_X"),
-#'   "min_periodID", and "max_periodID" columns.
+#' @param stat Character. Either `"mean"` or `"sum"`, specifying whether to calculate the average or total
+#' @return Matrix with period sums (`num_periods` columns named "period_X"),
+#'   "min_idx", and "max_idx" columns.
 #' @keywords internal
-var_periods <- function(variable, periodos, n_units, period_length) {
-  is_temp_like <- any(grepl("tavg|tmin|tmax", colnames(variable), ignore.case = TRUE))
+var_periods <- function(variable, periodos, n_units, period_length, stat) {
+  if (length(stat) != 1 || !(stat %in% c("mean", "sum"))) {
+    stop('`stat` must be exactly one of "mean" or "sum".')
+  }
+  
   num_periods_calculated <- length(periodos)
   
-  if (is_temp_like) {
-    pnames_base <- paste0("tempe_period_", seq_len(num_periods_calculated))
-  } else {
-    pnames_base <- paste0("precp_period_", seq_len(num_periods_calculated))
-  }
+  pnames_base <- paste0("period_", seq_len(num_periods_calculated))
+  
   pnames <- c(pnames_base, "min_idx", "max_idx")
+  
   vperiods <- sapply(periodos, function(p_indices) {
     varval <- variable[, p_indices, drop = FALSE]
-    if (is_temp_like) {
+    if (stat == "mean") {
       return(Rfast::rowmeans(varval))
     } else {
       return(Rfast::rowsums(varval))
     }
-    
   })
-  if (is.vector(vperiods)) vperiods <- t(vperiods) # Handle single-row input
-      
-  # Find indices relative to the columns of vperiods (1 to num_periods_calculated)
-  pmin <- Rfast::rowMins(vperiods, value = FALSE)
-  pmax <- Rfast::rowMaxs(vperiods, value = FALSE)
-  vperiods <- cbind(vperiods, pmin)
-  vperiods <- cbind(vperiods, pmax)
-  colnames(vperiods) <- pnames
-  return(vperiods)
+  
+    # Handle case where input is a single row
+    if (is.vector(vperiods)) vperiods <- t(vperiods)
+  
+    # Get indices (not values) of min and max period per row
+    pmin <- Rfast::rowMins(vperiods, value = FALSE)
+    pmax <- Rfast::rowMaxs(vperiods, value = FALSE)
+    
+    vperiods <- cbind(vperiods, pmin, pmax)
+    colnames(vperiods) <- pnames
+    
+    return(vperiods)
 }
 
 
@@ -448,6 +452,300 @@ bio19_fun <- function(pperiod, tperiod_min_idx, cell){
   bio19V <- pperiod[cbind(seq_len(nrow(pperiod)), tperiod_min_idx)]
   bio19V <- cbind(bio19 = bio19V, cell = cell)
   return(bio19V)
+}
+
+#' @title bio20: Mean Solar Radiation of Units
+#' @description Calculates mean solar radiation across all temporal units.
+#' @param srad Matrix of average solar radiation for each unit.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with columns: "bio20", "cell".
+#' @keywords internal
+bio20_fun <- function(srad, cell) {
+  bio20V <- Rfast::rowmeans(srad)
+  bio20V <- cbind(bio20 = bio20V, cell = cell)
+  return(bio20V)
+}
+
+#' @title bio21: Highest Solar Radiation Unit
+#' @description Identifies highest solar radiation unit, potentially using a static index.
+#' @param srad Matrix of solar radiation values for each unit.
+#' @param cell Vector of original cell IDs.
+#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Srad for that unit. If NULL, finds overall max Srad.
+#' @return Matrix with "bio21", "cell".
+#' @keywords internal
+bio21_fun <- function(srad, cell, index_vector = NULL) {
+  if (!is.null(index_vector)) {
+     if (length(index_vector) != nrow(srad)) stop("bio21: Length mismatch: index_vector vs srad rows.")
+     is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(srad)
+     valid_rows <- which(!is_invalid_idx)
+     bio21V <- rep(NA_real_, nrow(srad))
+     if(length(valid_rows) > 0) {
+        bio21V[valid_rows] <- srad[cbind(valid_rows, index_vector[valid_rows])]
+     }
+     if(any(is_invalid_idx)) warning("bio21: Some static indices were NA or out of bounds.")
+  } else {
+    bio21V <- Rfast::rowMaxs(srad, value = TRUE)
+  }
+  bio21V <- cbind(bio21 = bio21V, cell = cell)
+  return(bio21V)
+}
+
+#' @title bio22: Lowest Solar Radiation Unit
+#' @description Identifies lowest solar radiation unit, potentially using a static index.
+#' @param srad Matrix of solar radiation values for each unit.
+#' @param cell Vector of original cell IDs.
+#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Srad for that unit. If NULL, finds overall max Srad.
+#' @return Matrix with "bio22", "cell".
+#' @keywords internal
+bio22_fun <- function(srad, cell, index_vector = NULL) {
+  if (!is.null(index_vector)) {
+     if (length(index_vector) != nrow(srad)) stop("bio22: Length mismatch: index_vector vs srad rows.")
+     is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(srad)
+     valid_rows <- which(!is_invalid_idx)
+     bio22V <- rep(NA_real_, nrow(srad))
+     if(length(valid_rows) > 0) {
+        bio22V[valid_rows] <- srad[cbind(valid_rows, index_vector[valid_rows])]
+     }
+     if(any(is_invalid_idx)) warning("bio22: Some static indices were NA or out of bounds.")
+  } else {
+    bio22V <- Rfast::rowMins(srad, value = TRUE)
+  }
+  bio22V <- cbind(bio22 = bio22V, cell = cell)
+  return(bio22V)
+}
+
+#' @title bio23: Solar Radiation Seasonality (CV)
+#' @description Calculates coefficient of variation in solar radiation across units.
+#' @param srad Matrix containing solar radiation values for each unit.
+#' @param n_units Integer. The total number of temporal units.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with "bio23", "cell".
+#' @keywords internal
+bio23_fun <- function(srad, n_units, cell) {
+  # Calculate mean solar radiation
+  mean_unit_srad <- 1 + Rfast::rowmeans(srad) # Add 1 to total to avoid div by zero
+  sd_srad <- Rfast::rowVars(srad, std = TRUE)
+  # Calculate CV * 100
+  bio23V <- ifelse(mean_unit_srad <= 0, 0, (sd_srad / mean_unit_srad) * 100)
+  bio23V <- cbind(bio23 = bio23V, cell = cell)
+  return(bio23V)
+}
+
+#' @title bio24: Solar Radiation of Wettest Period
+#' @description Calculates solar radiation mean of the period with the highest precipitation sum.
+#' @param speriod Matrix of solar radiation period means (output from `var_periods`).
+#' @param pperiod_max_idx Vector indicating the index (1-based) of the wettest period.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with "bio24", "cell".
+#' @keywords internal
+bio24_fun <- function(speriod, pperiod_max_idx, cell) {
+  num_period_cols <- ncol(speriod) - 2
+  if (any(pperiod_max_idx < 1, na.rm=TRUE) || any(pperiod_max_idx > num_period_cols, na.rm=TRUE)) {
+    warning("bio24: Some max_prec_period indices are out of bounds.")
+  }
+  # Extract the mean for the wettest period
+  bio24V <- speriod[cbind(seq_len(nrow(speriod)), pperiod_max_idx)]
+  bio24V <- cbind(bio24 = bio24V, cell = cell)
+  return(bio24V)
+}
+
+#' @title bio25: Solar Radiation of Driest Period
+#' @description Calculates solar radiation mean of the period with the highest precipitation sum.
+#' @param speriod Matrix of solar radiation period means (output from `var_periods`).
+#' @param pperiod_min_idx Vector indicating the index (1-based) of the driest period.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with "bio25", "cell".
+#' @keywords internal
+bio25_fun <- function(speriod, pperiod_min_idx, cell) {
+  num_period_cols <- ncol(speriod) - 2
+  if (any(pperiod_min_idx < 1, na.rm=TRUE) || any(pperiod_min_idx > num_period_cols, na.rm=TRUE)) {
+    warning("bio25: Some min_prec_period indices are out of bounds.")
+  }
+  # Extract the mean for the driest period
+  bio25V <- speriod[cbind(seq_len(nrow(speriod)), pperiod_min_idx)]
+  bio25V <- cbind(bio25 = bio25V, cell = cell)
+  return(bio25V)
+}
+
+#' @title bio26: Solar Radiation of Warmest Period
+#' @description Calculates solar radiation mean of the period with the highest temperature mean.
+#' @param speriod Matrix of solar radiation period means (output from `var_periods`).
+#' @param tperiod_max_idx Vector indicating the index (1-based) of the warmest period.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with "bio26", "cell".
+#' @keywords internal
+bio26_fun <- function(speriod, tperiod_max_idx, cell) {
+  num_period_cols <- ncol(speriod) - 2
+  if (any(tperiod_max_idx < 1, na.rm=TRUE) || any(tperiod_max_idx > num_period_cols, na.rm=TRUE)) {
+    warning("bio26: Some max_temp_period indices are out of bounds.")
+  }
+  # Extract the mean for the warmest period
+  bio26V <- speriod[cbind(seq_len(nrow(speriod)), tperiod_max_idx)]
+  bio26V <- cbind(bio26 = bio26V, cell = cell)
+  return(bio26V)
+}
+
+#' @title bio27: Solar Radiation of Coldest Period
+#' @description Calculates solar radiation mean of the period with the lowest temperature mean.
+#' @param speriod Matrix of solar radiation period means (output from `var_periods`).
+#' @param tperiod_min_idx Vector indicating the index (1-based) of the coldest period.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with "bio27", "cell".
+#' @keywords internal
+bio27_fun <- function(speriod, tperiod_min_idx, cell) {
+  num_period_cols <- ncol(speriod) - 2
+  if (any(tperiod_min_idx < 1, na.rm=TRUE) || any(tperiod_min_idx > num_period_cols, na.rm=TRUE)) {
+    warning("bio27: Some min_temp_period indices are out of bounds.")
+  }
+  # Extract the mean for the coldest period
+  bio27V <- speriod[cbind(seq_len(nrow(speriod)), tperiod_min_idx)]
+  bio27V <- cbind(bio27 = bio27V, cell = cell)
+  return(bio27V)
+}
+
+#' @title bio28: Mean Moisture of Units
+#' @description Calculates mean moisture across all temporal units.
+#' @param mois Matrix of average moisture for each unit.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with columns: "bio28", "cell".
+#' @keywords internal
+bio28_fun <- function(mois, cell) {
+  bio28V <- Rfast::rowmeans(mois)
+  bio28V <- cbind(bio28 = bio28V, cell = cell)
+  return(bio28V)
+}
+
+#' @title bio29: Highest Moisture Unit
+#' @description Identifies highest moisture unit, potentially using a static index.
+#' @param mois Matrix of moisture values for each unit.
+#' @param cell Vector of original cell IDs.
+#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts mois for that unit. If NULL, finds overall max mois.
+#' @return Matrix with "bio29", "cell".
+#' @keywords internal
+bio29_fun <- function(mois, cell, index_vector = NULL) {
+  if (!is.null(index_vector)) {
+     if (length(index_vector) != nrow(mois)) stop("bio29: Length mismatch: index_vector vs mois rows.")
+     is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(mois)
+     valid_rows <- which(!is_invalid_idx)
+     bio29V <- rep(NA_real_, nrow(mois))
+     if(length(valid_rows) > 0) {
+        bio29V[valid_rows] <- mois[cbind(valid_rows, index_vector[valid_rows])]
+     }
+     if(any(is_invalid_idx)) warning("bio29: Some static indices were NA or out of bounds.")
+  } else {
+    bio29V <- Rfast::rowMaxs(mois, value = TRUE)
+  }
+  bio29V <- cbind(bio29 = bio29V, cell = cell)
+  return(bio29V)
+}
+
+#' @title bio30: Lowest Moisture Unit
+#' @description Identifies lowest moisture unit, potentially using a static index.
+#' @param mois Matrix of moisture values for each unit.
+#' @param cell Vector of original cell IDs.
+#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts mois for that unit. If NULL, finds overall max mois.
+#' @return Matrix with "bio30", "cell".
+#' @keywords internal
+bio30_fun <- function(mois, cell, index_vector = NULL) {
+  if (!is.null(index_vector)) {
+     if (length(index_vector) != nrow(mois)) stop("bio30: Length mismatch: index_vector vs mois rows.")
+     is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(mois)
+     valid_rows <- which(!is_invalid_idx)
+     bio30V <- rep(NA_real_, nrow(mois))
+     if(length(valid_rows) > 0) {
+        bio30V[valid_rows] <- mois[cbind(valid_rows, index_vector[valid_rows])]
+     }
+     if(any(is_invalid_idx)) warning("bio30: Some static indices were NA or out of bounds.")
+  } else {
+    bio30V <- Rfast::rowMins(mois, value = TRUE)
+  }
+  bio30V <- cbind(bio30 = bio30V, cell = cell)
+  return(bio30V)
+}
+
+#' @title bio31: Moisture Seasonality (Standard Deviation)
+#' @description Calculates coefficient of variation in moisture across units.
+#' @param mois Matrix containing moisture values for each unit.
+#' @param n_units Integer. The total number of temporal units.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with "bio31", "cell".
+#' @keywords internal
+bio31_fun <- function(mois, n_units, cell) {
+  bio31V <- Rfast::rowVars(mois, std = TRUE) * 100
+  bio31V <- cbind(bio31 = bio31V, cell = cell)
+  return(bio31V)
+}
+
+#' @title bio32: Moisture of the Most Moist Period
+#' @description Calculates moisture mean of the most moist period.
+#' @param speriod Matrix of moisture period means (output from `var_periods`).
+#' @param speriod_max_idx Vector indicating the index (1-based) of the most moist period.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with "bio32", "cell".
+#' @keywords internal
+bio32_fun <- function(speriod, speriod_max_idx, cell) {
+  num_period_cols <- ncol(speriod) - 2
+  if (any(speriod_max_idx < 1, na.rm=TRUE) || any(speriod_max_idx > num_period_cols, na.rm=TRUE)) {
+    warning("bio32: Some max_prec_period indices are out of bounds.")
+  }
+  # Extract the mean for the most moist period
+  bio32V <- speriod[cbind(seq_len(nrow(speriod)), speriod_max_idx)]
+  bio32V <- cbind(bio32 = bio32V, cell = cell)
+  return(bio32V)
+}
+
+#' @title bio33: Moisture of the Least Moist Period
+#' @description Calculates moisture mean of the least moist period.
+#' @param speriod Matrix of moisture period means (output from `var_periods`).
+#' @param speriod_min_idx Vector indicating the index (1-based) of the least moist period.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with "bio33", "cell".
+#' @keywords internal
+bio33_fun <- function(speriod, speriod_min_idx, cell) {
+  num_period_cols <- ncol(speriod) - 2
+  if (any(speriod_min_idx < 1, na.rm=TRUE) || any(speriod_min_idx > num_period_cols, na.rm=TRUE)) {
+    warning("bio33: Some min_prec_period indices are out of bounds.")
+  }
+  # Extract the mean for the least moist period
+  bio33V <- speriod[cbind(seq_len(nrow(speriod)), speriod_min_idx)]
+  bio33V <- cbind(bio33 = bio33V, cell = cell)
+  return(bio33V)
+}
+
+#' @title bio34: Moisture of Warmest Period
+#' @description Calculates moisture mean of the period with the highest temperature mean.
+#' @param speriod Matrix of moisture period means (output from `var_periods`).
+#' @param tperiod_max_idx Vector indicating the index (1-based) of the warmest period.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with "bio34", "cell".
+#' @keywords internal
+bio34_fun <- function(speriod, tperiod_max_idx, cell) {
+  num_period_cols <- ncol(speriod) - 2
+  if (any(tperiod_max_idx < 1, na.rm=TRUE) || any(tperiod_max_idx > num_period_cols, na.rm=TRUE)) {
+    warning("bio34: Some max_temp_period indices are out of bounds.")
+  }
+  # Extract the mean for the warmest period
+  bio34V <- speriod[cbind(seq_len(nrow(speriod)), tperiod_max_idx)]
+  bio34V <- cbind(bio34 = bio34V, cell = cell)
+  return(bio34V)
+}
+
+#' @title bio35: Moisture of Coldest Period
+#' @description Calculates moisture mean of the period with the lowest temperature mean.
+#' @param speriod Matrix of moisture period means (output from `var_periods`).
+#' @param tperiod_min_idx Vector indicating the index (1-based) of the coldest period.
+#' @param cell Vector of original cell IDs.
+#' @return Matrix with "bio35", "cell".
+#' @keywords internal
+bio35_fun <- function(speriod, tperiod_min_idx, cell) {
+  num_period_cols <- ncol(speriod) - 2
+  if (any(tperiod_min_idx < 1, na.rm=TRUE) || any(tperiod_min_idx > num_period_cols, na.rm=TRUE)) {
+    warning("bio35: Some min_temp_period indices are out of bounds.")
+  }
+  # Extract the mean for the coldest period
+  bio35V <- speriod[cbind(seq_len(nrow(speriod)), tperiod_min_idx)]
+  bio35V <- cbind(bio35 = bio35V, cell = cell)
+  return(bio35V)
 }
 
 #' Create an Inverse Cell ID Translation Function

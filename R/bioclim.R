@@ -1,16 +1,18 @@
 #' Compute Specified Bioclimatic Variables
 #'
-#' Calculates specified bioclimatic variables (1-19) from climate rasters
+#' Calculates specified bioclimatic variables (1-35) from climate rasters
 #' with user-defined temporal units, optionally using static indices. AOI is defined
 #' by `user_region` or defaults to the full raster extent. Uses parallel processing,
 #' spatial tiling, and `exactextractr`.
 #'
-#' @param bios Numeric vector specifying which bioclimatic variables (1-19) to compute.
+#' @param bios Numeric vector specifying which bioclimatic variables (1-35) to compute.
 #' @param n_units Integer. The number of temporal units (layers) per input variable.
 #' @param tmin_path Character vector of `n_units` paths to minimum temperature rasters.
 #' @param tmax_path Character vector of `n_units` paths to maximum temperature rasters.
 #' @param prec_path Character vector of `n_units` paths to precipitation rasters.
 #' @param tavg_path Character vector of `n_units` paths to optional average temperature rasters.
+#' @param srad_path Character vector of `n_units` paths to solar radiation rasters.
+#' @param mois_path Character vector of `n_units` paths to moisture rasters.
 #' @param period_length Integer. The number of units defining a "period". Default: 3.
 #' @param circular Logical. Calculate periods wrapping around the cycle? Default: TRUE.
 #' @param user_region Optional. An `sf` or `terra::SpatVector` object defining the
@@ -23,7 +25,7 @@
 #'
 #' @return Character string: Path to the temporary directory containing intermediate `.qs` files.
 #'
-#' @details Calculates BIOs 1-19. The Area of Interest (AOI) is determined by `user_region`.
+#' @details Calculates BIOs 1-35. The Area of Interest (AOI) is determined by `user_region`.
 #'   If `user_region` is NULL, the AOI is the full spatial extent of the input climate rasters.
 #'   Static indices provided via `...` override dynamic calculations.
 #'   Uses `exactextractr` for extraction and `Rfast` for matrix calculations.
@@ -35,6 +37,8 @@ bioclim_vars <- function(bios,
   tmax_path = NULL,
   prec_path = NULL,
   tavg_path = NULL,
+  srad_path = NULL,
+  mois_path = NULL,
   period_length = 3,
   circular = TRUE,
   user_region = NULL,
@@ -47,7 +51,9 @@ bioclim_vars <- function(bios,
     dot_args <- list(...)
     static_index_paths <- list()
     valid_static_indices <- c("warmest_unit", "coldest_unit", "wettest_unit", "driest_unit",
-                              "warmest_period", "coldest_period", "wettest_period", "driest_period")
+                              "high_rad_unit", "low_rad_unit", "high_mois_unit", "low_mois_unit", 
+                              "warmest_period", "coldest_period", "wettest_period", "driest_period",
+                              "high_mois_period", "low_mois_period")
     for (arg_name in names(dot_args)) {
       path_suffix <- "_path"
       if (endsWith(arg_name, path_suffix)) { 
@@ -64,19 +70,23 @@ bioclim_vars <- function(bios,
     }
     if (missing(n_units) || !is.numeric(n_units) || n_units <= 0) stop("'n_units' required.")
     if (!is.numeric(period_length) || period_length <= 0 || period_length > n_units) stop("'period_length' invalid.")
-    if (!is.numeric(bios) || any(bios < 1) || any(bios > 19)) stop("'bios' must be 1-19.")
+    if (!is.numeric(bios) || any(bios < 1) || any(bios > 35)) stop("'bios' must be 1-35.")
     bios <- sort(unique(bios))
     needs <- list(tmin = c(2, 3, 6, 7), 
                   tmax = c(2, 3, 5, 7), 
-                  tavg = c(1, 4, 5, 6, 8, 9, 10, 11, 18, 19), 
-                  prec = c(8, 9, 12, 13, 14, 15, 16, 17, 18, 19), 
+                  tavg = c(1, 4, 5, 6, 8, 9, 10, 11, 18, 19, 26, 27, 34, 35), 
+                  prec = c(8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 24, 25),
+                  srad = c(20, 21, 22, 23, 24, 25, 26, 27),
+                  mois = c(28, 29, 30, 31, 32, 33, 34, 35),
                   bio02 = c(3), 
                   bio05 = c(7, 3), 
                   bio06 = c(7, 3), 
                   bio07 = c(3), 
                   bio12 = c(15), 
-                  temp_p = c(8, 9, 10, 11, 18, 19), 
-                  prec_p = c(8, 9, 16, 17, 18, 19))
+                  temp_p = c(8, 9, 10, 11, 18, 19, 26, 27, 34, 35), 
+                  prec_p = c(8, 9, 16, 17, 18, 19, 24, 25),
+                  srad_p = c(24, 25, 26, 27),
+                  mois_p = c(32, 33, 34, 35))
     bios_to_calculate <- bios
     check_again <- TRUE
     while(check_again) { 
@@ -105,20 +115,27 @@ bioclim_vars <- function(bios,
     req_tmin_direct <- any(needs$tmin %in% bios_to_calculate)
     req_tmax_direct <- any(needs$tmax %in% bios_to_calculate)
     req_prec_direct <- any(needs$prec %in% bios_to_calculate)
+    req_srad_direct <- any(needs$srad %in% bios_to_calculate)
+    req_mois_direct <- any(needs$mois %in% bios_to_calculate)
     req_tavg_value <- any(needs$tavg %in% bios_to_calculate) || any(needs$temp_p %in% bios_to_calculate)
     req_tavg_load <- req_tavg_value && !is.null(tavg_path)
     req_tavg_calc <- req_tavg_value && is.null(tavg_path)
     req_tmin_path <- req_tmin_direct || req_tavg_calc
     req_tmax_path <- req_tmax_direct || req_tavg_calc
     req_prec_path <- req_prec_direct || any(needs$prec_p %in% bios_to_calculate)
+    req_srad_path <- req_srad_direct || any(needs$srad_p %in% bios_to_calculate)
+    req_mois_path <- req_mois_direct || any(needs$mois_p %in% bios_to_calculate)
     if (req_tmin_path && is.null(tmin_path)) stop("tmin_path required.")
     if (req_tmax_path && is.null(tmax_path)) stop("tmax_path required.")
     if (req_prec_path && is.null(prec_path)) stop("prec_path required.")
+    if (req_srad_path && is.null(srad_path)) stop("srad_path required.")
+    if (req_mois_path && is.null(mois_path)) stop("mois_path required.")  
     if (req_tmin_path && length(tmin_path) != n_units) stop(sprintf("tmin_path length error (need %d).", n_units))
     if (req_tmax_path && length(tmax_path) != n_units) stop(sprintf("tmax_path length error (need %d).", n_units))
     if (req_prec_path && length(prec_path) != n_units) stop(sprintf("prec_path length error (need %d).", n_units))
     if (req_tavg_load && length(tavg_path) != n_units) stop(sprintf("tavg_path length error (need %d).", n_units))
-    
+    if (req_srad_path && length(srad_path) != n_units) stop(sprintf("srad_path length error (need %d).", n_units))
+    if (req_mois_path && length(mois_path) != n_units) stop(sprintf("mois_path length error (need %d).", n_units))
     # --- 1. Setup Input Paths ---
     paths <- c()
     path_variables <- list()
@@ -138,6 +155,14 @@ bioclim_vars <- function(bios,
     if (req_tavg_load) {
       names(tavg_path) <- paste0("tavg_", seq_len(n_units))
       climate_paths <- c(climate_paths, tavg_path)
+    }
+    if (req_srad_path) {
+      names(srad_path) <- paste0("srad_", seq_len(n_units))
+      climate_paths <- c(climate_paths, srad_path)
+    }
+    if (req_mois_path) {
+      names(mois_path) <- paste0("mois_", seq_len(n_units))
+      climate_paths <- c(climate_paths, mois_path)
     }
     paths <- climate_paths
     path_variables$climate <- names(paths)
@@ -326,10 +351,12 @@ bioclim_vars <- function(bios,
       }
       if (write_raw_vars) {
         raw_paths_list <- list()
-        if(req_tmin_path) raw_paths_list$tmin <- file.path(bioclima_dir, paste0("raw_tmin_", seq_len(ntiles), ".qs"))
-        if(req_tmax_path) raw_paths_list$tmax <- file.path(bioclima_dir, paste0("raw_tmax_", seq_len(ntiles), ".qs"))
-        if(req_prec_path) raw_paths_list$prec <- file.path(bioclima_dir, paste0("raw_prec_", seq_len(ntiles), ".qs"))
-        if(req_tavg_value) raw_paths_list$tavg <- file.path(bioclima_dir, paste0("raw_tavg_", seq_len(ntiles), ".qs"))
+        if (req_tmin_path) raw_paths_list$tmin <- file.path(bioclima_dir, paste0("raw_tmin_", seq_len(ntiles), ".qs"))
+        if (req_tmax_path) raw_paths_list$tmax <- file.path(bioclima_dir, paste0("raw_tmax_", seq_len(ntiles), ".qs"))
+        if (req_prec_path) raw_paths_list$prec <- file.path(bioclima_dir, paste0("raw_prec_", seq_len(ntiles), ".qs"))
+        if (req_tavg_value) raw_paths_list$tavg <- file.path(bioclima_dir, paste0("raw_tavg_", seq_len(ntiles), ".qs"))
+        if (req_srad_path) raw_paths_list$srad <- file.path(bioclima_dir, paste0("raw_srad_", seq_len(ntiles), ".qs"))
+        if (req_mois_path) raw_paths_list$mois <- file.path(bioclima_dir, paste0("raw_mois_", seq_len(ntiles), ".qs"))
       }
       # --- 6. Parallel Processing Loop ---
       # progressr::with_progress({
@@ -337,10 +364,13 @@ bioclim_vars <- function(bios,
       worker_req_tavg <- any(needs$tavg %in% bios_to_calculate) || any(needs$temp_p %in% bios_to_calculate)
       worker_req_temp_p <- any(needs$temp_p %in% bios_to_calculate)
       worker_req_prec_p <- any(needs$prec_p %in% bios_to_calculate)
+      worker_req_srad_p <- any(needs$srad_p %in% bios_to_calculate)
+      worker_req_mois_p <- any(needs$mois_p %in% bios_to_calculate)
       export_vars <- c("paths", "path_variables", "rtt", "ntiles", "bios", "bios_to_calculate", 
                         "n_units", "period_length", "circular", "req_tmin_path", "req_tmax_path", 
-                        "req_prec_path", "req_tavg_load", "req_tavg_calc", 
+                        "req_prec_path", "req_tavg_load", "req_tavg_calc", "req_srad_path", "req_mois_path", 
                         "worker_req_tavg", "worker_req_temp_p", "worker_req_prec_p", 
+                        "worker_req_srad_p", "worker_req_mois_p", 
                         "check_evar", "compute_periods", "var_periods", 
                         paste0("bio", 1:19, "_fun"), "bios_qs_paths", "write_raw_vars", "bioclima_dir")
       if (exists("raw_paths_list")) export_vars <- c(export_vars, "raw_paths_list")
@@ -423,6 +453,18 @@ bioclim_vars <- function(bios,
             rio::export(cbind(tile_results$prec_vals, cell = cell_ids), raw_paths_list$prec[x])
           }
         }
+        if (req_srad_path) {
+          tile_results$srad_vals <- check_evar(climate_matrix[, grep(pattern = "^srad_", path_variables$climate), drop = FALSE])
+          if (write_raw_vars && "srad" %in% names(raw_paths_list)) {
+            rio::export(cbind(tile_results$srad_vals, cell = cell_ids), raw_paths_list$srad[x])
+          }
+        }
+        if (req_mois_path) {
+          tile_results$mois_vals <- check_evar(climate_matrix[, grep(pattern = "^mois_", path_variables$climate), drop = FALSE])
+          if (write_raw_vars && "mois" %in% names(raw_paths_list)) {
+            rio::export(cbind(tile_results$mois_vals, cell = cell_ids), raw_paths_list$mois[x])
+          }
+        }
         tavg_available <- FALSE
         if (worker_req_tavg) { 
           if (req_tavg_load) {
@@ -455,13 +497,16 @@ bioclim_vars <- function(bios,
         }
         temp_p_available <- FALSE
         prec_p_available <- FALSE
-        if (worker_req_temp_p || worker_req_prec_p) { 
+        srad_p_available <- FALSE
+        mois_p_available <- FALSE
+        if (worker_req_temp_p || worker_req_prec_p || worker_req_srad_p || worker_req_mois_p) { 
           periodos <- compute_periods(n_units = n_units, period_length = period_length, circular = circular)
           if (worker_req_temp_p && tavg_available) { 
             tile_results$tempr_periods <- var_periods(variable = tile_results$temperature_avg, 
                                                       periodos = periodos,
                                                       n_units = n_units,
-                                                      period_length = period_length)
+                                                      period_length = period_length,
+                                                      stat = "mean")
             temp_p_available <- TRUE
           } else if (worker_req_temp_p) {
             warning("Tile ", x, ": Cannot calc Temp Periods.")
@@ -470,17 +515,39 @@ bioclim_vars <- function(bios,
             tile_results$preci_periods <- var_periods(variable = tile_results$prec_vals, 
                                                       periodos = periodos, 
                                                       n_units = n_units, 
-                                                      period_length = period_length)
+                                                      period_length = period_length,
+                                                      stat = "sum")
             prec_p_available <- TRUE
           } else if (worker_req_prec_p) {
-            warning("Tile ",x,": Cannot calc Prec Periods.")
+            warning("Tile ", x, ": Cannot calc Prec Periods.")
+          }
+          if (worker_req_srad_p && !is.null(tile_results$srad_vals)) {
+            tile_results$srad_periods <- var_periods(variable = tile_results$srad_vals, 
+                                                      periodos = periodos, 
+                                                      n_units = n_units, 
+                                                      period_length = period_length,
+                                                      stat = "mean")
+            srad_p_available <- TRUE
+          } else if (worker_req_srad_p) {
+            warning("Tile ", x, ": Cannot calc Srad Periods.")
+          }
+          if (worker_req_mois_p && !is.null(tile_results$mois_vals)) {
+            tile_results$mois_periods <- var_periods(variable = tile_results$mois_vals, 
+                                                      periodos = periodos, 
+                                                      n_units = n_units, 
+                                                      period_length = period_length,
+                                                      stat = "mean")
+            mois_p_available <- TRUE
+          } else if (worker_req_mois_p) {
+            warning("Tile ", x, ": Cannot calc Mois Periods.")
           }
         }
         
         # Calculate BIOs
         calculated_bios_in_tile <- list()
         # Order bios
-        bios_order <- c(1, 2, 4, 5, 6, 7, 3, 12, 13, 14, 15, 16, 17, 10, 11, 8, 9, 18, 19)
+        bios_order <- c(1, 2, 4, 5, 6, 7, 3, 12, 13, 14, 15, 16, 17, 10, 11, 20, 21, 22, 23, 28, 29, 30, 31, 32, 33, 
+                        8, 9, 18, 19, 24, 25, 26, 27, 34, 35)
         bios_to_calculate <- bios_order[bios_order %in% bios_to_calculate]
         for (bio_num in bios_to_calculate) {
           can_calculate <- TRUE
@@ -494,9 +561,19 @@ bioclim_vars <- function(bios,
           if (bio_num == 6 && is.null(static_indices_tile[["coldest_unit"]]) && is.null(tile_results$tmin)) {can_calculate <- FALSE}
           if (bio_num %in% c(2, 3, 7) && (is.null(tile_results$tmin) || is.null(tile_results$tmax))) {can_calculate <- FALSE}
           if (bio_num %in% c(12, 13, 14) && is.null(tile_results$prec_vals)) {can_calculate <- FALSE}
+          if (bio_num %in% c(20, 21, 22, 23) && is.null(tile_results$srad_vals)) {can_calculate <- FALSE}
+          if (bio_num %in% c(28, 29, 30, 31) && is.null(tile_results$mois_vals)) {can_calculate <- FALSE}
           if (bio_num %in% c(8, 9, 10, 11) && (!temp_p_available)) {can_calculate <- FALSE}
-          if (bio_num %in% c(16, 17) && (!prec_p_available)) {can_calculate <- FALSE}
-          if (bio_num %in% c(18, 19) && (!temp_p_available || !prec_p_available)) {can_calculate <- FALSE}
+          if (bio_num %in% c(16, 17, 18, 19) && (!prec_p_available)) {can_calculate <- FALSE}
+          if (bio_num %in% c(24, 25, 26, 27) && (!srad_p_available)) {can_calculate <- FALSE}
+          if (bio_num %in% c(32, 33, 34, 35) && (!mois_p_available)) {can_calculate <- FALSE}
+          if (bio_num %in% c(8, 24) && is.null(static_indices_tile[["wettest_period"]]) && !prec_p_available) {can_calculate <- FALSE}
+          if (bio_num %in% c(9, 25) && is.null(static_indices_tile[["driest_period"]]) && !prec_p_available) {can_calculate <- FALSE}
+          if (bio_num %in% c(18, 26, 34) && is.null(static_indices_tile[["warmest_period"]]) && !temp_p_available) {can_calculate <- FALSE}
+          if (bio_num %in% c(19, 27, 35) && is.null(static_indices_tile[["coldest_period"]]) && !temp_p_available) {can_calculate <- FALSE}
+          if (bio_num %in% c(26, 27) && (!srad_p_available || !temp_p_available)) {can_calculate <- FALSE}
+          if (bio_num %in% c(34, 35) && (!mois_p_available || !temp_p_available)) {can_calculate <- FALSE}
+          if (bio_num %in% c(8, 9, 18, 19) && (!temp_p_available || !prec_p_available)) {can_calculate <- FALSE}
           if (bio_num == 7 && (is.null(calculated_bios_in_tile$bio05) || is.null(calculated_bios_in_tile$bio06))) {can_calculate <- FALSE}
           if (bio_num == 3 && (is.null(calculated_bios_in_tile$bio02) || is.null(calculated_bios_in_tile$bio07))) {can_calculate <- FALSE}
           if (bio_num == 15 && (is.null(tile_results$prec_vals) || is.null(calculated_bios_in_tile$bio12))) {can_calculate <- FALSE}
@@ -518,7 +595,19 @@ bioclim_vars <- function(bios,
           if (bio_num == 17) idx_vec_period <- static_indices_tile$driest_period %||% tile_results$preci_periods[, "min_idx"]
           if (bio_num == 18) idx_vec_period <- static_indices_tile$warmest_period %||% tile_results$tempr_periods[, "max_idx"]
           if (bio_num == 19) idx_vec_period <- static_indices_tile$coldest_period %||% tile_results$tempr_periods[, "min_idx"]
-          
+          if (bio_num == 21) idx_vec_unit <- static_indices_tile$high_rad_unit
+          if (bio_num == 22) idx_vec_unit <- static_indices_tile$low_rad_unit
+          if (bio_num == 29) idx_vec_unit <- static_indices_tile$high_mois_unit
+          if (bio_num == 30) idx_vec_unit <- static_indices_tile$low_mois_unit
+          if (bio_num == 32) idx_vec_period <- static_indices_tile$high_mois_period %||% tile_results$mois_periods[, "max_idx"]
+          if (bio_num == 33) idx_vec_period <- static_indices_tile$low_mois_period %||% tile_results$mois_periods[, "min_idx"]
+          if (bio_num == 24) idx_vec_period <- static_indices_tile$wettest_period %||% tile_results$preci_periods[, "max_idx"]
+          if (bio_num == 25) idx_vec_period <- static_indices_tile$driest_period %||% tile_results$preci_periods[, "min_idx"]
+          if (bio_num == 26) idx_vec_period <- static_indices_tile$warmest_period %||% tile_results$tempr_periods[, "max_idx"]
+          if (bio_num == 27) idx_vec_period <- static_indices_tile$coldest_period %||% tile_results$tempr_periods[, "min_idx"]
+          if (bio_num == 34) idx_vec_period <- static_indices_tile$warmest_period %||% tile_results$tempr_periods[, "max_idx"]
+          if (bio_num == 35) idx_vec_period <- static_indices_tile$coldest_period %||% tile_results$tempr_periods[, "min_idx"]
+
           result_var <- NULL
           bio_output_name <- paste0("bio", sprintf("%02d", bio_num))
           # Call BIOS_fun 
@@ -529,6 +618,10 @@ bioclim_vars <- function(bios,
             result_var <- bio02_fun(tmin = tile_results$tmin, 
                                     tmax = tile_results$tmax, 
                                     cell = cell_ids)
+          } else if (bio_num == 3) {
+            result_var <- bio03_fun(bio02V = calculated_bios_in_tile$bio02[, 1, drop = TRUE],
+                                    bio07V = calculated_bios_in_tile$bio07[, 1, drop = TRUE],
+                                    cell = cell_ids)  
           } else if (bio_num == 4) {
             result_var <- bio04_fun(tavg = tile_results$temperature_avg, 
                                     cell = cell_ids)
@@ -540,29 +633,9 @@ bioclim_vars <- function(bios,
             result_var <- bio06_fun(tmin = tile_results$tmin, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
-          } else if (bio_num == 13) {
-            result_var <- bio13_fun(precp = tile_results$prec_vals, 
-                                    cell = cell_ids, 
-                                    index_vector = idx_vec_unit)
-          } else if (bio_num == 14) {
-            result_var <- bio14_fun(precp = tile_results$prec_vals, 
-                                    cell = cell_ids, 
-                                    index_vector = idx_vec_unit)
-          } else if (bio_num == 12) {
-            result_var <- bio12_fun(precp = tile_results$prec_vals, 
-                                    cell = cell_ids)
           } else if (bio_num == 7) {
             result_var <- bio07_fun(bio05V = calculated_bios_in_tile$bio05[, 1, drop = TRUE], 
                                     bio06V = calculated_bios_in_tile$bio06[, 1, drop = TRUE],
-                                    cell = cell_ids)
-          } else if (bio_num == 3) {
-            result_var <- bio03_fun(bio02V = calculated_bios_in_tile$bio02[, 1, drop = TRUE],
-                                    bio07V = calculated_bios_in_tile$bio07[, 1, drop = TRUE],
-                                    cell = cell_ids)
-          } else if (bio_num == 15) {
-            result_var <- bio15_fun(precp = tile_results$prec_vals,
-                                    bio12V = calculated_bios_in_tile$bio12[, 1, drop = TRUE],
-                                    n_units = n_units, 
                                     cell = cell_ids)
           } else if (bio_num == 8) {
             result_var <- bio08_fun(tperiod = tile_results$tempr_periods,
@@ -584,6 +657,23 @@ bioclim_vars <- function(bios,
                                     tperiod_min_idx = idx_vec_period,
                                     period_length = period_length,
                                     cell = cell_ids)
+          } else if (bio_num == 12) {
+            result_var <- bio12_fun(precp = tile_results$prec_vals, 
+                                    cell = cell_ids)
+          } else if (bio_num == 13) {
+            result_var <- bio13_fun(precp = tile_results$prec_vals, 
+                                    cell = cell_ids, 
+                                    index_vector = idx_vec_unit)
+          } else if (bio_num == 14) {
+            result_var <- bio14_fun(precp = tile_results$prec_vals, 
+                                    cell = cell_ids, 
+                                    index_vector = idx_vec_unit)
+          } else if (bio_num == 15) {
+            result_var <- bio15_fun(precp = tile_results$prec_vals,
+                                    bio12V = calculated_bios_in_tile$bio12[, 1, drop = TRUE],
+                                    n_units = n_units, 
+                                    cell = cell_ids)
+          
           } else if (bio_num == 16) {
             result_var <- bio16_fun(pperiod = tile_results$preci_periods,
                                     pperiod_max_idx = idx_vec_period,
@@ -600,8 +690,67 @@ bioclim_vars <- function(bios,
             result_var <- bio19_fun(pperiod = tile_results$preci_periods,
                                     tperiod_min_idx = idx_vec_period,
                                     cell = cell_ids)
+          } else if (bio_num == 20) {
+            result_var <- bio20_fun(srad = tile_results$srad_vals, 
+                                    cell = cell_ids)
+          } else if (bio_num == 21) {
+            result_var <- bio21_fun(srad = tile_results$srad_vals, 
+                                    cell = cell_ids, 
+                                    index_vector = idx_vec_unit)
+          } else if (bio_num == 22) {
+            result_var <- bio22_fun(srad = tile_results$srad_vals, 
+                                    cell = cell_ids, 
+                                    index_vector = idx_vec_unit)
+          } else if (bio_num == 23) {
+            result_var <- bio23_fun(srad = tile_results$srad_vals, 
+                                    cell = cell_ids)
+          } else if (bio_num == 24) {
+            result_var <- bio24_fun(speriod = tile_results$srad_periods,
+                                    pperiod_max_idx = idx_vec_period,
+                                    cell = cell_ids)
+          } else if (bio_num == 25) {
+            result_var <- bio25_fun(speriod = tile_results$srad_periods,
+                                    pperiod_min_idx = idx_vec_period,
+                                    cell = cell_ids)
+          } else if (bio_num == 26) {
+            result_var <- bio26_fun(speriod = tile_results$srad_periods,
+                                    tperiod_max_idx = idx_vec_period,
+                                    cell = cell_ids)
+          } else if (bio_num == 27) {
+            result_var <- bio27_fun(speriod = tile_results$srad_periods,
+                                    tperiod_min_idx = idx_vec_period,
+                                    cell = cell_ids)
+          } else if (bio_num == 28) {
+            result_var <- bio28_fun(mois = tile_results$mois_vals, 
+                                    cell = cell_ids)
+          } else if (bio_num == 29) {
+            result_var <- bio29_fun(mois = tile_results$mois_vals, 
+                                    cell = cell_ids, 
+                                    index_vector = idx_vec_unit)
+          } else if (bio_num == 30) {
+            result_var <- bio30_fun(mois = tile_results$mois_vals, 
+                                    cell = cell_ids, 
+                                    index_vector = idx_vec_unit)
+          } else if (bio_num == 31) {
+            result_var <- bio31_fun(mois = tile_results$mois_vals, 
+                                    cell = cell_ids)
+          } else if (bio_num == 32) {
+            result_var <- bio32_fun(speriod = tile_results$mois_periods,
+                                    speriod_max_idx = idx_vec_period,
+                                    cell = cell_ids)
+          } else if (bio_num == 33) {
+            result_var <- bio33_fun(speriod = tile_results$mois_periods,
+                                    speriod_min_idx = idx_vec_period,
+                                    cell = cell_ids)
+          } else if (bio_num == 34) {
+            result_var <- bio34_fun(speriod = tile_results$mois_periods,
+                                    tperiod_max_idx = idx_vec_period,
+                                    cell = cell_ids)
+          } else if (bio_num == 35) {
+            result_var <- bio35_fun(speriod = tile_results$mois_periods,
+                                    tperiod_min_idx = idx_vec_period,
+                                    cell = cell_ids)
           }
-          
           if (!is.null(result_var)) { 
             calculated_bios_in_tile[[bio_output_name]] <- result_var
             if (bio_num %in% bios) { 
@@ -609,7 +758,7 @@ bioclim_vars <- function(bios,
                 bios_qs_paths[[bio_output_name]][x])
             }
           }
-        }
+          }
         
         # --- Cleanup ---
         rm(tile_results, 
