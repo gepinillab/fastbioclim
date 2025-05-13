@@ -125,14 +125,14 @@ bionames <- function(bios = 1:35) {
     "bio25: Radiation of Driest Period",
     "bio26: Radiation of Warmest Period",
     "bio27: Radiation of Coldest Period",
-    "bio28: Annual Mean Soil Moisture Content",
-    "bio29: Highest Period Soil Moisture Content",
-    "bio30: Lowest Period Soil Moisture Content",
-    "bio31: Soil Moisture Content Seasonality",
-    "bio32: Mean Soil Moisture Content of Most Moist Period",
-    "bio33: Mean Soil Moisture Content of Least Moist Period",
-    "bio34: Mean Soil Moisture Content of Warmest Period",
-    "bio35: Mean Soil Moisture Content of Coldest Period"
+    "bio28: Annual Mean Moisture Content",
+    "bio29: Highest Period Moisture Content",
+    "bio30: Lowest Period Moisture Content",
+    "bio31: Moisture Content Seasonality",
+    "bio32: Mean Moisture Content of Most Moist Period",
+    "bio33: Mean Moisture Content of Least Moist Period",
+    "bio34: Mean Moisture Content of Warmest Period",
+    "bio35: Mean Moisture Content of Coldest Period"
   )
   
   # Validate input

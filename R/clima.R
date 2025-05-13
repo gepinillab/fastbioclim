@@ -6,7 +6,7 @@
 #' and O’Donnell & Ignizio (2012). It calculates a comprehensive set of 35 
 #' bioclimatic variables based on input rasters for minimum temperature, 
 #' maximum temperature, average temperature, precipitation, solar radiation, 
-#' and soil moisture. Users can specify which bioclimatic variables to compute 
+#' and moisture. Users can specify which bioclimatic variables to compute 
 #' using the bios parameter. The function supports customizable temporal 
 #' aggregation (e.g., quarters or semesters) and includes options for circular 
 #' period calculations. Input consistency is validated to ensure matching 
@@ -21,7 +21,7 @@
 #'  tmax are provided
 #' @param prcp spatRaster with precipitation
 #' @param srad spatRaster with solar radiation
-#' @param soilm spatRaster with soil moisture
+#' @param mois spatRaster with moisture
 #' @param period numeric. Length of period to summarize data (e.g., quarters,
 #' semesters). If using monthly data, a quarter (3-months) will be used to
 #' calculate Bios 08, 09, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27, 32, 33, 34, 35.
@@ -38,16 +38,16 @@
 #'     \item{coldest_period}{Description of param1 (default: NULL)}
 #'     \item{wettest_period}{Description of param1 (default: NULL)}
 #'     \item{driest_period}{Description of param1 (default: NULL)}
-#'     \item{high_soil_period}{Description of param1 (default: NULL)}
-#'     \item{low_soil_period}{Description of param1 (default: NULL)}
+#'     \item{high_mois_period}{Description of param1 (default: NULL)}
+#'     \item{low_mois_period}{Description of param1 (default: NULL)}
 #'     \item{warmest_unit}{Description of param1 (default: NULL)}
 #'     \item{coldest_unit}{Description of param1 (default: NULL)}
 #'     \item{wettest_unit}{Description of param1 (default: NULL)}
 #'     \item{driest_unit}{Description of param1 (default: NULL)}
 #'     \item{high_rad_unit}{Description of param1 (default: NULL)}
 #'     \item{low_rad_unit}{Description of param1 (default: NULL)}
-#'     \item{high_soil_unit}{Description of param1 (default: NULL)}
-#'     \item{low_soil_unit}{Description of param1 (default: NULL)}
+#'     \item{high_mois_unit}{Description of param1 (default: NULL)}
+#'     \item{low_mois_unit}{Description of param1 (default: NULL)}
 #'   }
 #' 
 #' @return An SpatRaster with 35 bioclimatic variables or a subset of them:
@@ -79,20 +79,20 @@
 #'   \item{bio25}{Radiation of Driest Period}
 #'   \item{bio26}{Radiation of Warmest Period}
 #'   \item{bio27}{Radiation of Coldest Period}
-#'   \item{bio28*}{Mean Soil Moisture Content Of Units}
-#'   \item{bio29*}{Highest Soil Moisture Content Unit}
-#'   \item{bio30*}{Lowest Soil Moisture Content Unit}
-#'   \item{bio31*}{Soil Moisture Content Seasonality}
-#'   \item{bio32*}{Mean Soil Moisture Content of Most Moist Period}
-#'   \item{bio33*}{Mean Soil Moisture Content of Least Moist Period}
-#'   \item{bio34*}{Mean Soil Moisture Content of Warmest Period}
-#'   \item{bio35*}{Mean Soil Moisture Content of Coldest Period}
+#'   \item{bio28*}{Mean Moisture Content Of Units}
+#'   \item{bio29*}{Highest Moisture Content Unit}
+#'   \item{bio30*}{Lowest Moisture Content Unit}
+#'   \item{bio31*}{Moisture Content Seasonality}
+#'   \item{bio32*}{Mean Moisture Content of Most Moist Period}
+#'   \item{bio33*}{Mean Moisture Content of Least Moist Period}
+#'   \item{bio34*}{Mean Moisture Content of Warmest Period}
+#'   \item{bio35*}{Mean Moisture Content of Coldest Period}
 #' }
 #' 
 #' @note 
-#' *The original soil moisture variables proposed in the ANUCLIM manual are based 
+#' *The original moisture variables proposed in the ANUCLIM manual are based 
 #' on the Moisture Index (MI). However, this function allows users to calculate 
-#' soil moisture-based bioclimatic variables using other units of soil moisture 
+#' moisture-based bioclimatic variables using other units of moisture 
 #' as inputs, offering greater flexibility in input data usage.
 #' 
 #' @references
@@ -103,7 +103,7 @@
 #' @export
 #'
 clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
-                  srad = NULL, soilm = NULL, period = 3, circular = TRUE, 
+                  srad = NULL, mois = NULL, period = 3, circular = TRUE, 
                   checkNA = TRUE, stopNA = TRUE, ...) {
   # Add dor arguments
   dot_args <- list(...)
@@ -113,17 +113,17 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
   if ("driest_unit" %in% names(dot_args)) driest_unit <- dot_args$driest_unit
   if ("high_rad_unit" %in% names(dot_args)) high_rad_unit <- dot_args$high_rad_unit
   if ("low_rad_unit" %in% names(dot_args)) low_rad_unit <- dot_args$low_rad_unit
-  if ("high_soil_unit" %in% names(dot_args)) high_soil_unit <- dot_args$high_soil_unit
-  if ("low_soil_unit" %in% names(dot_args)) low_soil_unit <- dot_args$low_soil_unit
+  if ("high_mois_unit" %in% names(dot_args)) high_mois_unit <- dot_args$high_mois_unit
+  if ("low_mois_unit" %in% names(dot_args)) low_mois_unit <- dot_args$low_mois_unit
   if ("warmest_period" %in% names(dot_args)) warmest_period <- dot_args$warmest_period
   if ("coldest_period" %in% names(dot_args)) coldest_period <- dot_args$coldest_period
   if ("wettest_period" %in% names(dot_args)) wettest_period <- dot_args$wettest_period
   if ("driest_period" %in% names(dot_args)) driest_period <- dot_args$driest_period
-  if ("high_soil_period" %in% names(dot_args)) high_soil_period <- dot_args$high_soil_period
-  if ("low_soil_period" %in% names(dot_args)) low_soil_period <- dot_args$low_soil_period
+  if ("high_mois_period" %in% names(dot_args)) high_mois_period <- dot_args$high_mois_period
+  if ("low_mois_period" %in% names(dot_args)) low_mois_period <- dot_args$low_mois_period
   # Check for same extent, number of rows and columns, projection,
   # resolution, and origin
-  sameGeom <- class(purrr::reduce(list(tmin, tmax, tavg, prcp, srad, soilm) |>
+  sameGeom <- class(purrr::reduce(list(tmin, tmax, tavg, prcp, srad, mois) |>
                                     purrr::discard(is.null),
                                   fastbioclim::testGeom))
   if (sameGeom == "SpatRaster") {
@@ -215,20 +215,20 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
     }
   }
   
-  # Bios that requires soil moisture
-  req_soilm <- c(28, 29, 30, 31, 32, 33, 34, 35)
-  if (any(req_soilm %in% bios)) {
-    if (is.null(soilm)) {
-      stop(paste0(paste0("Bio", sprintf("%02d", req_soilm[req_soilm %in% bios]),
+  # Bios that requires moisture
+  req_mois <- c(28, 29, 30, 31, 32, 33, 34, 35)
+  if (any(req_mois %in% bios)) {
+    if (is.null(mois)) {
+      stop(paste0(paste0("Bio", sprintf("%02d", req_mois[req_mois %in% bios]),
                          collapse = ", "),
-                  " require(s) soilm."))
+                  " require(s) mois."))
     }
     if (checkNA == TRUE) {
-      soilm_na <- mismatch_NA(soilm)
-      if (soilm_na$logical == TRUE & stopNA == TRUE) {
-        stop("soilm has unexpected NA values")
+      mois_na <- mismatch_NA(mois)
+      if (mois_na$logical == TRUE & stopNA == TRUE) {
+        stop("mois has unexpected NA values")
       }
-      soilm_sum <- soilm_na$sum_lyr
+      mois_sum <- mois_na$sum_lyr
     }
   }
 
@@ -238,9 +238,9 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
     if (!exists("tmax_sum")) tmax_sum <-  NULL
     if (!exists("prcp_sum")) prcp_sum <-  NULL
     if (!exists("srad_sum")) srad_sum <-  NULL
-    if (!exists("soilm_sum")) soilm_sum <-  NULL
+    if (!exists("mois_sum")) mois_sum <-  NULL
 
-    intra_na <- purrr::reduce(list(tmin_sum, tmax_sum, prcp_sum, srad_sum, soilm_sum) |>
+    intra_na <- purrr::reduce(list(tmin_sum, tmax_sum, prcp_sum, srad_sum, mois_sum) |>
                                  purrr::discard(is.null), c) |>
       sum() |>
       terra::unique() |>
@@ -252,7 +252,7 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
       if (stopNA == TRUE) {
         stop("SpatRaster don't share same NA values")
       } else {
-        message("SpatRasters (tmin, tmax, prcp, srad and/or soilm) don't share same NAs values")
+        message("SpatRasters (tmin, tmax, prcp, srad and/or mois) don't share same NAs values")
       }
     }
   }
@@ -301,7 +301,7 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
     if (any(c(8, 16, 24) %in% bios) & !exists("wettest_period")) {
       wettest_period <- terra::which.max(wet)
     }
-    if (any(c(9, 17, 24) %in% bios) & !exists("driest_period")) {
+    if (any(c(9, 17, 25) %in% bios) & !exists("driest_period")) {
       driest_period <- terra::which.min(wet)
     }
   }
@@ -345,30 +345,30 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
     prad <- fastbioclim::get_window(srad, period, circular) / period
   }
   
-  ## ONLY SOIL MOISTURE
+  ## ONLY MOISTURE
   # Bio28
-  if (28 %in% bios) bio28 <- fastbioclim::bio_28(soilm)
+  if (28 %in% bios) bio28 <- fastbioclim::bio_28(mois)
   # Bio29
-  if (29 %in% bios) bio29 <- fastbioclim::bio_29(soilm, ...)
+  if (29 %in% bios) bio29 <- fastbioclim::bio_29(mois, ...)
   # Bio30
-  if (30 %in% bios) bio30 <- fastbioclim::bio_30(soilm, ...)
+  if (30 %in% bios) bio30 <- fastbioclim::bio_30(mois, ...)
   # Bio31
-  if (31 %in% bios) bio31 <- fastbioclim::bio_31(soilm)
+  if (31 %in% bios) bio31 <- fastbioclim::bio_31(mois)
   
-  ### ONLY SOIL MOISTURE PERIOD
+  ### ONLY MOISTURE PERIOD
   if (any(c(32:35) %in% bios)) {
-    psoil <- fastbioclim::get_window(soilm, period, circular) / period
-    if ((32 %in% bios) & !exists("high_soil_period")) {
-      high_soil_period <- terra::which.max(psoil)
+    pmois <- fastbioclim::get_window(mois, period, circular) / period
+    if ((32 %in% bios) & !exists("high_mois_period")) {
+      high_mois_period <- terra::which.max(pmois)
     }
-    if ((33 %in% bios) & !exists("low_soil_period")) {
-      low_soil_period <- terra::which.min(psoil)
+    if ((33 %in% bios) & !exists("low_mois_period")) {
+      low_mois_period <- terra::which.min(pmois)
     }
   }
   # Bio32
-  if (32 %in% bios) bio32 <- fastbioclim::bio_32(psoil, high_soil_period)
+  if (32 %in% bios) bio32 <- fastbioclim::bio_32(pmois, high_mois_period)
   # Bio33
-  if (33 %in% bios) bio33 <- fastbioclim::bio_33(psoil, low_soil_period)
+  if (33 %in% bios) bio33 <- fastbioclim::bio_33(pmois, low_mois_period)
   
   #### COMBINED PERIODS
   # Bio08
@@ -388,9 +388,9 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
   # Bio27
   if (27 %in% bios) bio27 <- fastbioclim::bio_27(prad, coldest_period)
   # Bio34
-  if (34 %in% bios) bio34 <- fastbioclim::bio_34(psoil, warmest_period)
+  if (34 %in% bios) bio34 <- fastbioclim::bio_34(pmois, warmest_period)
   # Bio35
-  if (35 %in% bios) bio35 <- fastbioclim::bio_35(psoil, coldest_period)
+  if (35 %in% bios) bio35 <- fastbioclim::bio_35(pmois, coldest_period)
   
   # Window message
   if (any(c(8:11, 16:19, 24:27, 32:35) %in% bios)) {

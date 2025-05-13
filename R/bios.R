@@ -241,74 +241,74 @@ bio_27 <- function(prad, coldest_period) {
   return(gueta_cuhupcua)
 }
 
-# P28. Mean Soil Moisture
+# P28. Mean Moisture
 #' @export
-bio_28 <- function(soilm) {
-  gueta_suhusa <- terra::app(soilm, mean, na.rm = TRUE)
+bio_28 <- function(mois) {
+  gueta_suhusa <- terra::app(mois, mean, na.rm = TRUE)
   names(gueta_suhusa) <- "bio28"
   return(gueta_suhusa)
 }
 
-# P29. Highest Soil Moisture Unit
+# P29. Highest Moisture Unit
 #' @export
-bio_29 <- function(soilm, high_soil_unit = NULL) {
-  if (!is.null(high_soil_unit)) {
-    gueta_aca <- terra::selectRange(soilm, high_soil_unit)
+bio_29 <- function(mois, high_mois_unit = NULL) {
+  if (!is.null(high_mois_unit)) {
+    gueta_aca <- terra::selectRange(mois, high_mois_unit)
   } else {
-    gueta_aca <- terra::app(soilm, max, na.rm = TRUE)
+    gueta_aca <- terra::app(mois, max, na.rm = TRUE)
   }
   names(gueta_aca) <- "bio29"
   return(gueta_aca)
 }
 
-# P30. Lowest Soil Moisture Unit
+# P30. Lowest Moisture Unit
 #' @export
-bio_30 <- function(soilm, low_soil_unit = NULL) {
-  if (!is.null(low_soil_unit)) {
-    gueta_ubchihica <- terra::selectRange(soilm, low_soil_unit)
+bio_30 <- function(mois, low_mois_unit = NULL) {
+  if (!is.null(low_mois_unit)) {
+    gueta_ubchihica <- terra::selectRange(mois, low_mois_unit)
   } else {
-    gueta_ubchihica <- terra::app(soilm, min, na.rm = TRUE)
+    gueta_ubchihica <- terra::app(mois, min, na.rm = TRUE)
   }
   names(gueta_ubchihica) <- "bio30"
   return(gueta_ubchihica)
 }
 
-# P31. Soil Moisture Seasonality (Coefficient of Variation)
+# P31. Moisture Seasonality (Coefficient of Variation)
 #' @export
-bio_31 <- function(soilm) {
-  gueta_quihicha_ata <- cv_cli(soilm)
+bio_31 <- function(mois) {
+  gueta_quihicha_ata <- cv_cli(mois)
   names(gueta_quihicha_ata) <- "bio31"
   return(gueta_quihicha_ata)
 }
 
-# P32. Mean Soil Moisture of the Most Moist Period
+# P32. Mean Moisture of the Most Moist Period
 #' @export
-bio_32 <- function(psoil, high_soil_period) {
-  gueta_quihicha_bosa <- terra::selectRange(psoil, high_soil_period)
+bio_32 <- function(pmois, high_mois_period) {
+  gueta_quihicha_bosa <- terra::selectRange(pmois, high_mois_period)
   names(gueta_quihicha_bosa) <- "bio32"
   return(gueta_quihicha_bosa)
 }
 
-# P33. Mean Soil Moisture of the Least Moist Period
+# P33. Mean Moisture of the Least Moist Period
 #' @export
-bio_33 <- function(psoil, low_soil_period) {
-  gueta_quihicha_mica <- terra::selectRange(psoil, low_soil_period)
+bio_33 <- function(pmois, low_mois_period) {
+  gueta_quihicha_mica <- terra::selectRange(pmois, low_mois_period)
   names(gueta_quihicha_mica) <- "bio33"
   return(gueta_quihicha_mica)
 }
 
-# P34. Mean Soil Moisture of Warmest Period
+# P34. Mean Moisture of Warmest Period
 #' @export
-bio_34 <- function(psoil, warmest_period) {
-  gueta_quihicha_muihica <- terra::selectRange(psoil, warmest_period)
+bio_34 <- function(pmois, warmest_period) {
+  gueta_quihicha_muihica <- terra::selectRange(pmois, warmest_period)
   names(gueta_quihicha_muihica) <- "bio34"
   return(gueta_quihicha_muihica)
 }
 
-# P35. Mean Soil Moisture of Coldest Period
+# P35. Mean Moisture of Coldest Period
 #' @export
-bio_35 <- function(psoil, coldest_period) {
-  gueta_quihicha_hisca <- terra::selectRange(psoil, coldest_period)
+bio_35 <- function(pmois, coldest_period) {
+  gueta_quihicha_hisca <- terra::selectRange(pmois, coldest_period)
   names(gueta_quihicha_hisca) <- "bio35"
   return(gueta_quihicha_hisca)
 }

@@ -67,8 +67,8 @@ tmax <- env.data$tmax
 ppt <- env.data$ppt
 # Save monthly solar radiation
 # srad <- env.data$srad
-# Save monthly soil moisture
-soilm <- env.data$soil
+# Save monthly moisture
+mois <- env.data$soil
 ```
 
 Please check the raster inputs before saving the rasters. In Nov 15th, 2023 the climatic data obtained was flipped. Fortunately, it can be fixed using this code.
@@ -85,7 +85,7 @@ plot(ppt[[1]])
 # tmax <- rast(x = tmax, vals = values(t(tmax)))
 # ppt <- rast(x = ppt, vals = values(t(ppt)))
 # srad <- rast(x = srad, vals = values(t(srad)))
-# soilm <- rast(x = soilm, vals = values(t(soilm)))
+# mois <- rast(x = mois, vals = values(t(mois)))
 ```
 
 Then, you will be able to save the monthly rasters in a unique TIFF file. Each month will be saved in the bands of a raster, so you do not need to save each month individually.
@@ -106,8 +106,8 @@ terra::writeRaster(ppt,
 # terra::writeRaster(srad,
 #                    here("data", "srad_1990-01-to-2019-12.tif"),
 #                    overwrite = TRUE)
-terra::writeRaster(soilm,
-                   here("data", "soilm_1990-01-to-2019-12.tif"),
+terra::writeRaster(mois,
+                   here("data", "mois_1990-01-to-2019-12.tif"),
                    overwrite = TRUE)
 ```
 
@@ -120,10 +120,10 @@ tmin_avg <- tapp(tmin, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 tmax_avg <- tapp(tmax, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 ppt_avg <- tapp(ppt, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 # srad_avg <- tapp(srad, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
-soilm_avg <- tapp(soilm, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
+mois_avg <- tapp(mois, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 
 bios <- fastbioclim::clima(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
-                           srad = srad_avg, soilm = soilm_avg,
+                           srad = srad_avg, mois = mois_avg,
                            bios = c(1:19, 28:35), period = 3, circular = TRUE)
 ```
 
@@ -145,6 +145,6 @@ plot(bios[[20:27]])
 ```
 
 ``` r
-# Soil moisture
+# Moisture
 plot(bios[[28:35]])
 ```

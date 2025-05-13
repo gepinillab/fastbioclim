@@ -75,7 +75,7 @@ ppt <- env.data$ppt
 # Guardar radiación solar
 srad <- env.data$srad
 # Guardar humedad del suelo
-soilm <- env.data$soil
+mois <- env.data$soil
 # Checar estructura de spatRaster (incluye 360 meses cada uno)
 tmax
 ```
@@ -93,7 +93,7 @@ plot(ppt[[1]])
 # tmax <- rast(x = tmax, vals = values(t(tmax)))
 # ppt <- rast(x = ppt, vals = values(t(ppt)))
 # srad <- rast(x = srad, vals = values(t(srad)))
-# soil <- rast(x = soil, vals = values(t(soil)))
+# mois <- rast(x = mois, vals = values(t(mois)))
 # plot(ppt[[1]])
 ```
 
@@ -115,8 +115,8 @@ terra::writeRaster(ppt,
 terra::writeRaster(srad,
                    here("data", "srad_1990-01-a-2019-12.tif"),
                    overwrite = TRUE)
-terra::writeRaster(soilm,
-                   here("data", "soilm_1990-01-a-2019-12.tif"),
+terra::writeRaster(mois,
+                   here("data", "mois_1990-01-a-2019-12.tif"),
                    overwrite = TRUE)
 ```
 
@@ -128,10 +128,10 @@ tmin_avg <- terra::tapp(tmin, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 tmax_avg <- terra::tapp(tmax, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 ppt_avg <- terra::tapp(ppt, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 srad_avg <- terra::tapp(srad, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
-soilm_avg <- terra::tapp(soilm, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
+mois_avg <- terra::tapp(mois, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 
 bios <- fastbioclim::clima(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
-                        srad = srad_avg, soilm = soilm_avg,
+                        srad = srad_avg, mois = mois_avg,
               bios = 1:35, period = 3, circular = TRUE)
 ```
 
@@ -371,8 +371,8 @@ for (i in 1:length(mes_inicial)) {
     index = 1:12, # índice mensual
     fun = mean, 
     na.rm = TRUE) # remover NAs
-  soilm_int <-  terra::tapp(
-    x = soilm[[i:(i+240-1)]], #240 meses
+  mois_int <-  terra::tapp(
+    x = mois[[i:(i+240-1)]], #240 meses
     index = 1:12, # índice mensual
     fun = mean, 
     na.rm = TRUE) # remover NAs
@@ -382,7 +382,7 @@ for (i in 1:length(mes_inicial)) {
     # tmin = tmin_int,
     # tmax = tmax_int,
     srad = srad_int, 
-    soilm = soilm_int, 
+    mois = mois_int, 
     checkNA = FALSE,
     coldest_period = modal_trimestre
   )
@@ -426,12 +426,12 @@ wind_stats
 plot(wind_stats[[1]])
 ```
 ```{r}
-wind_stats_soil <- fastbioclim::stats_clima(variable = wind_avg,
+wind_stats_v2 <- fastbioclim::stats_clima(variable = wind_avg,
                                          stats = NULL,
                                          inter_variable = tmax_avg - tmin_avg,
                                          prefix_variable = "wind",
                                          suffix_inter_max = "warmest",
                                          suffix_inter_min = "coldest")
-plot(wind_stats_soil)
+plot(wind_stats_v2)
 ```
 
