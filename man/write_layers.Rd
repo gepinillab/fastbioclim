@@ -5,17 +5,25 @@
 \title{Export Bioclimatic Variables to GeoTIFF}
 \usage{
 write_layers(
-  biovardir,
+  input_dir,
   save_dir = "bioclimatic",
+  file_pattern = "bio",
   clean_temporary_files = FALSE
 )
 }
 \arguments{
-\item{biovardir}{Character string. Path to directory with intermediate `.qs` files and `template_info.qs`}
+\item{input_dir}{Character string. Path to directory with intermediate `.qs` files and `template_info.qs`}
 
 \item{save_dir}{Character string. Path for the final GeoTIFF files. Default: "bioclimatic".}
 
-\item{clean_temporary_files}{Logical. Delete `biovardir` after writing? Default: FALSE.}
+\item{file_pattern}{Character string. A prefix or base pattern to identify the
+groups of `.qs` files. For example, if files are "bio01_1.qs", "bio01_2.qs",
+"bio02_1.qs", etc., `file_pattern` would be "bio". If files are
+"var_mean_1.qs", "var_sum_1.qs", etc., `file_pattern` could be "var".
+The function will attempt to extract the full variable name (e.g., "bio01", "var_mean")
+from the filenames. Default is "bio".}
+
+\item{clean_temporary_files}{Logical. Delete `input_dir` after writing? Default: FALSE.}
 }
 \value{
 None. Writes GeoTIFF files to `save_dir`.

@@ -3,9 +3,15 @@
 #' Assembles intermediate `.qs` files into a full vector in memory, performs
 #' cell ID mapping if necessary, and writes final GeoTIFF rasters.
 #'
-#' @param biovardir Character string. Path to directory with intermediate `.qs` files and `template_info.qs`
+#' @param input_dir Character string. Path to directory with intermediate `.qs` files and `template_info.qs`
 #' @param save_dir Character string. Path for the final GeoTIFF files. Default: "bioclimatic".
-#' @param clean_temporary_files Logical. Delete `biovardir` after writing? Default: FALSE.
+#' @param file_pattern Character string. A prefix or base pattern to identify the
+#'        groups of `.qs` files. For example, if files are "bio01_1.qs", "bio01_2.qs",
+#'        "bio02_1.qs", etc., `file_pattern` would be "bio". If files are
+#'        "var_mean_1.qs", "var_sum_1.qs", etc., `file_pattern` could be "var".
+#'        The function will attempt to extract the full variable name (e.g., "bio01", "var_mean")
+#'        from the filenames. Default is "bio".
+#' @param clean_temporary_files Logical. Delete `input_dir` after writing? Default: FALSE.
 #'
 #' @return None. Writes GeoTIFF files to `save_dir`.
 #' @author Luis Osorio-Olvera, Gonzalo E. Pinilla-Buitrago
@@ -13,13 +19,15 @@
 #' @export
 #' @import terra purrr stringr qs rio
 
-write_layers <- function(biovardir, save_dir = "bioclimatic",
+write_layers <- function(input_dir, 
+                         save_dir = "bioclimatic",
+                         file_pattern = "bio",
                          clean_temporary_files = FALSE){
 
   # --- 1. Input Validation and Load Template Info ---
-  if (!dir.exists(biovardir)) stop("Dir not found: ", biovardir)
-  template_info_file <- file.path(biovardir, "template_info.qs")
-  if (!file.exists(template_info_file)) stop("template_info.qs not found.")
+  if (!dir.exists(input_dir)) stop("Input directory not found: ", input_dir)
+  template_info_file <- file.path(input_dir, "template_info.qs")
+  if (!file.exists(template_info_file)) stop("template_info.qs not found in ", input_dir)
   
   template_info <- tryCatch({ 
     qs::qread(template_info_file) 
@@ -39,18 +47,39 @@ write_layers <- function(biovardir, save_dir = "bioclimatic",
   validate_geom(template_info$original_geom, "original_geom")
   validate_geom(template_info$target_geom, "target_geom")
   
-  # --- 2. Find and Organize Intermediate BIO Files ---
-  bio_paths <- list.files(biovardir, pattern = "bio\\d{1,2}_.*\\.qs$", full.names = TRUE)
-  if (length(bio_paths) == 0) stop("No intermediate bioclim '.qs' files found.")
+  # --- 2. Find and Organize Intermediate Files ---
+  qs_file_regex <- paste0("^", file_pattern, "([^[:digit:]_]|_)+[^_]+_\\d+\\.qs$")
+  all_qs_paths <- list.files(input_dir, pattern = "\\.qs$", full.names = TRUE)
+  all_qs_paths <- all_qs_paths[!basename(all_qs_paths) %in% c("template_info.qs")]
+  if (length(all_qs_paths) == 0) {
+    stop("No intermediate '.qs' files found in ", input_dir, " (excluding template_info.qs).")
+  }
   
-  bios_names <- stringr::str_extract(pattern = "bio\\d{1,2}", basename(bio_paths))
-  bio_paths_df <- data.frame(bio_paths, bios_names)
-  bio_paths_df <- bio_paths_df[!is.na(bio_paths_df$bios_names), ]
-  if (nrow(bio_paths_df) == 0) stop("No valid intermediate files found.")
+  var_base_names <- stringr::str_extract(basename(all_qs_paths), "^.*(?=_\\d+\\.qs$)")
+  if (!is.null(file_pattern) && nchar(file_pattern) > 0) {
+      # Ensure var_base_names start with the file_pattern
+      valid_indices <- startsWith(var_base_names, file_pattern)
+      all_qs_paths <- all_qs_paths[valid_indices]
+      var_base_names <- var_base_names[valid_indices]
+  }
   
-  bio_paths_dfL <- split(bio_paths_df, bio_paths_df$bios_names)
-  writing_order <- as.numeric(stringr::str_extract(pattern = "\\d{1,2}", names(bio_paths_dfL))) |> order()
-  bio_paths_dfL <- bio_paths_dfL[writing_order]
+  if (length(all_qs_paths) == 0) {
+    stop(paste0("No intermediate '.qs' files found matching the pattern starting with '", file_pattern, "'."))
+  }
+  qs_paths_df <- data.frame(paths = all_qs_paths, names = var_base_names, stringsAsFactors = FALSE)
+  qs_paths_df <- qs_paths_df[!is.na(qs_paths_df$names), ] # Remove if extraction failed
+
+  if (nrow(qs_paths_df) == 0) {
+    stop(paste0("No valid intermediate files found to process for pattern '", file_pattern, "'."))
+  }
+
+  qs_paths_dfL <- split(qs_paths_df, qs_paths_df$names)
+  if (file_pattern == "bio") {
+    writing_order <- as.numeric(stringr::str_extract(pattern = "\\d{1,2}", names(qs_paths_dfL))) |> order()
+  } else {
+    writing_order <- order(names(qs_paths_dfL))
+  }
+  qs_paths_dfL <- qs_paths_dfL[writing_order]
   gc()
   
   # --- 3. Reconstruct Template Rasters ---
@@ -75,17 +104,17 @@ write_layers <- function(biovardir, save_dir = "bioclimatic",
   # --- 4. Process Each Bioclim Variable ---
   if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
   
-  seq_along(bio_paths_dfL) |> purrr::walk(function(x) {
-    bio_paths_df_base <- bio_paths_dfL[[x]]
-    biovar_paths <- bio_paths_df_base$bio_paths
-    current_bio_name <- bio_paths_df_base$bios_names[1]
+  seq_along(qs_paths_dfL) |> purrr::walk(function(x) {
+    qs_paths_df_base <- qs_paths_dfL[[x]]
+    var_paths <- qs_paths_df_base$paths
+    current_qs_name <- qs_paths_df_base$names[1]
     
-    message(paste("\nAssembling", current_bio_name, "in memory..."))
-    pb <- utils::txtProgressBar(min = 0, max = length(biovar_paths), style = 3, width = 50)
+    message(paste("\nAssembling", current_qs_name, "in memory..."))
+    pb <- utils::txtProgressBar(min = 0, max = length(var_paths), style = 3, width = 50)
     rvals <- rep(NA_real_, n_target_cells)
     
-    for (i in seq_along(biovar_paths)) {
-      bioval <- tryCatch(rio::import(biovar_paths[i]), error = function(e) NULL)
+    for (i in seq_along(var_paths)) {
+      bioval <- tryCatch(rio::import(var_paths[i]), error = function(e) NULL)
       if (is.null(bioval) || !("cell" %in% colnames(bioval)) || nrow(bioval) == 0) {
         utils::setTxtProgressBar(pb, i)
         next
@@ -97,8 +126,8 @@ write_layers <- function(biovardir, save_dir = "bioclimatic",
     close(pb)
     
     # Write to GeoTIFF
-    outRast <- terra::rast(target_template, names = current_bio_name)
-    output_file <- file.path(save_dir, paste0(current_bio_name, ".tif"))
+    outRast <- terra::rast(target_template, names = current_qs_name)
+    output_file <- file.path(save_dir, paste0(current_qs_name, ".tif"))
     
     message("Writing GeoTIFF: ", output_file)
     write_success <- FALSE
@@ -139,10 +168,10 @@ write_layers <- function(biovardir, save_dir = "bioclimatic",
     })
     
     if (write_success) {
-      message("\n", current_bio_name, " written successfully.")
+      message("\n", current_qs_name, " written successfully.")
     } else {
       if (file.exists(output_file)) file.remove(output_file)
-      warning(current_bio_name, " failed write.")
+      warning(current_qs_name, " failed write.")
     }
     
     gc()
@@ -150,10 +179,10 @@ write_layers <- function(biovardir, save_dir = "bioclimatic",
   
   # --- 5. Final Cleanup ---
   if (clean_temporary_files) {
-    unlink(biovardir, recursive = TRUE, force = TRUE)
-    message("Temp cleaned: ", biovardir)
+    unlink(input_dir, recursive = TRUE, force = TRUE)
+    message("Temp cleaned: ", input_dir)
   } else {
-    message("Intermediate files kept: ", biovardir)
+    message("Intermediate files kept: ", input_dir)
   }
   
   message("\nAll processed GeoTIFFs written to: ", normalizePath(save_dir))
