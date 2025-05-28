@@ -82,12 +82,12 @@ tictoc::toc()
 gc()
 future::plan("sequential") 
 tictoc::tic("Write MEX")
-fastbioclim::write_layers(biovardir = bioclim_mex_path ,
+fastbioclim::write_layers(input_dir = bioclim_mex_path ,
   save_dir = "/Users/Gonzalo/bioclim_mex",
   # save_dir = "/Users/gepb/bioclim_mex",
   clean_temporary_files = FALSE)
 tictoc::toc()
-bio01_mex <- rast("/Users/Gonzalo/bioclim_mex/bio01.tif")
+bio01_mex <- rast("/Users/Gonzalo/bioclim_mex/bio12.tif")
 # bio01_mex <- rast("/Users/gepb/bioclim_mex/bio1.tif")
 plot(bio01_mex)
 
@@ -151,7 +151,7 @@ tictoc::toc()
 gc()
 future::plan("sequential") 
 tictoc::tic("Write COL")
-fastbioclim::write_layers(biovardir = bioclim_col_path ,
+fastbioclim::write_layers(input_dir = bioclim_col_path ,
   save_dir = "/Users/Gonzalo/bioclim_col",
   # save_dir = "/Users/gepb/bioclim_col",
   clean_temporary_files = FALSE)
@@ -214,7 +214,7 @@ tictoc::toc()
 gc()
 future::plan("sequential") 
 tictoc::tic("Write SA")
-fastbioclim::write_layers(biovardir = bioclim_sa_path ,
+fastbioclim::write_layers(input_dir = bioclim_sa_path ,
   save_dir = "/Users/Gonzalo/bioclim_sa",
   # save_dir = "/Users/gepb/bioclim_sa",
   clean_temporary_files = FALSE)
@@ -276,7 +276,7 @@ bioclim_sta_path <- fastbioclim::bioclim_vars(bios = 1:19,
                                                     wettest_period_path = six_path,
                                                     temp_dir = "/Users/Gonzalo/bioclim_qs")
                                                     # temp_dir = "/Users/gepb/bioclim_qs")
-fastbioclim::write_layers(biovardir = bioclim_sta_path,
+fastbioclim::write_layers(input_dir = bioclim_sta_path,
   save_dir = "/Users/Gonzalo/bioclim_sta",
   clean_temporary_files = FALSE)
 bio05_mex <- rast("/Users/Gonzalo/bioclim_mex/bio05.tif")
@@ -322,7 +322,7 @@ tictoc::toc()
 gc()
 future::plan("sequential") 
 tictoc::tic("Write MEX")
-fastbioclim::write_layers(biovardir = bioclim_mex_path ,
+fastbioclim::write_layers(input_dir = bioclim_mex_path ,
   save_dir = "/Users/Gonzalo/bioclim_mex",
   # save_dir = "/Users/gepb/bioclim_mex",
   clean_temporary_files = FALSE)
@@ -331,3 +331,69 @@ biocheck <- rast(paste0("/Users/Gonzalo/bioclim_mex/bio",
                         sprintf("%02d", i), ".tif"))
 # bio01_mex <- rast("/Users/gepb/bioclim_mex/bio1.tif")
 plot(biocheck)
+
+
+### CUSTOM VARS
+wind_path <- list.files(
+  # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmin",
+  # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmin",
+  # "~/Downloads/tmin/",
+  "/Users/Gonzalo/Library/CloudStorage/GoogleDrive-gepinillab@iecologia.unam.mx/My Drive/data/raster/chelsa/1981-2010",
+  pattern = "wind.*\\.tif$",
+  full.names = TRUE
+)
+tavg_path <- list.files(
+  # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmax",
+  # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmax",
+  # "~/Downloads/tmax",
+  "/Users/Gonzalo/Library/CloudStorage/GoogleDrive-gepinillab@iecologia.unam.mx/My Drive/data/raster/chelsa/1981-2010",
+  pattern = "tavg.*\\.tif$",
+  full.names = TRUE
+)
+prec_path <- list.files(
+  # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
+  # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
+  # "~/Downloads/prcp/",
+  "/Users/Gonzalo/Library/CloudStorage/GoogleDrive-gepinillab@iecologia.unam.mx/My Drive/data/raster/chelsa/1981-2010",
+  pattern = "prcp.*\\.tif$",
+  full.names = TRUE
+)
+progressr::handlers(global = TRUE)
+future::plan("multisession", workers = 4)
+mex <- AOI::aoi_get(country = "Mexico")
+wind_vars <- fastbioclim::stats_vars(
+  variable_path = wind_path,
+  n_units = 12, 
+  stats = c("mean", "max", "min", "cv_cli", "max_period", "min_period"),
+  inter_variable_path = prec_path,
+  inter_stats = c("max_inter", "min_inter"),
+  prefix_variable = "wind",
+  suffix_inter_max = "wettest",
+  suffix_inter_min = "driest",
+  user_region = mex,
+  temp_dir = "/Users/Gonzalo/bioclim_qs"
+)
+
+wind_vars_more <- fastbioclim::stats_vars(
+  variable_path = wind_path,
+  n_units = 12, 
+  stats = NULL,
+  inter_variable_path = tavg_path,
+  inter_stats = c("max_inter", "min_inter"),
+  prefix_variable = "wind",
+  suffix_inter_max = "warmest",
+  suffix_inter_min = "coldest",
+  user_region = mex,
+  temp_dir = "/Users/Gonzalo/bioclim_qs"
+)
+
+fastbioclim::write_layers(input_dir = wind_vars,
+  save_dir = "/Users/Gonzalo/bioclim_wind",
+  file_pattern = "wind",
+  clean_temporary_files = FALSE)
+fastbioclim::write_layers(input_dir = wind_vars_more,
+  save_dir = "/Users/Gonzalo/bioclim_wind",
+  file_pattern = "wind",
+  clean_temporary_files = FALSE)
+r_wind <- rast(list.files("/Users/Gonzalo/bioclim_wind", pattern = "*.tif", full.names = TRUE))
+plot(r_wind)
