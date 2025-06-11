@@ -519,10 +519,6 @@ stats_vars <- function(variable_path,
   }
   # Assuming single polygon feature per tile after st_intersection and st_collection_extract
   extracted_data_for_tile <- extracted_data_list_raw[, 1]
-  # print(str(extracted_data_list_raw))
-  print(!is.list(extracted_data_for_tile))
-  print(is.null(extracted_data_for_tile$variable_matrix))
-  print(nrow(extracted_data_for_tile$variable_matrix) == 0)
   if (!is.list(extracted_data_for_tile) || is.null(extracted_data_for_tile$variable_matrix) || nrow(extracted_data_for_tile$variable_matrix) == 0) {
     warning(sprintf("Tile %d: Extracted data is invalid or empty.", tile_idx))
     return(NULL)

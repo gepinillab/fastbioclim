@@ -97,7 +97,7 @@ write_layers <- function(input_dir,
   if (terra::ncell(original_template) == 0) stop("Original template empty.")
   
   crop_occurred <- !all(terra::ext(original_template) == terra::ext(target_template)) || 
-                   !all(terra::dim(original_template)[1:2] == terra::dim(target_template)[1:2])
+                   !all(dim(original_template)[1:2] == dim(target_template)[1:2])
   
   n_target_cells <- terra::ncell(target_template)
   
