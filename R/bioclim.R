@@ -372,7 +372,7 @@ bioclim_vars <- function(bios,
                         "worker_req_tavg", "worker_req_temp_p", "worker_req_prec_p", 
                         "worker_req_srad_p", "worker_req_mois_p", 
                         "check_evar", "compute_periods", "var_periods", 
-                        paste0("bio", 1:19, "_fun"), "bios_qs_paths", "write_raw_vars", "bioclima_dir")
+                        paste0("bio", 1:35, "_fast"), "bios_qs_paths", "write_raw_vars", "bioclima_dir")
       if (exists("raw_paths_list")) export_vars <- c(export_vars, "raw_paths_list")
       vals <- future.apply::future_lapply(seq_len(ntiles), function(x) {
         p(message = sprintf("Processing tile %d of %d", x, ntiles))
@@ -610,144 +610,144 @@ bioclim_vars <- function(bios,
 
           result_var <- NULL
           bio_output_name <- paste0("bio", sprintf("%02d", bio_num))
-          # Call BIOS_fun 
+          # Call BIOS_fast 
           if (bio_num == 1) {
-            result_var <- bio01_fun(tavg = tile_results$temperature_avg, 
+            result_var <- bio01_fast(tavg = tile_results$temperature_avg, 
                                     cell = cell_ids)
           } else if (bio_num == 2) {
-            result_var <- bio02_fun(tmin = tile_results$tmin, 
+            result_var <- bio02_fast(tmin = tile_results$tmin, 
                                     tmax = tile_results$tmax, 
                                     cell = cell_ids)
           } else if (bio_num == 3) {
-            result_var <- bio03_fun(bio02V = calculated_bios_in_tile$bio02[, 1, drop = TRUE],
+            result_var <- bio03_fast(bio02V = calculated_bios_in_tile$bio02[, 1, drop = TRUE],
                                     bio07V = calculated_bios_in_tile$bio07[, 1, drop = TRUE],
                                     cell = cell_ids)  
           } else if (bio_num == 4) {
-            result_var <- bio04_fun(tavg = tile_results$temperature_avg, 
+            result_var <- bio04_fast(tavg = tile_results$temperature_avg, 
                                     cell = cell_ids)
           } else if (bio_num == 5) {
-            result_var <- bio05_fun(tmax = tile_results$tmax, 
+            result_var <- bio05_fast(tmax = tile_results$tmax, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
           } else if (bio_num == 6) {
-            result_var <- bio06_fun(tmin = tile_results$tmin, 
+            result_var <- bio06_fast(tmin = tile_results$tmin, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
           } else if (bio_num == 7) {
-            result_var <- bio07_fun(bio05V = calculated_bios_in_tile$bio05[, 1, drop = TRUE], 
+            result_var <- bio07_fast(bio05V = calculated_bios_in_tile$bio05[, 1, drop = TRUE], 
                                     bio06V = calculated_bios_in_tile$bio06[, 1, drop = TRUE],
                                     cell = cell_ids)
           } else if (bio_num == 8) {
-            result_var <- bio08_fun(tperiod = tile_results$tempr_periods,
+            result_var <- bio08_fast(tperiod = tile_results$tempr_periods,
                                     pperiod_max_idx = idx_vec_period,
                                     period_length = period_length,
                                     cell = cell_ids)
           } else if (bio_num == 9) {
-            result_var <- bio09_fun(tperiod = tile_results$tempr_periods,
+            result_var <- bio09_fast(tperiod = tile_results$tempr_periods,
                                     pperiod_min_idx = idx_vec_period,
                                     period_length = period_length,
                                     cell = cell_ids)
           } else if (bio_num == 10) {
-            result_var <- bio10_fun(tperiod = tile_results$tempr_periods,
+            result_var <- bio10_fast(tperiod = tile_results$tempr_periods,
                                     tperiod_max_idx = idx_vec_period,
                                     period_length = period_length,
                                     cell = cell_ids)
           } else if (bio_num == 11) {
-            result_var <- bio11_fun(tperiod = tile_results$tempr_periods,
+            result_var <- bio11_fast(tperiod = tile_results$tempr_periods,
                                     tperiod_min_idx = idx_vec_period,
                                     period_length = period_length,
                                     cell = cell_ids)
           } else if (bio_num == 12) {
-            result_var <- bio12_fun(precp = tile_results$prec_vals, 
+            result_var <- bio12_fast(precp = tile_results$prec_vals, 
                                     cell = cell_ids)
           } else if (bio_num == 13) {
-            result_var <- bio13_fun(precp = tile_results$prec_vals, 
+            result_var <- bio13_fast(precp = tile_results$prec_vals, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
           } else if (bio_num == 14) {
-            result_var <- bio14_fun(precp = tile_results$prec_vals, 
+            result_var <- bio14_fast(precp = tile_results$prec_vals, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
           } else if (bio_num == 15) {
-            result_var <- bio15_fun(precp = tile_results$prec_vals,
+            result_var <- bio15_fast(precp = tile_results$prec_vals,
                                     bio12V = calculated_bios_in_tile$bio12[, 1, drop = TRUE],
                                     n_units = n_units, 
                                     cell = cell_ids)
           
           } else if (bio_num == 16) {
-            result_var <- bio16_fun(pperiod = tile_results$preci_periods,
+            result_var <- bio16_fast(pperiod = tile_results$preci_periods,
                                     pperiod_max_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 17) {
-            result_var <- bio17_fun(pperiod = tile_results$preci_periods,
+            result_var <- bio17_fast(pperiod = tile_results$preci_periods,
                                     pperiod_min_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 18) {
-            result_var <- bio18_fun(pperiod = tile_results$preci_periods,
+            result_var <- bio18_fast(pperiod = tile_results$preci_periods,
                                     tperiod_max_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 19) {
-            result_var <- bio19_fun(pperiod = tile_results$preci_periods,
+            result_var <- bio19_fast(pperiod = tile_results$preci_periods,
                                     tperiod_min_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 20) {
-            result_var <- bio20_fun(srad = tile_results$srad_vals, 
+            result_var <- bio20_fast(srad = tile_results$srad_vals, 
                                     cell = cell_ids)
           } else if (bio_num == 21) {
-            result_var <- bio21_fun(srad = tile_results$srad_vals, 
+            result_var <- bio21_fast(srad = tile_results$srad_vals, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
           } else if (bio_num == 22) {
-            result_var <- bio22_fun(srad = tile_results$srad_vals, 
+            result_var <- bio22_fast(srad = tile_results$srad_vals, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
           } else if (bio_num == 23) {
-            result_var <- bio23_fun(srad = tile_results$srad_vals, 
+            result_var <- bio23_fast(srad = tile_results$srad_vals, 
                                     cell = cell_ids)
           } else if (bio_num == 24) {
-            result_var <- bio24_fun(speriod = tile_results$srad_periods,
+            result_var <- bio24_fast(speriod = tile_results$srad_periods,
                                     pperiod_max_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 25) {
-            result_var <- bio25_fun(speriod = tile_results$srad_periods,
+            result_var <- bio25_fast(speriod = tile_results$srad_periods,
                                     pperiod_min_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 26) {
-            result_var <- bio26_fun(speriod = tile_results$srad_periods,
+            result_var <- bio26_fast(speriod = tile_results$srad_periods,
                                     tperiod_max_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 27) {
-            result_var <- bio27_fun(speriod = tile_results$srad_periods,
+            result_var <- bio27_fast(speriod = tile_results$srad_periods,
                                     tperiod_min_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 28) {
-            result_var <- bio28_fun(mois = tile_results$mois_vals, 
+            result_var <- bio28_fast(mois = tile_results$mois_vals, 
                                     cell = cell_ids)
           } else if (bio_num == 29) {
-            result_var <- bio29_fun(mois = tile_results$mois_vals, 
+            result_var <- bio29_fast(mois = tile_results$mois_vals, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
           } else if (bio_num == 30) {
-            result_var <- bio30_fun(mois = tile_results$mois_vals, 
+            result_var <- bio30_fast(mois = tile_results$mois_vals, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
           } else if (bio_num == 31) {
-            result_var <- bio31_fun(mois = tile_results$mois_vals, 
+            result_var <- bio31_fast(mois = tile_results$mois_vals, 
                                     cell = cell_ids)
           } else if (bio_num == 32) {
-            result_var <- bio32_fun(speriod = tile_results$mois_periods,
+            result_var <- bio32_fast(speriod = tile_results$mois_periods,
                                     speriod_max_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 33) {
-            result_var <- bio33_fun(speriod = tile_results$mois_periods,
+            result_var <- bio33_fast(speriod = tile_results$mois_periods,
                                     speriod_min_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 34) {
-            result_var <- bio34_fun(speriod = tile_results$mois_periods,
+            result_var <- bio34_fast(speriod = tile_results$mois_periods,
                                     tperiod_max_idx = idx_vec_period,
                                     cell = cell_ids)
           } else if (bio_num == 35) {
-            result_var <- bio35_fun(speriod = tile_results$mois_periods,
+            result_var <- bio35_fast(speriod = tile_results$mois_periods,
                                     tperiod_min_idx = idx_vec_period,
                                     cell = cell_ids)
           }
