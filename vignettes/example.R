@@ -1,3 +1,4 @@
+library(terra)
 # ACTIVATE PROGRESS BAR
 progressr::handlers(global = TRUE)
 
@@ -87,7 +88,7 @@ fastbioclim::write_layers(input_dir = bioclim_mex_path ,
   # save_dir = "/Users/gepb/bioclim_mex",
   clean_temporary_files = FALSE)
 tictoc::toc()
-bio01_mex <- rast("/Users/Gonzalo/bioclim_mex/bio12.tif")
+bio01_mex <- terra::rast("/Users/Gonzalo/bioclim_mex/bio12.tif")
 # bio01_mex <- rast("/Users/gepb/bioclim_mex/bio1.tif")
 plot(bio01_mex)
 
@@ -328,7 +329,7 @@ fastbioclim::write_layers(input_dir = bioclim_mex_path ,
   clean_temporary_files = FALSE)
 tictoc::toc()
 biocheck <- rast(paste0("/Users/Gonzalo/bioclim_mex/bio", 
-                        sprintf("%02d", i), ".tif"))
+                        sprintf("%02d", 27), ".tif"))
 # bio01_mex <- rast("/Users/gepb/bioclim_mex/bio1.tif")
 plot(biocheck)
 
@@ -361,6 +362,7 @@ prec_path <- list.files(
 progressr::handlers(global = TRUE)
 future::plan("multisession", workers = 4)
 mex <- AOI::aoi_get(country = "Mexico")
+tictoc::tic()
 wind_vars <- fastbioclim::stats_vars(
   variable_path = wind_path,
   n_units = 12, 
@@ -373,7 +375,8 @@ wind_vars <- fastbioclim::stats_vars(
   user_region = mex,
   temp_dir = "/Users/Gonzalo/bioclim_qs"
 )
-
+tictoc::toc() # 24.441
+tictoc::tic()
 wind_vars_more <- fastbioclim::stats_vars(
   variable_path = wind_path,
   n_units = 12, 
@@ -386,14 +389,18 @@ wind_vars_more <- fastbioclim::stats_vars(
   user_region = mex,
   temp_dir = "/Users/Gonzalo/bioclim_qs"
 )
-
+tictoc::toc() # 20.068
+tictoc::tic()
 fastbioclim::write_layers(input_dir = wind_vars,
   save_dir = "/Users/Gonzalo/bioclim_wind",
   file_pattern = "wind",
   clean_temporary_files = FALSE)
+tictoc::toc() # 3.779
+tictoc::tic()
 fastbioclim::write_layers(input_dir = wind_vars_more,
   save_dir = "/Users/Gonzalo/bioclim_wind",
   file_pattern = "wind",
   clean_temporary_files = FALSE)
-r_wind <- rast(list.files("/Users/Gonzalo/bioclim_wind", pattern = "*.tif", full.names = TRUE))
+tictoc::toc() # 1.086
+r_wind <- terra::rast(list.files("/Users/Gonzalo/bioclim_wind", pattern = "*.tif", full.names = TRUE))
 plot(r_wind)
