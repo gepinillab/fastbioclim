@@ -1,8 +1,20 @@
-#' @export
-stats_clima <- function(variable, 
+#' In-Memory Custom Variable Summarization
+#'
+#' Internal function to calculate custom summary statistics using `terra` functions.
+#' Designed for datasets that fit into RAM.
+#'
+#' @param variable A SpatRaster for the primary variable.
+#' @param stats Character vector of stats to compute.
+#' @param prefix_variable Character, prefix for output layer names.
+#' @param ... Other arguments including inter_variable, period_length, circular,
+#'   static index SpatRasters, etc.
+#' @return A `terra::SpatRaster` object containing the calculated summary layers.
+#' @keywords internal
+#' @seealso The user-facing wrapper function `derived_statistics()`.
+stats_terra <- function(variable, 
                         stats = c("mean", "max", "min", 
                                   "cv_cli", "max_period", "min_period"),
-                        period = 3,
+                        period_length = 3,
                         period_stats = "mean",
                         circular = TRUE,
                         inter_variable = NULL,
@@ -14,10 +26,12 @@ stats_clima <- function(variable,
                         max_interactive = NULL,
                         min_interactive = NULL,
                         prefix_variable = "var",
-                        suffix_inter_max = "inter_high",
+                        suffix_inter_max = "inter_high", 
                         suffix_inter_min = "inter_low",
-                        checkNA = TRUE, 
-                        stopNA = TRUE) {
+                        gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
+                        overwrite = FALSE, 
+                        output_dir = tempdir(),
+                        ...) {
   # Check for same extent, number of rows and columns, projection,
   # resolution, and origin
   sameGeom <- class(purrr::reduce(list(variable, inter_variable, max_unit, min_unit, 
@@ -49,45 +63,7 @@ stats_clima <- function(variable,
   if (length(inv_period_stats) > 0) {
     stop(paste("Invalid interactive stats character(s) provided:", paste(inv_inter_stats, collapse = ", ")))
   }
-  
-  # Check for NAs
-  if (checkNA == TRUE) {
-    variable_na <- mismatch_NA(variable)
-    if (variable_na$logical == TRUE & stopNA == TRUE) {
-      stop("variable has unexpected NA values")
-    }
-    variable_sum <- variable_na$sum_lyr
-  }
-  
-  if (checkNA == TRUE & !is.null(inter_variable)) {
-    inter_variable_na <- mismatch_NA(inter_variable)
-    if (inter_variable_na$logical == TRUE & stopNA == TRUE) {
-      stop("inter_variable has unexpected NA values")
-    }
-    inter_variable_sum <- inter_variable_na$sum_lyr
-  }
-  
-  if (checkNA == TRUE) {
-    # Sum all rasters
-    if (!exists("inter_variable_sum")) inter_variable_sum <-  NULL
     
-    intra_na <- purrr::reduce(list(variable_sum, inter_variable_sum) |>
-                                purrr::discard(is.null), c) |>
-      sum() |>
-      terra::unique() |>
-      unlist()
-    # Delete values that shared pixel NA in all layers
-    intra_na <- intra_na[intra_na != 0]
-    # Check if there is sum of pixel with values is equal
-    if (length(intra_na) != 1) {
-      if (stopNA == TRUE) {
-        stop("SpatRaster don't share same NA values")
-      } else {
-        message("SpatRasters (variable, inter_variable) don't share same NAs values")
-      }
-    }
-  }
-  
   # Create NULL spatRaster
   mean_stat <- sum_stat <- max_stat <- min_stat <- stdev_stat <- cv_cli_stat <- NULL
   max_period_stat <- min_period_stat <- max_inter_stat <- min_inter_stat <- NULL
@@ -137,8 +113,8 @@ stats_clima <- function(variable,
   # MAX & MIN PERIOD
   if (any(c("max_period", "min_period", "max_inter", "min_inter") %in% c(stats, inter_stats))) {
     # Get windows
-    period_windows <- fastbioclim::get_window(variable, period, circular)
-    if (period_stats == "mean") period_windows <- period_windows / period
+    period_windows <- fastbioclim::get_window(variable, period_length, circular)
+    if (period_stats == "mean") period_windows <- period_windows / period_length
   }
   ## MAX_PERIOD
   if ("max_period" %in% stats & is.null(max_period)) {
@@ -161,7 +137,7 @@ stats_clima <- function(variable,
   if (!is.null(inter_variable)) {
     if (("max_inter" %in% inter_stats & is.null(max_interactive)) | 
         ("min_inter" %in% inter_stats & is.null(min_interactive))) {
-      inter_windows <- fastbioclim::get_window(inter_variable, period, circular)
+      inter_windows <- fastbioclim::get_window(inter_variable, period_length, circular)
     }
     if ("max_inter" %in% inter_stats) {
       if (is.null(max_interactive)) {
@@ -187,5 +163,16 @@ stats_clima <- function(variable,
     mean_stat, sum_stat, max_stat, min_stat, stdev_stat, cv_cli_stat, 
     max_period_stat, min_period_stat, max_inter_stat, min_inter_stat) |>
       purrr::discard(is.null))
-  return(raster_stats)
+
+  
+  output_files <- file.path(output_dir, paste0(names(raster_stats), ".tif"))
+  
+  message("Writing GeoTIFFs...")
+  terra::writeRaster(
+    raster_stats,
+    filename = output_files,
+    overwrite = overwrite,
+    gdal = gdal_opt
+  )
+  return(output_files)
 }

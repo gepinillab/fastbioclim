@@ -46,6 +46,22 @@ cmi_path <- list.files(
   pattern = "cmi.*\\.tif$",
   full.names = TRUE
 )
+wind_path <- list.files(
+  # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmin",
+  # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmin",
+  # "~/Downloads/tmin/",
+  "/Users/Gonzalo/Library/CloudStorage/GoogleDrive-gepinillab@iecologia.unam.mx/My Drive/data/raster/chelsa/1981-2010",
+  pattern = "wind.*\\.tif$",
+  full.names = TRUE
+)
+tavg_path <- list.files(
+  # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmax",
+  # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/tmax",
+  # "~/Downloads/tmax",
+  "/Users/Gonzalo/Library/CloudStorage/GoogleDrive-gepinillab@iecologia.unam.mx/My Drive/data/raster/chelsa/1981-2010",
+  pattern = "tavg.*\\.tif$",
+  full.names = TRUE
+)
 
 # WORLD - M2 (16 Gb)
 # [v10] 497 + 710 = 1207
@@ -65,10 +81,60 @@ version = "latest")
 # [seq] 17.216 + 11.844 = 29.06
 # [w4] 12.766 + 12.814 = 25.58
 # [w4] 12.433 + 12.731 = 25.164
+
+mex <- AOI::aoi_get(country = "Mexico")
+# derive_bioclim()
+gc()
+future::plan("multisession", workers = 4)
+tictoc::tic("MEX: derive_bioclim()")
+theBios_mex <- fastbioclim::derive_bioclim(
+  bios = 1:19,
+  tmin = terra::rast(tmin_path),
+  tmax = terra::rast(tmax_path),
+  prcp = terra::rast(prcp_path),
+  user_region = mex, 
+  output_dir = "/Users/Gonzalo/bioclim_mex",
+  overwrite = TRUE,
+  method = "tiled"
+)
+tictoc::toc()
+plot(theBios_mex)
+# derive_statistics()
+gc()
+future::plan("multisession", workers = 4)
+tictoc::tic("MEX: derive_statistics()")
+theWind_mex <- fastbioclim::derive_statistics(
+  variable = terra::rast(wind_path), 
+  stats = c("mean", "max", "min", "max_period", "min_period", "cv_cli"), 
+  inter_variable = terra::rast(tavg_path),
+  inter_stats = c("max_inter", "min_inter"),
+  prefix_variable = "wind",
+  suffix_inter_max = "warmest",
+  suffix_inter_min = "coldest",
+  user_region = mex,
+  output_dir = "/Users/Gonzalo/wind_mex",
+  overwrite = TRUE,
+  method = "terra"
+)
+theOtherWind_mex <- fastbioclim::derive_statistics(
+  variable = terra::rast(wind_path), 
+  stats = NULL, 
+  inter_variable = terra::rast(prcp_path),
+  inter_stats = c("max_inter", "min_inter"),
+  prefix_variable = "wind",
+  suffix_inter_max = "wettest",
+  suffix_inter_min = "driest",
+  user_region = mex,
+  output_dir = "/Users/Gonzalo/wind_mex",
+  overwrite = TRUE,
+  method = "tiled"
+)
+tictoc::toc()
+theWind_mex <- c(theWind_mex, theOtherWind_mex)
+plot(theWind_mex)
 gc()
 future::plan("multisession", workers = 4)
 # future::plan("sequential") 
-mex <- AOI::aoi_get(country = "Mexico")
 tictoc::tic("MEX calculation")
 bioclim_mex_path <- fastbioclim::bioclim_fast(bios = 1:19,
                                               n_units = 12,
@@ -115,22 +181,7 @@ bios_mex <- fastbioclim::bioclim_terra(
 tictoc::toc()
 plot(terra::rast(bios_mex[1]))
 
-# derive_bioclim()
-gc()
-future::plan("multisession", workers = 4)
-tictoc::tic("MEX: derive_bioclim()")
-theBios_mex <- fastbioclim::derive_bioclim(
-  bios = 1:19,
-  tmin = terra::rast(tmin_path),
-  tmax = terra::rast(tmax_path),
-  prcp = terra::rast(prcp_path),
-  user_region = mex, 
-  output_dir = "/Users/Gonzalo/bioclim_mex",
-  overwrite = TRUE,
-  method = "terra"
-)
-tictoc::toc()
-plot(theBios_mex)
+
 # CHECK
 # i <- 19
 # # r <- rast(paste0("/Users/gepb/bioclim_mex/bio", sprintf("%02d", i), ".tif"))

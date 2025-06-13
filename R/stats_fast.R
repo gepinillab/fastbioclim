@@ -1,67 +1,22 @@
-#' Compute Specified Statistics from Climate Rasters
+#' Tiled, Out-of-Core Custom Variable Summarization
 #'
-#' Calculates specified summary statistics from input variable rasters
-#' with user-defined temporal units, optionally using an interactive variable
-#' and static indices. AOI is defined by `user_region` or defaults to the
-#' full raster extent. Uses parallel processing, spatial tiling, and `exactextractr`.
+#' Internal function to calculate custom summary statistics for very large datasets
+#' by processing them in tiles.
 #'
-#' @param variable_path Character vector of `n_units` paths to the primary variable rasters.
-#' @param n_units Integer. The number of temporal units (layers) per input variable.
-#' @param stats Character vector. Statistics to compute for the primary variable.
-#'        Possible values: "mean", "max", "min", "sum", "stdev", "cv_cli",
-#'        "max_period", "min_period".
-#' @param period Integer. The number of units defining a "period" for period-based stats. Default: 3.
-#' @param period_stats Character. Statistic to summarize periods by ("mean" or "sum"). Default: "mean".
-#' @param circular Logical. Calculate periods wrapping around the cycle? Default: TRUE.
-#' @param inter_variable_path Optional. Character vector of `n_units` paths to an
-#'        interactive variable's rasters.
-#' @param inter_stats Character vector. Interactive statistics to compute.
-#'        Requires `inter_variable_path`. Possible values: "max_inter", "min_inter".
-#'        These calculate the primary variable's period value corresponding to the
-#'        interactive variable's max/min period.
-#' @param max_unit_path Optional. Path to a single-layer raster specifying the unit (1-based index)
-#'        to use for "max" statistic if provided (overrides dynamic calculation).
-#' @param min_unit_path Optional. Path to a single-layer raster specifying the unit (1-based index)
-#'        to use for "min" statistic if provided.
-#' @param max_period_path Optional. Path to a single-layer raster specifying the period (1-based index)
-#'        to use for "max_period" statistic if provided.
-#' @param min_period_path Optional. Path to a single-layer raster specifying the period (1-based index)
-#'        to use for "min_period" statistic if provided.
-#' @param max_interactive_path Optional. Path to a single-layer raster specifying the period (1-based index)
-#'        of the interactive variable to use for "max_inter" statistic.
-#' @param min_interactive_path Optional. Path to a single-layer raster specifying the period (1-based index)
-#'        of the interactive variable to use for "min_inter" statistic.
-#' @param prefix_variable Character. Prefix for output statistic names. Default: "var".
-#' @param suffix_inter_max Character. Suffix for the "max_inter" statistic name. Default: "inter_high".
-#' @param suffix_inter_min Character. Suffix for the "min_inter" statistic name. Default: "inter_low".
-#' @param user_region Optional. An `sf` or `terra::SpatVector` object defining the
-#'   processing area. If `NULL`, the full extent of the input rasters is used.
-#' @param tile_degrees Numeric. Approximate size of processing tiles in degrees. Default: 5.
-#' @param temp_dir Character. Path for temporary tile files. Default: `tempdir()`.
-#' @param write_raw_vars Logical. Save intermediate extracted climate data. Default: FALSE.
-#' @param ... Additional arguments (currently unused but kept for consistency).
-#'
-#' @return Character string: Path to the temporary directory containing intermediate `.qs` files.
-#'
-#' @details
-#' This function processes multi-temporal raster data tile by tile in parallel.
-#' For each tile:
-#' 1. Data is extracted from input rasters into matrices (pixels x time-units).
-#' 2. Requested statistics are calculated using matrix operations (often via `Rfast`).
-#'    - "cv_cli" is calculated as `(stdev / (1 + mean)) * 100`.
-#'    - Period stats ("max_period", "min_period") use summaries of the primary variable over sliding windows.
-#'    - Interactive stats ("max_inter", "min_inter") use the primary variable's period summary
-#'      corresponding to the period where the interactive variable is maximal or minimal.
-#' 3. Static index rasters (e.g., `max_unit_path`) can override dynamic identification of
-#'    units or periods for specific statistics.
-#' 4. Results for each statistic are saved as `.qs` files (value + cell_id).
-#'
-#'
-#' @export
-stats_vars <- function(variable_path,
+#' @param variable_path Path to primary variable rasters.
+#' @param n_units Integer, number of layers per variable.
+#' @param stats Character vector of stats to compute.
+#' @param prefix_variable Character, prefix for output files.
+#' @param ... Other arguments including inter_variable_path, period_length, circular,
+#'   static index paths, etc.
+#' @return Character string: Path to the temporary directory containing
+#'   intermediate `.qs` files.
+#' @keywords internal
+#' @seealso The user-facing wrapper function `derive_statistics()`.
+stats_fast <- function(variable_path,
   n_units,
   stats = c("mean", "max", "min"),
-  period = 3,
+  period_length = 3,
   period_stats = "mean",
   circular = TRUE,
   inter_variable_path = NULL,
@@ -77,7 +32,7 @@ stats_vars <- function(variable_path,
   suffix_inter_min = "inter_low",
   user_region = NULL,
   tile_degrees = 5,
-  temp_dir = tempdir(),
+  output_dir = tempdir(),
   write_raw_vars = FALSE,
   ...) {
 
@@ -90,7 +45,7 @@ stats_vars <- function(variable_path,
   if (missing(n_units) || !is.numeric(n_units) || n_units <= 0 || length(variable_path) != n_units) {
     stop(sprintf("'n_units' required and must match length of 'variable_path' (%d).", n_units))
   }
-  if (!is.numeric(period) || period <= 0 || period > n_units) stop("'period' invalid.")
+  if (!is.numeric(period_length) || period_length <= 0 || period_length > n_units) stop("'period_length' invalid.")
   if (!(period_stats %in% c("mean", "sum"))) stop("'period_stats' must be 'mean' or 'sum'.")
 
   valid_stats_opts <- c("mean", "max", "min", "sum", "stdev", "cv_cli", "max_period", "min_period")
@@ -199,7 +154,6 @@ stats_vars <- function(variable_path,
         terra::compareGeom(ref_rast_geom_check, current_rast_info, stopOnError = TRUE, messages = FALSE)
       }
     }
-    message("Input raster geometries appear consistent.")
   }, error = function(e) {
     stop("Input rasters (including static indices) do not have the same geometry. ", e$message)
   })
@@ -209,9 +163,8 @@ stats_vars <- function(variable_path,
   ref_ext <- terra::ext(ref_rast_geom_check)
 
   # --- 2. Create Temporary Directory ---
-  stats_qs_dir <- file.path(temp_dir, paste0("stats_vars_qs_", basename(tempfile(pattern = ""))))
+  stats_qs_dir <- file.path(output_dir, paste0("stats_vars_qs_", basename(tempfile(pattern = ""))))
   if (!dir.exists(stats_qs_dir)) dir.create(stats_qs_dir, recursive = TRUE)
-  message("Intermediate .qs files will be stored in: ", stats_qs_dir)
 
   # --- 3. Define Processing Region & Template Geometry ---
   base_map <- NULL
@@ -222,7 +175,6 @@ stats_vars <- function(variable_path,
     else stop("'user_region' must be an sf object or a terra SpatVector.")
     if (!all(sf::st_is_valid(base_map))) base_map <- sf::st_make_valid(base_map)
     if (sf::st_crs(base_map) != ref_crs) {
-      message("Transforming user_region CRS to match raster CRS.")
       base_map <- sf::st_transform(base_map, ref_crs)
     }
     region_bbox <- sf::st_bbox(base_map)
@@ -238,7 +190,6 @@ stats_vars <- function(variable_path,
     base_map <- sf::st_as_sf(sf::st_as_sfc(sf::st_bbox(ref_ext), crs = ref_crs))
   }
 
-  message("Extracting template geometry information...")
   original_extent_vec <- as.vector(terra::ext(ref_rast_geom_check))
   original_dims_vec <- c(terra::nrow(ref_rast_geom_check), terra::ncol(ref_rast_geom_check))
   original_crs_txt <- terra::crs(ref_rast_geom_check, proj = TRUE)
@@ -253,7 +204,6 @@ stats_vars <- function(variable_path,
 
 
   if (!is.null(user_region)) {
-    message("Deriving target geometry from user_region.")
     target_template_rast <- NULL
     tryCatch({
       # Crop using the already loaded ref_rast_geom_check
@@ -263,7 +213,6 @@ stats_vars <- function(variable_path,
         target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
         target_res_vec <- terra::res(target_template_rast) # Get resolution of cropped raster
         target_ncol <- target_dims_vec[2]
-        message("Target template geometry based on cropped reference raster.")
       } else {
       warning("Cropping resulted in empty or all-NA raster, using original geometry.")
       }
@@ -271,8 +220,6 @@ stats_vars <- function(variable_path,
     }, error = function(e) {
       warning("Could not derive exact cropped geometry, using full raster extent info. Error: ", e$message)
     })
-  } else {
-  message("Target template geometry based on full input raster extent.")
   }
 
   template_info <- list(
@@ -292,7 +239,6 @@ stats_vars <- function(variable_path,
 
   translate_cell_fun <- NULL # Initialize to NULL
   if (!is.null(user_region)) {
-    message("Calculating cell ID translation parameters...")
     # Use original raster (ref_rast_geom_check) for offset calculation relative to its top-left
     # Target coordinates are the top-left of the *target extent*
     # Ensure res from template_info$target_geom$res is used if different from original
@@ -316,9 +262,6 @@ stats_vars <- function(variable_path,
     col_offset <- max(0L, col_offset)
     row_offset <- max(0L, row_offset)
 
-    message(sprintf("Translation params: ncol_src=%d, ncol_tgt=%d, row_offset=%d, col_offset=%d",
-              original_ncol, target_ncol, row_offset, col_offset))
-
     translate_cell_fun <- define_translate(
       ncol_src = original_ncol,
       ncol_tgt = target_ncol,
@@ -330,7 +273,6 @@ stats_vars <- function(variable_path,
   template_info_file <- file.path(stats_qs_dir, "template_info.qs")
   tryCatch({
     qs::qsave(template_info, template_info_file)
-    message("Template geometry information saved to: ", template_info_file)
   }, error = function(e) {
     stop("Failed to save template geometry information: ", e$message)
   })
@@ -370,10 +312,18 @@ stats_vars <- function(variable_path,
   }
     
   raw_paths_list <- list()
+
+  # Enable the debug mode: Sys.setenv(BIOCLIM_DEBUG_RAW_VARS = "TRUE")
+  write_raw_vars <- identical(toupper(Sys.getenv("BIOCLIM_DEBUG_RAW_VARS")), "TRUE")
   if (write_raw_vars) {
-    raw_paths_list$variable <- file.path(stats_qs_dir, paste0("raw_", prefix_variable, "_", seq_len(ntiles), ".qs"))
+    message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_RAW_VARS is set to TRUE.")
+  }
+  if (write_raw_vars) {
+    raw_paths_list$variable <- file.path(stats_qs_dir, 
+      paste0("raw_", prefix_variable, "_", seq_len(ntiles), ".qs"))
     if (req_inter_variable_data && !is.null(inter_variable_path)) {
-      raw_paths_list$inter_variable <- file.path(stats_qs_dir, paste0("raw_intervar_", prefix_variable, "_", seq_len(ntiles), ".qs"))
+      raw_paths_list$inter_variable <- file.path(stats_qs_dir, 
+        paste0("raw_intervar_", prefix_variable, "_", seq_len(ntiles), ".qs"))
     }
   }
 
@@ -550,7 +500,7 @@ stats_vars <- function(variable_path,
   # --- Period Calculations (if needed) ---
   defined_periods <- NULL
   if (req_period_calculation_for_var || req_period_calculation_for_inter_var) {
-    defined_periods <- compute_periods(n_units = n_units, period_length = period, circular = circular)
+    defined_periods <- compute_periods(n_units = n_units, period_length = period_length, circular = circular)
   }
 
   if (req_period_calculation_for_var && !is.null(defined_periods)) {
@@ -730,6 +680,6 @@ stats_vars <- function(variable_path,
   future.packages = c("sf", "terra", "exactextractr", "Rfast", "rio", "purrr")
   )
 
-  message("Parallel computation finished for stats_vars.")
+  message("Tiled computation finished.")
   return(stats_qs_dir)
 }

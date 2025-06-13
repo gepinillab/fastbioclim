@@ -256,7 +256,7 @@ derive_bioclim <- function(bios,
                               user_region = user_region, tile_degrees = tile_degrees, output_dir = output_dir),
                               input_paths, static_index_paths, other_args)
     temp_results_dir <- do.call(bioclim_fast, call_args_tiled)
-    bioclim_results <- fastbioclim::write_layers(
+    bioclim_results <- write_layers(
       input_dir = temp_results_dir, 
       output_dir = output_dir, 
       file_pattern = "bio",

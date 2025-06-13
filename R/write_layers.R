@@ -179,7 +179,6 @@ write_layers <- function(input_dir,
   # --- 5. Final Cleanup ---
   # Enable the debug mode: Sys.setenv(BIOCLIM_DEBUG_RAW_VARS = "TRUE")
   clean_temporary_files <- identical(toupper(Sys.getenv("BIOCLIM_DEBUG_KEEP_TEMP_FILES")), "TRUE")
-  
   if (clean_temporary_files) {
     message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_KEEP_TEMP_FILES is set to TRUE.")
     message("Intermediate files kept: ", input_dir)
