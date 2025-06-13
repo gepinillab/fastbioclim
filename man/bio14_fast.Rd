@@ -4,10 +4,10 @@
 \alias{bio14_fast}
 \title{bio14_fast: Precipitation of Driest Unit}
 \usage{
-bio14_fast(precp, cell, index_vector = NULL)
+bio14_fast(prcp, cell, index_vector = NULL)
 }
 \arguments{
-\item{precp}{Matrix of precipitation values for each unit.}
+\item{prcp}{Matrix of precipitation values for each unit.}
 
 \item{cell}{Vector of original cell IDs.}
 

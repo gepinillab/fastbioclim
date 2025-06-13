@@ -1,41 +1,28 @@
-#' Compute Specified Bioclimatic Variables
+#' Tiled, Out-of-Core Bioclimatic Variable Calculation
 #'
-#' Calculates specified bioclimatic variables (1-35) from climate rasters
-#' with user-defined temporal units, optionally using static indices. AOI is defined
-#' by `user_region` or defaults to the full raster extent. Uses parallel processing,
-#' spatial tiling, and `exactextractr`.
+#' Internal function to calculate bioclimatic variables for very large datasets
+#' by processing them in tiles. It reads data from file paths using `exactextractr`
+#' and performs calculations with `Rfast`.
 #'
-#' @param bios Numeric vector specifying which bioclimatic variables (1-35) to compute.
-#' @param n_units Integer. The number of temporal units (layers) per input variable.
-#' @param tmin_path Character vector of `n_units` paths to minimum temperature rasters.
-#' @param tmax_path Character vector of `n_units` paths to maximum temperature rasters.
-#' @param prec_path Character vector of `n_units` paths to precipitation rasters.
-#' @param tavg_path Character vector of `n_units` paths to optional average temperature rasters.
-#' @param srad_path Character vector of `n_units` paths to solar radiation rasters.
-#' @param mois_path Character vector of `n_units` paths to moisture rasters.
-#' @param period_length Integer. The number of units defining a "period". Default: 3.
-#' @param circular Logical. Calculate periods wrapping around the cycle? Default: TRUE.
-#' @param user_region Optional. An `sf` or `terra::SpatVector` object defining the
-#'   processing area. If `NULL`, the full extent of the input rasters is used.
-#' @param tile_degrees Numeric. Approximate size of processing tiles in degrees. Default: 5.
-#' @param temp_dir Character. Path for temporary tile files. Default: `tempdir()`.
-#' @param write_raw_vars Logical. Save intermediate extracted climate data. Default: FALSE.
-#' @param ... Additional arguments, including optional paths to static index rasters
-#'   (e.g., `warmest_period_path`).
-#'
-#' @return Character string: Path to the temporary directory containing intermediate `.qs` files.
-#'
-#' @details Calculates BIOs 1-35. The Area of Interest (AOI) is determined by `user_region`.
-#'   If `user_region` is NULL, the AOI is the full spatial extent of the input climate rasters.
-#'   Static indices provided via `...` override dynamic calculations.
-#'   Uses `exactextractr` for extraction and `Rfast` for matrix calculations.
-#'   Assemble results using a compatible `write_layers` function.
-#' @export
-bioclim_vars <- function(bios,
+#' @param bios Numeric vector of variables to compute.
+#' @param n_units Integer, number of layers per variable.
+#' @param ... File paths for climate variables (e.g., `tmin_path`) and static
+#'   indices (e.g., `warmest_period_path`).
+#' @param period_length Integer, length of a calculation period.
+#' @param circular Logical, whether to wrap periods.
+#' @param user_region An `sf` or `SpatVector` object for the AOI.
+#' @param tile_degrees Numeric, size of processing tiles.
+#' @param output_dir Character, path for temporary files.
+#' @return Character string: Path to the temporary directory containing
+#'   intermediate `.qs` files, to be used by an assembly function.
+#' @keywords internal
+#' @seealso The user-facing wrapper function `derive_bioclim()`.
+bioclim_fast <- function(
+  bios,
   n_units,
   tmin_path = NULL,
   tmax_path = NULL,
-  prec_path = NULL,
+  prcp_path = NULL,
   tavg_path = NULL,
   srad_path = NULL,
   mois_path = NULL,
@@ -43,8 +30,7 @@ bioclim_vars <- function(bios,
   circular = TRUE,
   user_region = NULL,
   tile_degrees = 5,
-  temp_dir = tempdir(),
-  write_raw_vars = FALSE,
+  output_dir = tempdir(),
   ...) {
     
     # --- 0. Input Validation, Dependency Mapping, Static Index Parsing ---
@@ -122,17 +108,17 @@ bioclim_vars <- function(bios,
     req_tavg_calc <- req_tavg_value && is.null(tavg_path)
     req_tmin_path <- req_tmin_direct || req_tavg_calc
     req_tmax_path <- req_tmax_direct || req_tavg_calc
-    req_prec_path <- req_prec_direct || any(needs$prec_p %in% bios_to_calculate)
+    req_prcp_path <- req_prec_direct || any(needs$prec_p %in% bios_to_calculate)
     req_srad_path <- req_srad_direct || any(needs$srad_p %in% bios_to_calculate)
     req_mois_path <- req_mois_direct || any(needs$mois_p %in% bios_to_calculate)
     if (req_tmin_path && is.null(tmin_path)) stop("tmin_path required.")
     if (req_tmax_path && is.null(tmax_path)) stop("tmax_path required.")
-    if (req_prec_path && is.null(prec_path)) stop("prec_path required.")
+    if (req_prcp_path && is.null(prcp_path)) stop("prcp_path required.")
     if (req_srad_path && is.null(srad_path)) stop("srad_path required.")
     if (req_mois_path && is.null(mois_path)) stop("mois_path required.")  
     if (req_tmin_path && length(tmin_path) != n_units) stop(sprintf("tmin_path length error (need %d).", n_units))
     if (req_tmax_path && length(tmax_path) != n_units) stop(sprintf("tmax_path length error (need %d).", n_units))
-    if (req_prec_path && length(prec_path) != n_units) stop(sprintf("prec_path length error (need %d).", n_units))
+    if (req_prcp_path && length(prcp_path) != n_units) stop(sprintf("prcp_path length error (need %d).", n_units))
     if (req_tavg_load && length(tavg_path) != n_units) stop(sprintf("tavg_path length error (need %d).", n_units))
     if (req_srad_path && length(srad_path) != n_units) stop(sprintf("srad_path length error (need %d).", n_units))
     if (req_mois_path && length(mois_path) != n_units) stop(sprintf("mois_path length error (need %d).", n_units))
@@ -148,9 +134,9 @@ bioclim_vars <- function(bios,
       names(tmax_path) <- paste0("tmax_", seq_len(n_units))
       climate_paths <- c(climate_paths, tmax_path)
     }
-    if (req_prec_path) {
-      names(prec_path) <- paste0("prec_", seq_len(n_units))
-      climate_paths <- c(climate_paths, prec_path)
+    if (req_prcp_path) {
+      names(prcp_path) <- paste0("prec_", seq_len(n_units))
+      climate_paths <- c(climate_paths, prcp_path)
     }
     if (req_tavg_load) {
       names(tavg_path) <- paste0("tavg_", seq_len(n_units))
@@ -190,7 +176,6 @@ bioclim_vars <- function(bios,
           terra::compareGeom(ref_rast, current_rast_info, stopOnError = TRUE, messages = FALSE)
         }
       }
-      message("Input raster geometries appear consistent.")
     }, error = function(e) {
       stop("Input rasters (including static indices) do not have the same geometry. ", e$message)
     })
@@ -199,9 +184,8 @@ bioclim_vars <- function(bios,
     
     
     # --- 2. Create Temporary Directory ---
-    bioclima_dir <- file.path(temp_dir, paste0("bioclima_qs_", basename(tempfile(pattern = ""))))
+    bioclima_dir <- file.path(output_dir, paste0("bioclima_qs_", basename(tempfile(pattern = ""))))
     if (!dir.exists(bioclima_dir)) dir.create(bioclima_dir, recursive = TRUE)
-    message("Intermediate .qs files will be stored in: ", bioclima_dir)
     
     # --- 3. Define Processing Region ---
     base_map <- NULL
@@ -213,7 +197,6 @@ bioclim_vars <- function(bios,
       if (!all(sf::st_is_valid(base_map))) base_map <- sf::st_make_valid(base_map)
       # Transform user_region CRS to match raster CRS if needed
       if(sf::st_crs(base_map) != ref_crs) {
-        message("Transforming user_region CRS to match raster CRS.")
         base_map <- sf::st_transform(base_map, ref_crs)
       }
       # Check if user region overlaps with raster extent
@@ -232,7 +215,6 @@ bioclim_vars <- function(bios,
       }
         
       # --- Extract and Save Template Geometry Info ---
-      message("Extracting template geometry information...")
       ref_rast_geom <- terra::rast(paths[1])
       original_extent_vec <- as.vector(terra::ext(ref_rast_geom))
       original_dims_vec <- c(terra::nrow(ref_rast_geom), terra::ncol(ref_rast_geom))
@@ -246,7 +228,6 @@ bioclim_vars <- function(bios,
       target_ncol <- original_ncol
 
       if (!is.null(user_region)) {
-          message("Deriving target geometry from user_region.")
           target_template_rast <- NULL
           tryCatch({
               target_template_rast <- terra::crop(ref_rast_geom, terra::vect(base_map), mask = TRUE)
@@ -255,7 +236,6 @@ bioclim_vars <- function(bios,
                   target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
                   target_ncol <- target_dims_vec[2]
                   target_res <- terra::res(target_template_rast)
-                  message("Target template geometry based on cropped reference raster.")
               } else {
                   warning("Cropping resulted in empty raster, using original geometry.")
               }
@@ -263,8 +243,6 @@ bioclim_vars <- function(bios,
           }, error = function(e){
               warning("Could not derive exact cropped geometry, using full raster extent info. Error: ", e$message)
           })
-      } else {
-          message("Target template geometry based on full input raster extent.")
       }
 
 
@@ -284,7 +262,6 @@ bioclim_vars <- function(bios,
   
       # --- Calculate Translation Parameters ---
       if (!is.null(user_region)) {
-        message("Calculating cell ID translation parameters...")
       # Use the original raster *header* info (ref_rast_geom) for offset calculation
       target_xmin <- template_info$target_geom$extent[1] + template_info$target_geom$res[1] / 2
       target_ymax <- template_info$target_geom$extent[4] - template_info$target_geom$res[2] / 2
@@ -308,9 +285,6 @@ bioclim_vars <- function(bios,
       col_offset <- max(0L, col_offset)
       row_offset <- max(0L, row_offset)
 
-      message(sprintf("Translation params: ncol_src=%d, ncol_tgt=%d, row_offset=%d, col_offset=%d",
-                      original_ncol, target_ncol, row_offset, col_offset))
-
       # --- Create the specific translation function ---
       translate_cell <- define_translate(
           ncol_src = original_ncol,
@@ -324,7 +298,6 @@ bioclim_vars <- function(bios,
       template_info_file <- file.path(bioclima_dir, "template_info.qs")
       tryCatch({
           qs::qsave(template_info, template_info_file)
-          message("Template geometry information saved to: ", template_info_file)
       }, error = function(e){
           stop("Failed to save template geometry information: ", e$message)
       })
@@ -349,11 +322,18 @@ bioclim_vars <- function(bios,
         bio_name <- paste0("bio", sprintf("%02d", bio_num))
         bios_qs_paths[[bio_name]] <- file.path(bioclima_dir, paste0(bio_name, "_", seq_len(ntiles), ".qs"))
       }
+      
+      # Enable the debug mode: Sys.setenv(BIOCLIM_DEBUG_RAW_VARS = "TRUE")
+      write_raw_vars <- identical(toupper(Sys.getenv("BIOCLIM_DEBUG_RAW_VARS")), "TRUE")
+  
+      if (write_raw_vars) {
+        message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_RAW_VARS is set to TRUE.")
+      }
       if (write_raw_vars) {
         raw_paths_list <- list()
         if (req_tmin_path) raw_paths_list$tmin <- file.path(bioclima_dir, paste0("raw_tmin_", seq_len(ntiles), ".qs"))
         if (req_tmax_path) raw_paths_list$tmax <- file.path(bioclima_dir, paste0("raw_tmax_", seq_len(ntiles), ".qs"))
-        if (req_prec_path) raw_paths_list$prec <- file.path(bioclima_dir, paste0("raw_prec_", seq_len(ntiles), ".qs"))
+        if (req_prcp_path) raw_paths_list$prec <- file.path(bioclima_dir, paste0("raw_prec_", seq_len(ntiles), ".qs"))
         if (req_tavg_value) raw_paths_list$tavg <- file.path(bioclima_dir, paste0("raw_tavg_", seq_len(ntiles), ".qs"))
         if (req_srad_path) raw_paths_list$srad <- file.path(bioclima_dir, paste0("raw_srad_", seq_len(ntiles), ".qs"))
         if (req_mois_path) raw_paths_list$mois <- file.path(bioclima_dir, paste0("raw_mois_", seq_len(ntiles), ".qs"))
@@ -368,7 +348,7 @@ bioclim_vars <- function(bios,
       worker_req_mois_p <- any(needs$mois_p %in% bios_to_calculate)
       export_vars <- c("paths", "path_variables", "rtt", "ntiles", "bios", "bios_to_calculate", 
                         "n_units", "period_length", "circular", "req_tmin_path", "req_tmax_path", 
-                        "req_prec_path", "req_tavg_load", "req_tavg_calc", "req_srad_path", "req_mois_path", 
+                        "req_prcp_path", "req_tavg_load", "req_tavg_calc", "req_srad_path", "req_mois_path", 
                         "worker_req_tavg", "worker_req_temp_p", "worker_req_prec_p", 
                         "worker_req_srad_p", "worker_req_mois_p", 
                         "check_evar", "compute_periods", "var_periods", 
@@ -376,7 +356,6 @@ bioclim_vars <- function(bios,
       if (exists("raw_paths_list")) export_vars <- c(export_vars, "raw_paths_list")
       vals <- future.apply::future_lapply(seq_len(ntiles), function(x) {
         p(message = sprintf("Processing tile %d of %d", x, ntiles))
-        # p(message = "HOLA")
         tile_results <- list()
         static_indices_tile <- list()
         evars_stack_tile <- tryCatch({ terra::rast(paths) }, error = function(e) { NULL })
@@ -447,7 +426,7 @@ bioclim_vars <- function(bios,
             rio::export(cbind(tile_results$tmax, cell = cell_ids), raw_paths_list$tmax[x])
           }
         }
-        if (req_prec_path) {
+        if (req_prcp_path) {
           tile_results$prec_vals <- check_evar(climate_matrix[, grep(pattern = "^prec_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "prec" %in% names(raw_paths_list)) {
             rio::export(cbind(tile_results$prec_vals, cell = cell_ids), raw_paths_list$prec[x])
@@ -658,18 +637,18 @@ bioclim_vars <- function(bios,
                                     period_length = period_length,
                                     cell = cell_ids)
           } else if (bio_num == 12) {
-            result_var <- bio12_fast(precp = tile_results$prec_vals, 
+            result_var <- bio12_fast(prcp = tile_results$prec_vals, 
                                     cell = cell_ids)
           } else if (bio_num == 13) {
-            result_var <- bio13_fast(precp = tile_results$prec_vals, 
+            result_var <- bio13_fast(prcp = tile_results$prec_vals, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
           } else if (bio_num == 14) {
-            result_var <- bio14_fast(precp = tile_results$prec_vals, 
+            result_var <- bio14_fast(prcp = tile_results$prec_vals, 
                                     cell = cell_ids, 
                                     index_vector = idx_vec_unit)
           } else if (bio_num == 15) {
-            result_var <- bio15_fast(precp = tile_results$prec_vals,
+            result_var <- bio15_fast(prcp = tile_results$prec_vals,
                                     bio12V = calculated_bios_in_tile$bio12[, 1, drop = TRUE],
                                     n_units = n_units, 
                                     cell = cell_ids)
@@ -774,8 +753,7 @@ bioclim_vars <- function(bios,
       future.seed = TRUE, 
       future.globals = export_vars, 
       future.packages = c("sf", "terra", "exactextractr", "Rfast", "rio", "purrr"))
-      # })
       
-      message("Parallel computation finished.")
+      message("Tiled computation finished.")
       return(bioclima_dir)
 }

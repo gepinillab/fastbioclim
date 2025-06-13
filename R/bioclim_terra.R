@@ -1,110 +1,33 @@
-#' @title Get several bioclimatic variables
-#' @description
-#' The clima function generates bioclimatic variables commonly used in ecological 
-#' and environmental analyses. This function builds upon the biovars function from 
-#' the dismo package and adheres to the methodologies outlined in the ANUCLIM 6.1 manual 
-#' and O’Donnell & Ignizio (2012). It calculates a comprehensive set of 35 
-#' bioclimatic variables based on input rasters for minimum temperature, 
-#' maximum temperature, average temperature, precipitation, solar radiation, 
-#' and moisture. Users can specify which bioclimatic variables to compute 
-#' using the bios parameter. The function supports customizable temporal 
-#' aggregation (e.g., quarters or semesters) and includes options for circular 
-#' period calculations. Input consistency is validated to ensure matching 
-#' extents, resolutions, and NA handling, making it robust for large-scale 
-#' spatial applications. Outputs are returned as a SpatRaster object 
-#' containing the selected bioclimatic layers, ready for downstream analysis.
-#' 
-#' @param bios Numeric vector with bios number
-#' @param tmin spatRaster with minimum temperature
-#' @param tmax spatRaster with maximum temperature
-#' @param tavg spatRaster with average temperature. It could be NULL if tmin and
-#'  tmax are provided
-#' @param prcp spatRaster with precipitation
-#' @param srad spatRaster with solar radiation
-#' @param mois spatRaster with moisture
-#' @param period numeric. Length of period to summarize data (e.g., quarters,
-#' semesters). If using monthly data, a quarter (3-months) will be used to
-#' calculate Bios 08, 09, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27, 32, 33, 34, 35.
-#' @param circular TRUE/FALSE. Calculate periods that include the first and last
-#' units. For example, if using mean monthly data and quarters, `circular=TRUE` will also
-#' calculate Nov-Dec-Jan and Dec-Jan-Feb.
-#' @param checkNA TRUE/FALSE. Check for unexpected NA values in the input data.
-#' @param stopNA TRUE/FALSE. Stop execution if unexpected NA values are detected.
-#' @param ... Additional arguments to define spatRasters that define a static 
-#' period or unit index for variables calculation could be useful to keep same 
-#' index along a time series or define a static season of interest, including:
-#'   \describe{
-#'     \item{warmest_period}{Description of param1 (default: NULL)}
-#'     \item{coldest_period}{Description of param1 (default: NULL)}
-#'     \item{wettest_period}{Description of param1 (default: NULL)}
-#'     \item{driest_period}{Description of param1 (default: NULL)}
-#'     \item{high_mois_period}{Description of param1 (default: NULL)}
-#'     \item{low_mois_period}{Description of param1 (default: NULL)}
-#'     \item{warmest_unit}{Description of param1 (default: NULL)}
-#'     \item{coldest_unit}{Description of param1 (default: NULL)}
-#'     \item{wettest_unit}{Description of param1 (default: NULL)}
-#'     \item{driest_unit}{Description of param1 (default: NULL)}
-#'     \item{high_rad_unit}{Description of param1 (default: NULL)}
-#'     \item{low_rad_unit}{Description of param1 (default: NULL)}
-#'     \item{high_mois_unit}{Description of param1 (default: NULL)}
-#'     \item{low_mois_unit}{Description of param1 (default: NULL)}
-#'   }
-#' 
-#' @return An SpatRaster with 35 bioclimatic variables or a subset of them:
-#' \describe{
-#'   \item{bio01}{Mean Temperature of Units}
-#'   \item{bio02}{Mean Diurnal Range}
-#'   \item{bio03}{Isothermality}
-#'   \item{bio04}{Temperature Seasonality}
-#'   \item{bio05}{Max Temperature of Warmest Unit}
-#'   \item{bio06}{Min Temperature of Coldest Unit}
-#'   \item{bio07}{Temperature Range of Units}
-#'   \item{bio08}{Mean Temperature of Wettest Period}
-#'   \item{bio09}{Mean Temperature of Driest Period}
-#'   \item{bio10}{Mean Temperature of Warmest Period}
-#'   \item{bio11}{Mean Temperature of Coldest Period}
-#'   \item{bio12}{Precipitation Sum}
-#'   \item{bio13}{Precipitation of Wettest Unit}
-#'   \item{bio14}{Precipitation of Driest Unit}
-#'   \item{bio15}{Precipitation Seasonality}
-#'   \item{bio16}{Precipitation of Wettest Period}
-#'   \item{bio17}{Precipitation of Driest Period}
-#'   \item{bio18}{Precipitation of Warmest Period}
-#'   \item{bio19}{Precipitation of Coldest Period}
-#'   \item{bio20}{Mean Radiation of Units}
-#'   \item{bio21}{Highest Radiation Unit}
-#'   \item{bio22}{Lowest Radiation Unit}
-#'   \item{bio23}{Radiation Seasonality}
-#'   \item{bio24}{Radiation of Wettest Period}
-#'   \item{bio25}{Radiation of Driest Period}
-#'   \item{bio26}{Radiation of Warmest Period}
-#'   \item{bio27}{Radiation of Coldest Period}
-#'   \item{bio28*}{Mean Moisture Content Of Units}
-#'   \item{bio29*}{Highest Moisture Content Unit}
-#'   \item{bio30*}{Lowest Moisture Content Unit}
-#'   \item{bio31*}{Moisture Content Seasonality}
-#'   \item{bio32*}{Mean Moisture Content of Most Moist Period}
-#'   \item{bio33*}{Mean Moisture Content of Least Moist Period}
-#'   \item{bio34*}{Mean Moisture Content of Warmest Period}
-#'   \item{bio35*}{Mean Moisture Content of Coldest Period}
-#' }
-#' 
-#' @note 
-#' *The original moisture variables proposed in the ANUCLIM manual are based 
-#' on the Moisture Index (MI). However, this function allows users to calculate 
-#' moisture-based bioclimatic variables using other units of moisture 
-#' as inputs, offering greater flexibility in input data usage.
-#' 
-#' @references
-#' O’Donnell, M. S., & Ignizio, D. A. (2012). Bioclimatic predictors for supporting ecological applications in the conterminous United States (Vol. 691).  
-#' ANUCLIM 6.1 User Guide. Centre for Resource and Environmental Studies, The Australian National University.  
-#' Hijmans, R. J., Phillips, S., Leathwick, J., & Elith, J. (2017). `dismo`: Species Distribution Modeling. R package version 1.1-4.
-#' 
-#' @export
+#' In-Memory Bioclimatic Variable Calculation
 #'
-clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
-                  srad = NULL, mois = NULL, period = 3, circular = TRUE, 
-                  checkNA = TRUE, stopNA = TRUE, ...) {
+#' Internal function to calculate bioclimatic variables using `terra` functions.
+#' It is designed for datasets that can fit into RAM.
+#'
+#' @param bios Numeric vector of variables to compute.
+#' @param ... `SpatRaster` objects for climate variables (e.g., `tmin`, `tmax`)
+#'   and static indices (e.g., `warmest_period`).
+#' @param output_dir Character, path to save final rasters.
+#' @param period_length Integer, length of a calculation period.
+#' @param circular Logical, whether to wrap periods.
+#' @param gdal_opt Character vector of GDAL options for writing.
+#' @param overwrite Logical, whether to overwrite existing files.
+#' @return A `terra::SpatRaster` object pointing to the newly created files.
+#' @keywords internal
+#' @seealso The user-facing wrapper function `derive_bioclim()`.
+#' 
+bioclim_terra <- function(bios, 
+  tmin = NULL, 
+  tmax = NULL, 
+  tavg = NULL, 
+  prcp = NULL,
+  srad = NULL, 
+  mois = NULL, 
+  period_length = 3,
+  circular = TRUE, 
+  gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
+  overwrite = FALSE, 
+  output_dir = tempdir(),
+  ...) {
   # Add dor arguments
   dot_args <- list(...)
   if ("warmest_unit" %in% names(dot_args)) warmest_unit <- dot_args$warmest_unit
@@ -148,13 +71,6 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
                          collapse = ", "),
                   " require(s) prcp."))
     }
-    if (checkNA == TRUE) {
-      prcp_na <- mismatch_NA(prcp)
-      if (prcp_na$logical == TRUE & stopNA == TRUE) {
-        stop("prcp has unexpected NA values")
-      }
-      prcp_sum <- prcp_na$sum_lyr
-    }
   }
 
   # Bios that requires temperature
@@ -180,22 +96,6 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
                          collapse = ", "),
                   " require(s) tmin and tmax."))
     }
-    # Check for NA (tmax)
-    if (any(c(5, req_temp) %in% bios) & checkNA == TRUE) {
-      tmax_na <- mismatch_NA(tmax)
-      if (tmax_na$logical == TRUE & stopNA == TRUE) {
-        stop("tmax has unexpected NA values")
-      }
-      tmax_sum <- tmax_na$sum_lyr
-    }
-    # Check for NA (tmin)
-    if (any(c(6, req_temp) %in% bios) & checkNA == TRUE) {
-      tmin_na <- mismatch_NA(tmin)
-      if (tmin_na$logical == TRUE & stopNA == TRUE) {
-        stop("tmin has unexpected NA values")
-      }
-      tmin_sum <- tmin_na$sum_lyr
-    }
   }
   
   # Bios that requires solar radiation
@@ -206,13 +106,6 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
                          collapse = ", "),
                   " require(s) srad."))
     }
-    if (checkNA == TRUE) {
-      srad_na <- mismatch_NA(srad)
-      if (srad_na$logical == TRUE & stopNA == TRUE) {
-        stop("srad has unexpected NA values")
-      }
-      srad_sum <- srad_na$sum_lyr
-    }
   }
   
   # Bios that requires moisture
@@ -222,38 +115,6 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
       stop(paste0(paste0("Bio", sprintf("%02d", req_mois[req_mois %in% bios]),
                          collapse = ", "),
                   " require(s) mois."))
-    }
-    if (checkNA == TRUE) {
-      mois_na <- mismatch_NA(mois)
-      if (mois_na$logical == TRUE & stopNA == TRUE) {
-        stop("mois has unexpected NA values")
-      }
-      mois_sum <- mois_na$sum_lyr
-    }
-  }
-
-  if (checkNA == TRUE) {
-    # Sum all rasters
-    if (!exists("tmin_sum")) tmin_sum <-  NULL
-    if (!exists("tmax_sum")) tmax_sum <-  NULL
-    if (!exists("prcp_sum")) prcp_sum <-  NULL
-    if (!exists("srad_sum")) srad_sum <-  NULL
-    if (!exists("mois_sum")) mois_sum <-  NULL
-
-    intra_na <- purrr::reduce(list(tmin_sum, tmax_sum, prcp_sum, srad_sum, mois_sum) |>
-                                 purrr::discard(is.null), c) |>
-      sum() |>
-      terra::unique() |>
-      unlist()
-    # Delete values that shared pixel NA in all layers
-    intra_na <- intra_na[intra_na != 0]
-    # Check if there is sum of pixel with values is equal
-    if (length(intra_na) != 1) {
-      if (stopNA == TRUE) {
-        stop("SpatRaster don't share same NA values")
-      } else {
-        message("SpatRasters (tmin, tmax, prcp, srad and/or mois) don't share same NAs values")
-      }
     }
   }
 
@@ -297,7 +158,7 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
   
   ## ONLY PRECIPITATION PERIOD
   if (any(c(8:9, 16:19, 24:25) %in% bios)) {
-    wet <- fastbioclim::get_window(prcp, period, circular)
+    wet <- fastbioclim::get_window(prcp, period_length, circular)
     if (any(c(8, 16, 24) %in% bios) & !exists("wettest_period")) {
       wettest_period <- terra::which.max(wet)
     }
@@ -316,7 +177,7 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
     if (any(c(8:9) %in% bios) | 
         (any(c(10, 18, 26, 34) %in% bios) & !exists("warmest_period")) |
         (any(c(11, 19, 27, 35) %in% bios) & !exists("coldest_period"))) {
-      tmp <- fastbioclim::get_window(tavg, period, circular) / period
+      tmp <- fastbioclim::get_window(tavg, period_length, circular) / period_length
     }
     if (any(c(10, 18, 26, 34) %in% bios) & !exists("warmest_period")) {
       warmest_period <- terra::which.max(tmp)
@@ -342,7 +203,7 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
   
   ### GET SOLAR RADIATION PERIOD
   if (any(c(24:27) %in% bios)) {
-    prad <- fastbioclim::get_window(srad, period, circular) / period
+    prad <- fastbioclim::get_window(srad, period_length, circular) / period_length
   }
   
   ## ONLY MOISTURE
@@ -357,7 +218,7 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
   
   ### ONLY MOISTURE PERIOD
   if (any(c(32:35) %in% bios)) {
-    pmois <- fastbioclim::get_window(mois, period, circular) / period
+    pmois <- fastbioclim::get_window(mois, period_length, circular) / period_length
     if ((32 %in% bios) & !exists("high_mois_period")) {
       high_mois_period <- terra::which.max(pmois)
     }
@@ -397,12 +258,21 @@ clima <- function(bios, tmin = NULL, tmax = NULL, tavg = NULL, prcp = NULL,
     message(
       paste0(paste0("Bio", sprintf("%02d", c(8:11, 16:19, 24:27, 32:35)[c(8:11, 16:19, 24:27, 32:35) %in% bios]),
                     collapse = ", "),
-             " was(were) built with a period of ", period,
+             " was(were) built with a period of ", period_length,
              " units with", if(circular == FALSE) "out", " circularity.")
     )
   }
 
   # Create a unique spatRaster
   bios_rast <- terra::rast(mget(paste0("bio", sprintf("%02d", bios))))
-  return(bios_rast)
+  output_files <- file.path(output_dir, paste0(names(bios_rast), ".tif"))
+
+  message("Writing GeoTIFFs...")
+  terra::writeRaster(
+    bios_rast,
+    filename = output_files,
+    overwrite = overwrite,
+    gdal = gdal_opt
+  )
+  return(output_files)
 }

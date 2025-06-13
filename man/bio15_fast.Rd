@@ -4,10 +4,10 @@
 \alias{bio15_fast}
 \title{bio15_fast: Precipitation Seasonality (CV)}
 \usage{
-bio15_fast(precp, bio12V, n_units, cell)
+bio15_fast(prcp, bio12V, n_units, cell)
 }
 \arguments{
-\item{precp}{Matrix containing precipitation values for each unit.}
+\item{prcp}{Matrix containing precipitation values for each unit.}
 
 \item{bio12V}{Precomputed total precipitation (BIO12 value).}
 

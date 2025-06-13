@@ -113,7 +113,7 @@ terra::writeRaster(mois,
 
 ### Create bioclimatic variables
 
-Once, you get the monthly variables. It is time to create the bioclimatic variables based on the monthly averages (*n* = 12 months). First, we need to create a monthly averages for each variable, and then use the clima() function to obtain the 19 bioclimatic variables.
+Once, you get the monthly variables. It is time to create the bioclimatic variables based on the monthly averages (*n* = 12 months). First, we need to create a monthly averages for each variable, and then use the bioclim_terra() function to obtain the 19 bioclimatic variables.
 
 ``` r
 tmin_avg <- tapp(tmin, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
@@ -122,9 +122,9 @@ ppt_avg <- tapp(ppt, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 # srad_avg <- tapp(srad, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 mois_avg <- tapp(mois, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 
-bios <- fastbioclim::clima(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
-                           srad = srad_avg, mois = mois_avg,
-                           bios = c(1:19, 28:35), period = 3, circular = TRUE)
+bios <- fastbioclim::bioclim_terra(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
+                                   srad = srad_avg, mois = mois_avg,
+                                   bios = c(1:19, 28:35), period = 3, circular = TRUE)
 ```
 
 ### Plot variables

@@ -6,15 +6,16 @@
 \usage{
 write_layers(
   input_dir,
-  save_dir = "bioclimatic",
+  output_dir,
   file_pattern = "bio",
-  clean_temporary_files = FALSE
+  gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
+  overwrite = FALSE
 )
 }
 \arguments{
 \item{input_dir}{Character string. Path to directory with intermediate `.qs` files and `template_info.qs`}
 
-\item{save_dir}{Character string. Path for the final GeoTIFF files. Default: "bioclimatic".}
+\item{output_dir}{Character string. Path for the final GeoTIFF files.}
 
 \item{file_pattern}{Character string. A prefix or base pattern to identify the
 groups of `.qs` files. For example, if files are "bio01_1.qs", "bio01_2.qs",
@@ -23,10 +24,19 @@ groups of `.qs` files. For example, if files are "bio01_1.qs", "bio01_2.qs",
 The function will attempt to extract the full variable name (e.g., "bio01", "var_mean")
 from the filenames. Default is "bio".}
 
-\item{clean_temporary_files}{Logical. Delete `input_dir` after writing? Default: FALSE.}
+\item{gdal_opt}{Character vector. GDAL creation options for the output GeoTIFF files.
+These options control compression, threading, and other advanced features.
+See the GDAL documentation for a full list of options for the GeoTIFF driver.
+The default is `c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS")`,
+which provides good, lossless compression. To disable compression, use `NULL`.}
+
+\item{overwrite}{Logical. If `TRUE`, any existing GeoTIFF files in the `output_dir`
+with the same name will be overwritten. If `FALSE` (the default), the function
+will throw an error if it attempts to write to a file that already exists,
+which is a safety measure to prevent accidental data loss.}
 }
 \value{
-None. Writes GeoTIFF files to `save_dir`.
+None. Writes GeoTIFF files to `output_dir`.
 }
 \description{
 Assembles intermediate `.qs` files into a full vector in memory, performs
@@ -35,3 +45,4 @@ cell ID mapping if necessary, and writes final GeoTIFF rasters.
 \author{
 Luis Osorio-Olvera, Gonzalo E. Pinilla-Buitrago
 }
+\keyword{internal}

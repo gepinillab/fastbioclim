@@ -121,7 +121,7 @@ terra::writeRaster(mois,
 ```
 
 ## Crear variables bioclimáticas
-Una vez que tenga las variables mensuales, es hora de crear las variables bioclimáticas basadas en los promedios mensuales (n = 12 meses). Primero, necesitamos crear promedios mensuales para cada variable, y luego usar la función clima() para obtener las 19 variables bioclimáticas.
+Una vez que tenga las variables mensuales, es hora de crear las variables bioclimáticas basadas en los promedios mensuales (n = 12 meses). Primero, necesitamos crear promedios mensuales para cada variable, y luego usar la función bioclim_terra() para obtener las 19 variables bioclimáticas.
 
 ```{r message=FALSE}
 tmin_avg <- terra::tapp(tmin, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
@@ -130,7 +130,7 @@ ppt_avg <- terra::tapp(ppt, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 srad_avg <- terra::tapp(srad, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 mois_avg <- terra::tapp(mois, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
 
-bios <- fastbioclim::clima(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
+bios <- fastbioclim::bioclim_terra(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
                         srad = srad_avg, mois = mois_avg,
               bios = 1:35, period = 3, circular = TRUE)
 ```
@@ -174,7 +174,7 @@ plot(rast(bios_dismo) - bios[[1:19]])
 ```{r message=FALSE}
 # Correr fastbioclim
 start.fastbioclim <- Sys.time()
-bios <- fastbioclim::clima(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
+bios <- fastbioclim::bioclim_terra(tmin = tmin_avg, tmax = tmax_avg, prcp = ppt_avg,
               bios = c(1:19), period = 3, circular = TRUE)
 end.fastbioclim <- Sys.time()
 time.fastbioclim <- end.fastbioclim - start.fastbioclim
@@ -193,7 +193,7 @@ Al comparar los tiempos de ejecución, la diferencia para un área cómo Costa R
 #### Seleccionar un grupo de variables
 Muchas veces no es necesario utilizar todas las variables bioclimáticas en nuestros análisis. Por este motivo, y a diferencia de biovars(), se puede definir en el parámetro 'bios' el número que identifica cada una de las variables bioclimáticas. De esta forma no es necesario obtener todas las 19 variables para luego solo seleccionar las variables de interés. En el siguiente ejemplo solo se obtendrán cuatro variables (bio05, bio06, bio13 y bio14). Este ejemplo es algo más rápido, ya que no es necesario calcular internamente los trimestres más cálidos/fríos o secos/húmedos.
 ```{r message=FALSE}
-bios4 <- fastbioclim::clima(
+bios4 <- fastbioclim::bioclim_terra(
   tmin = tmin_avg, 
   tmax = tmax_avg, 
   prcp = ppt_avg,
@@ -238,7 +238,7 @@ for (i in 1:length(mes_inicial)) {
     fun = mean, 
     na.rm = TRUE) # remover NAs
   # Crear sets of variables bioclimaticas
-  bios_ts <- fastbioclim::clima(
+  bios_ts <- fastbioclim::bioclim_terra(
     bios = 1:19,
     tmax = tmax_int,
     tmin = tmin_int,
@@ -318,11 +318,11 @@ levels(max_2000_01) <- data.frame(id = 1:12,
 plot(max_2000_01)
 ```
 ```{r}
-bio13_2000_01 <- clima(prcp = ppt[[121:360]], bios = 13)
+bio13_2000_01 <- bioclim_terra(prcp = ppt[[121:360]], bios = 13)
 plot(bio13_2000_01)
 ```
 ```{r}
-bio13_2000_01_fix <- clima(prcp = ppt[[121:360]], bios = 13, 
+bio13_2000_01_fix <- bioclim_terra(prcp = ppt[[121:360]], bios = 13, 
                            wettest_unit = max_1990_01)
 plot(bio13_2000_01_fix)
 ```
@@ -377,7 +377,7 @@ for (i in 1:length(mes_inicial)) {
     fun = mean, 
     na.rm = TRUE) # remover NAs
   # Crear sets of variables bioclimaticas
-  ts_bios_subset <- fastbioclim::clima(
+  ts_bios_subset <- fastbioclim::bioclim_terra(
     bios = c(27, 35),
     # tmin = tmin_int,
     # tmax = tmax_int,
@@ -417,7 +417,7 @@ plot(wind[[1]])
 ```
 ```{r}
 wind_avg <- terra::tapp(wind, index = rep(1:12, 30), fun = mean, na.rm = TRUE)
-wind_stats <- fastbioclim::stats_clima(variable = wind_avg, 
+wind_stats <- fastbioclim::stats_bioclim_terra(variable = wind_avg, 
                                     inter_variable = ppt_avg,
                                     prefix_variable = "wind",
                                     suffix_inter_max = "wettest",
@@ -426,7 +426,7 @@ wind_stats
 plot(wind_stats[[1]])
 ```
 ```{r}
-wind_stats_v2 <- fastbioclim::stats_clima(variable = wind_avg,
+wind_stats_v2 <- fastbioclim::stats_bioclim_terra(variable = wind_avg,
                                          stats = NULL,
                                          inter_variable = tmax_avg - tmin_avg,
                                          prefix_variable = "wind",

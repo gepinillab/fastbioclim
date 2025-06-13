@@ -194,35 +194,35 @@ bio11_fast <- function(tperiod, tperiod_min_idx, period_length, cell){
 
 #' @title bio12_fast: Total Precipitation
 #' @description Calculates the sum of precipitation values across all units.
-#' @param precp Matrix of precipitation values for each unit.
+#' @param prcp Matrix of precipitation values for each unit.
 #' @param cell Vector of original cell IDs.
 #' @return Matrix with "bio12", "cell".
 #' @keywords internal
-bio12_fast <- function(precp, cell){
-  bio12V <- Rfast::rowsums(precp)
+bio12_fast <- function(prcp, cell){
+  bio12V <- Rfast::rowsums(prcp)
   bio12V <- cbind(bio12 = bio12V, cell = cell)
   return(bio12V)
 }
 
 #' @title bio13_fast: Precipitation of Wettest Unit
 #' @description Identifies precipitation of the wettest unit, potentially using a static index.
-#' @param precp Matrix of precipitation values for each unit.
+#' @param prcp Matrix of precipitation values for each unit.
 #' @param cell Vector of original cell IDs.
 #' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Prec for that unit. If NULL, finds overall max Prec.
 #' @return Matrix with "bio13", "cell".
 #' @keywords internal
-bio13_fast <- function(precp, cell, index_vector = NULL) {
+bio13_fast <- function(prcp, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
-     if (length(index_vector) != nrow(precp)) stop("bio13_fast: Length mismatch: index_vector vs precp rows.")
-     is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(precp)
+     if (length(index_vector) != nrow(prcp)) stop("bio13_fast: Length mismatch: index_vector vs prcp rows.")
+     is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(prcp)
      valid_rows <- which(!is_invalid_idx)
-     bio13V <- rep(NA_real_, nrow(precp))
+     bio13V <- rep(NA_real_, nrow(prcp))
      if(length(valid_rows) > 0) {
-        bio13V[valid_rows] <- precp[cbind(valid_rows, index_vector[valid_rows])]
+        bio13V[valid_rows] <- prcp[cbind(valid_rows, index_vector[valid_rows])]
      }
      if(any(is_invalid_idx)) warning("bio13_fast: Some static indices were NA or out of bounds.")
   } else {
-    bio13V <- Rfast::rowMaxs(precp, value = TRUE)
+    bio13V <- Rfast::rowMaxs(prcp, value = TRUE)
   }
   bio13V <- cbind(bio13 = bio13V, cell = cell)
   return(bio13V)
@@ -230,23 +230,23 @@ bio13_fast <- function(precp, cell, index_vector = NULL) {
 
 #' @title bio14_fast: Precipitation of Driest Unit
 #' @description Identifies precipitation of the driest unit, potentially using a static index.
-#' @param precp Matrix of precipitation values for each unit.
+#' @param prcp Matrix of precipitation values for each unit.
 #' @param cell Vector of original cell IDs.
 #' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Prec for that unit. If NULL, finds overall min Prec.
 #' @return Matrix with "bio14", "cell".
 #' @keywords internal
-bio14_fast <- function(precp, cell, index_vector = NULL) {
+bio14_fast <- function(prcp, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
-     if (length(index_vector) != nrow(precp)) stop("bio14_fast: Length mismatch: index_vector vs precp rows.")
-     is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(precp)
+     if (length(index_vector) != nrow(prcp)) stop("bio14_fast: Length mismatch: index_vector vs prcp rows.")
+     is_invalid_idx <- is.na(index_vector) | index_vector < 1 | index_vector > ncol(prcp)
      valid_rows <- which(!is_invalid_idx)
-     bio14V <- rep(NA_real_, nrow(precp))
+     bio14V <- rep(NA_real_, nrow(prcp))
      if(length(valid_rows) > 0) {
-        bio14V[valid_rows] <- precp[cbind(valid_rows, index_vector[valid_rows])]
+        bio14V[valid_rows] <- prcp[cbind(valid_rows, index_vector[valid_rows])]
      }
      if(any(is_invalid_idx)) warning("bio14_fast: Some static indices were NA or out of bounds.")
   } else {
-    bio14V <- Rfast::rowMins(precp, value = TRUE)
+    bio14V <- Rfast::rowMins(prcp, value = TRUE)
   }
   bio14V <- cbind(bio14 = bio14V, cell = cell)
   return(bio14V)
@@ -254,17 +254,17 @@ bio14_fast <- function(precp, cell, index_vector = NULL) {
 
 #' @title bio15_fast: Precipitation Seasonality (CV)
 #' @description Calculates coefficient of variation in precipitation across units.
-#' @param precp Matrix containing precipitation values for each unit.
+#' @param prcp Matrix containing precipitation values for each unit.
 #' @param bio12V Precomputed total precipitation (BIO12 value).
 #' @param n_units Integer. The total number of temporal units.
 #' @param cell Vector of original cell IDs.
 #' @return Matrix with "bio15", "cell".
 #' @keywords internal
-bio15_fast <- function(precp, bio12V, n_units, cell) {
+bio15_fast <- function(prcp, bio12V, n_units, cell) {
   bio12_vec <- if(is.matrix(bio12V)) bio12V[,1] else bio12V
   # Calculate mean precipitation per unit
   mean_unit_prec <- 1 + (bio12_vec / n_units) # Add 1 to total to avoid div by zero
-  sd_prec <- Rfast::rowVars(precp, std = TRUE)
+  sd_prec <- Rfast::rowVars(prcp, std = TRUE)
   # Calculate CV * 100
   bio15V <- ifelse(mean_unit_prec <= 0, 0, (sd_prec / mean_unit_prec) * 100)
   bio15V <- cbind(bio15 = bio15V, cell = cell)

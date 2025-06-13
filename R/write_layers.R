@@ -4,25 +4,32 @@
 #' cell ID mapping if necessary, and writes final GeoTIFF rasters.
 #'
 #' @param input_dir Character string. Path to directory with intermediate `.qs` files and `template_info.qs`
-#' @param save_dir Character string. Path for the final GeoTIFF files. Default: "bioclimatic".
+#' @param output_dir Character string. Path for the final GeoTIFF files.
 #' @param file_pattern Character string. A prefix or base pattern to identify the
 #'        groups of `.qs` files. For example, if files are "bio01_1.qs", "bio01_2.qs",
 #'        "bio02_1.qs", etc., `file_pattern` would be "bio". If files are
 #'        "var_mean_1.qs", "var_sum_1.qs", etc., `file_pattern` could be "var".
 #'        The function will attempt to extract the full variable name (e.g., "bio01", "var_mean")
 #'        from the filenames. Default is "bio".
-#' @param clean_temporary_files Logical. Delete `input_dir` after writing? Default: FALSE.
-#'
-#' @return None. Writes GeoTIFF files to `save_dir`.
+#' @param gdal_opt Character vector. GDAL creation options for the output GeoTIFF files.
+#'        These options control compression, threading, and other advanced features.
+#'        See the GDAL documentation for a full list of options for the GeoTIFF driver.
+#'        The default is `c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS")`,
+#'        which provides good, lossless compression. To disable compression, use `NULL`.
+#' @param overwrite Logical. If `TRUE`, any existing GeoTIFF files in the `output_dir`
+#'        with the same name will be overwritten. If `FALSE` (the default), the function
+#'        will throw an error if it attempts to write to a file that already exists,
+#'        which is a safety measure to prevent accidental data loss.
+#' @return None. Writes GeoTIFF files to `output_dir`.
 #' @author Luis Osorio-Olvera, Gonzalo E. Pinilla-Buitrago
-#'
-#' @export
+#' @keywords internal
 #' @import terra purrr stringr qs rio
 
 write_layers <- function(input_dir, 
-                         save_dir = "bioclimatic",
+                         output_dir,
                          file_pattern = "bio",
-                         clean_temporary_files = FALSE){
+                         gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
+                         overwrite = FALSE) {
 
   # --- 1. Input Validation and Load Template Info ---
   if (!dir.exists(input_dir)) stop("Input directory not found: ", input_dir)
@@ -102,32 +109,27 @@ write_layers <- function(input_dir,
   n_target_cells <- terra::ncell(target_template)
   
   # --- 4. Process Each Bioclim Variable ---
-  if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
+  if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
   
   seq_along(qs_paths_dfL) |> purrr::walk(function(x) {
     qs_paths_df_base <- qs_paths_dfL[[x]]
     var_paths <- qs_paths_df_base$paths
     current_qs_name <- qs_paths_df_base$names[1]
     
-    message(paste("\nAssembling", current_qs_name, "in memory..."))
-    pb <- utils::txtProgressBar(min = 0, max = length(var_paths), style = 3, width = 50)
     rvals <- rep(NA_real_, n_target_cells)
     
     for (i in seq_along(var_paths)) {
       bioval <- tryCatch(rio::import(var_paths[i]), error = function(e) NULL)
       if (is.null(bioval) || !("cell" %in% colnames(bioval)) || nrow(bioval) == 0) {
-        utils::setTxtProgressBar(pb, i)
         next
       }
       cellID <- bioval$cell
       rvals[cellID] <- bioval[[1]]
-      utils::setTxtProgressBar(pb, i)
     }
-    close(pb)
     
     # Write to GeoTIFF
     outRast <- terra::rast(target_template, names = current_qs_name)
-    output_file <- file.path(save_dir, paste0(current_qs_name, ".tif"))
+    output_file <- file.path(output_dir, paste0(current_qs_name, ".tif"))
     
     message("Writing GeoTIFF: ", output_file)
     write_success <- FALSE
@@ -140,7 +142,7 @@ write_layers <- function(input_dir,
       comienzo <- seq(1, n_target_rows, by = step_size_write)
       
       terra::writeStart(outRast, filename = output_file, overwrite = TRUE,
-                        gdal = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"))
+                        gdal = gdal_opt)
       
       pb_write <- utils::txtProgressBar(min = 0, max = length(comienzo), style = 3, width = 50)
       
@@ -167,24 +169,24 @@ write_layers <- function(input_dir,
       try(terra::writeStop(outRast), silent = TRUE)
     })
     
-    if (write_success) {
-      message("\n", current_qs_name, " written successfully.")
-    } else {
+    if (!write_success) {
       if (file.exists(output_file)) file.remove(output_file)
       warning(current_qs_name, " failed write.")
     }
-    
     gc()
   })
   
   # --- 5. Final Cleanup ---
+  # Enable the debug mode: Sys.setenv(BIOCLIM_DEBUG_RAW_VARS = "TRUE")
+  clean_temporary_files <- identical(toupper(Sys.getenv("BIOCLIM_DEBUG_KEEP_TEMP_FILES")), "TRUE")
+  
   if (clean_temporary_files) {
-    unlink(input_dir, recursive = TRUE, force = TRUE)
-    message("Temp cleaned: ", input_dir)
-  } else {
+    message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_KEEP_TEMP_FILES is set to TRUE.")
     message("Intermediate files kept: ", input_dir)
+  } else {
+    unlink(input_dir, recursive = TRUE, force = TRUE)
   }
   
-  message("\nAll processed GeoTIFFs written to: ", normalizePath(save_dir))
-  return(invisible(NULL))
+  created_tif <- file.path(normalizePath(output_dir), paste0(names(qs_paths_dfL), ".tif"))
+  return(created_tif)
 }

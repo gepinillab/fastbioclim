@@ -4,10 +4,10 @@
 \alias{bio13_fast}
 \title{bio13_fast: Precipitation of Wettest Unit}
 \usage{
-bio13_fast(precp, cell, index_vector = NULL)
+bio13_fast(prcp, cell, index_vector = NULL)
 }
 \arguments{
-\item{precp}{Matrix of precipitation values for each unit.}
+\item{prcp}{Matrix of precipitation values for each unit.}
 
 \item{cell}{Vector of original cell IDs.}
 

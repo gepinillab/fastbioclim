@@ -20,7 +20,7 @@ tmax_path <- list.files(
   full.names = TRUE
 )
 
-prec_path <- list.files(
+prcp_path <- list.files(
   # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
   # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
   # "~/Downloads/prcp/",
@@ -70,26 +70,24 @@ future::plan("multisession", workers = 4)
 # future::plan("sequential") 
 mex <- AOI::aoi_get(country = "Mexico")
 tictoc::tic("MEX calculation")
-bioclim_mex_path <- fastbioclim::bioclim_vars(bios = 1:19,
-                                                    n_units = 12,
-                                                    tmin_path = tmin_path,
-                                                    tmax_path = tmax_path,
-                                                    prec_path = prec_path,
-                                                    user_region = mex, 
-                                                    write_raw_vars = FALSE,
-                                                    temp_dir = "/Users/Gonzalo/bioclim_qs")
-                                                    # temp_dir = "/Users/gepb/bioclim_qs")
+bioclim_mex_path <- fastbioclim::bioclim_fast(bios = 1:19,
+                                              n_units = 12,
+                                              tmin_path = tmin_path,
+                                              tmax_path = tmax_path,
+                                              prcp_path = prcp_path,
+                                              user_region = mex, 
+                                              output_dir = "/Users/Gonzalo/bioclim_mex")
+                                              # output_dir = "/Users/gepb/bioclim_mex")
 tictoc::toc()
 gc()
 future::plan("sequential") 
 tictoc::tic("Write MEX")
-fastbioclim::write_layers(input_dir = bioclim_mex_path ,
-  save_dir = "/Users/Gonzalo/bioclim_mex",
-  # save_dir = "/Users/gepb/bioclim_mex",
-  clean_temporary_files = FALSE)
+fastbioclim::write_layers(input_dir = bioclim_mex_path,
+  output_dir = "/Users/Gonzalo/bioclim_mex")
+  # output_dir = "/Users/gepb/bioclim_mex")
 tictoc::toc()
-bio01_mex <- terra::rast("/Users/Gonzalo/bioclim_mex/bio12.tif")
-# bio01_mex <- rast("/Users/gepb/bioclim_mex/bio1.tif")
+bio01_mex <- terra::rast("/Users/Gonzalo/bioclim_mex/bio01.tif")
+# bio01_mex <- terra::rast("/Users/gepb/bioclim_mex/bio01.tif")
 plot(bio01_mex)
 
 # BIOCLIMA
@@ -103,20 +101,36 @@ gc()
 tictoc::tic("Crop MEX")
 tmin_mex <- terra::crop(terra::rast(tmin_path), mex, mask = TRUE)
 tmax_mex <- terra::crop(terra::rast(tmax_path), mex, mask = TRUE)
-prcp_mex <- terra::crop(terra::rast(prec_path), mex, mask = TRUE)
+prcp_mex <- terra::crop(terra::rast(prcp_path), mex, mask = TRUE)
 tictoc::toc()
 
 tictoc::tic("Bioclima MEX")
-bios_mex <- fastbioclim::clima(
+bios_mex <- fastbioclim::bioclim_terra(
   bios = 1:19,
   tmax = tmax_mex,
   tmin = tmin_mex,
   prcp = prcp_mex,
-  checkNA = FALSE, 
+  overwrite = TRUE
 )
 tictoc::toc()
+plot(terra::rast(bios_mex[1]))
 
-
+# derive_bioclim()
+gc()
+future::plan("multisession", workers = 4)
+tictoc::tic("MEX: derive_bioclim()")
+theBios_mex <- fastbioclim::derive_bioclim(
+  bios = 1:19,
+  tmin = terra::rast(tmin_path),
+  tmax = terra::rast(tmax_path),
+  prcp = terra::rast(prcp_path),
+  user_region = mex, 
+  output_dir = "/Users/Gonzalo/bioclim_mex",
+  overwrite = TRUE,
+  method = "terra"
+)
+tictoc::toc()
+plot(theBios_mex)
 # CHECK
 # i <- 19
 # # r <- rast(paste0("/Users/gepb/bioclim_mex/bio", sprintf("%02d", i), ".tif"))
@@ -135,27 +149,26 @@ tictoc::toc()
 # [w4] 9.935 + 12.998 = 22.933
 # [w4] 9.795 + 13.052 = 22.847
 gc()
-# future::plan("multisession", workers = 4)
-future::plan("sequential") 
+future::plan("multisession", workers = 4)
+# future::plan("sequential") 
 col <- AOI::aoi_get(country = "Colombia")
 tictoc::tic("COL calculation")
-bioclim_col_path <- fastbioclim::bioclim_vars(bios = 1:19,
-                                                    n_units = 12,
-                                                    tmin_path = tmin_path,
-                                                    tmax_path = tmax_path,
-                                                    prec_path = prec_path,
-                                                    user_region = col, 
-                                                    write_raw_vars = FALSE,
-                                                    temp_dir = "/Users/Gonzalo/bioclim_qs")
-                                                    # temp_dir = "/Users/gepb/bioclim_qs")
+bioclim_col_path <- fastbioclim::bioclim_fast(bios = 1:19,
+                                              n_units = 12,
+                                              tmin_path = tmin_path,
+                                              tmax_path = tmax_path,
+                                              prcp_path = prcp_path,
+                                              user_region = col, 
+                                              output_dir = "/Users/Gonzalo/bioclim_col")
+                                              # output_dir = "/Users/gepb/bioclim_col")
 tictoc::toc()
 gc()
 future::plan("sequential") 
 tictoc::tic("Write COL")
-fastbioclim::write_layers(input_dir = bioclim_col_path ,
-  save_dir = "/Users/Gonzalo/bioclim_col",
-  # save_dir = "/Users/gepb/bioclim_col",
-  clean_temporary_files = FALSE)
+fastbioclim::write_layers(input_dir = bioclim_col_path,
+  output_dir = "/Users/Gonzalo/bioclim_col",
+  overwrite = TRUE)
+  # output_dir = "/Users/gepb/bioclim_col")
 tictoc::toc()
 bio01_col <- rast("/Users/Gonzalo/bioclim_col/bio01.tif")
 # bio01_col <- rast("/Users/gepb/bioclim_col/bio01.tif")
@@ -172,18 +185,35 @@ gc()
 tictoc::tic("Crop COL")
 tmin_col <- terra::crop(terra::rast(tmin_path), col, mask = TRUE)
 tmax_col <- terra::crop(terra::rast(tmax_path), col, mask = TRUE)
-prcp_col <- terra::crop(terra::rast(prec_path), col, mask = TRUE)
+prcp_col <- terra::crop(terra::rast(prcp_path), col, mask = TRUE)
 tictoc::toc()
 
 tictoc::tic("Bioclima COL")
-bios_col <- fastbioclim::clima(
+bios_col <- fastbioclim::bioclim_terra(
   bios = 1:19,
   tmax = tmax_col,
   tmin = tmin_col,
   prcp = prcp_col,
-  checkNA = FALSE, 
+  overwrite = TRUE
 )
 tictoc::toc()
+
+# derived_bioclim()
+gc()
+future::plan("multisession", workers = 4)
+tictoc::tic("COL: derive_bioclim()")
+theBios_col <- fastbioclim::derive_bioclim(
+  bios = 1:19,
+  tmin = terra::rast(tmin_path),
+  tmax = terra::rast(tmax_path),
+  prcp = terra::rast(prcp_path),
+  user_region = col, 
+  output_dir = "/Users/Gonzalo/bioclim_mex",
+  overwrite = TRUE,
+  method = "auto"
+)
+tictoc::toc()
+plot(theBios_col)
 
 # SOUTH AMERICA
 # M1 (8 Gb)
@@ -197,28 +227,43 @@ tictoc::toc()
 gc()
 future::plan("multisession", workers = 4)
 # future::plan("sequential") 
-sa <- AOI::aoi_get(country = "South America") %>%
-  st_union() %>%  
-  st_as_sf()    
-plot(sa)
+sa <- AOI::aoi_get(country = "South America") |>
+  sf::st_union() |>  
+  sf::st_as_sf()
+
+# derived_bioclim()
+gc()
+future::plan("multisession", workers = 4)
+tictoc::tic("South America: derive_bioclim()")
+theBios_sa <- fastbioclim::derive_bioclim(
+  bios = 1:19,
+  tmin = terra::rast(tmin_path),
+  tmax = terra::rast(tmax_path),
+  prcp = terra::rast(prcp_path),
+  user_region = sa, 
+  output_dir = "/Users/Gonzalo/bioclim_sa",
+  overwrite = TRUE,
+  method = "auto"
+)
+tictoc::toc()
+plot(theBios_sa) #192
+
+####
 tictoc::tic("SA calculation")
-bioclim_sa_path <- fastbioclim::bioclim_vars(bios = 1:19,
+bioclim_sa_path <- fastbioclim::bioclim_fast(bios = 1:19,
                                                     n_units = 12,
                                                     tmin_path = tmin_path,
                                                     tmax_path = tmax_path,
-                                                    prec_path = prec_path,
+                                                    prcp_path = prcp_path,
                                                     user_region = sa, 
-                                                    write_raw_vars = FALSE,
-                                                    temp_dir = "/Users/Gonzalo/bioclim_qs")
+                                                    output_dir = "/Users/Gonzalo/bioclim_qs")
                                                     # temp_dir = "/Users/gepb/bioclim_qs")
-tictoc::toc()
 gc()
 future::plan("sequential") 
-tictoc::tic("Write SA")
 fastbioclim::write_layers(input_dir = bioclim_sa_path ,
-  save_dir = "/Users/Gonzalo/bioclim_sa",
-  # save_dir = "/Users/gepb/bioclim_sa",
-  clean_temporary_files = FALSE)
+  output_dir = "/Users/Gonzalo/bioclim_sa",
+  overwrite = TRUE)
+  # save_dir = "/Users/gepb/bioclim_sa")
 tictoc::toc()
 bio01_sa <- rast("/Users/Gonzalo/bioclim_sa/bio1.tif")
 # bio01_sa <- rast("/Users/gepb/bioclim_sa/bio1.tif")
@@ -235,11 +280,11 @@ gc()
 tictoc::tic("Crop SA")
 tmin_sa <- terra::crop(terra::rast(tmin_path), sa, mask = TRUE)
 tmax_sa <- terra::crop(terra::rast(tmax_path), sa, mask = TRUE)
-prcp_sa <- terra::crop(terra::rast(prec_path), sa, mask = TRUE)
+prcp_sa <- terra::crop(terra::rast(prcp_path), sa, mask = TRUE)
 tictoc::toc()
 
 tictoc::tic("Bioclima SA")
-bios_sa <- fastbioclim::clima(
+bios_sa <- fastbioclim::bioclim_terra(
   bios = 1:19,
   tmax = tmax_sa,
   tmin = tmin_sa,
@@ -260,11 +305,11 @@ tictoc::toc()
 random_path <- "/Users/Gonzalo/fastbioclim_eg/static_random.tif"
 six_path <- "/Users/Gonzalo/fastbioclim_eg/static_06.tif"
 mex <- AOI::aoi_get(country = "Mexico")
-bioclim_sta_path <- fastbioclim::bioclim_vars(bios = 1:19,
+bioclim_sta_path <- fastbioclim::bioclim_fast(bios = 1:19,
                                                     n_units = 12,
                                                     tmin_path = tmin_path,
                                                     tmax_path = tmax_path,
-                                                    prec_path = prec_path,
+                                                    prcp_path = prcp_path,
                                                     user_region = mex, 
                                                     write_raw_vars = FALSE,
                                                     warmest_unit_path = random_path,
@@ -308,11 +353,11 @@ future::plan("multisession", workers = 4)
 mex <- AOI::aoi_get(country = "Mexico")
 tictoc::tic("MEX calculation")
 i <- 31
-bioclim_mex_path <- fastbioclim::bioclim_vars(bios = 1:35,
+bioclim_mex_path <- fastbioclim::bioclim_fast(bios = 1:35,
                                               n_units = 12,
                                               tmin_path = tmin_path,
                                               tmax_path = tmax_path,
-                                              prec_path = prec_path,
+                                              prcp_path = prcp_path,
                                               srad_path = srad_path,
                                               mois_path = cmi_path, 
                                               user_region = mex, 
@@ -351,7 +396,7 @@ tavg_path <- list.files(
   pattern = "tavg.*\\.tif$",
   full.names = TRUE
 )
-prec_path <- list.files(
+prcp_path <- list.files(
   # "/Users/gepb/Library/CloudStorage/Dropbox-CityCollege/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
   # "/Users/Gonzalo/City College Dropbox/Gonzalo Pinilla Buitrago/data/rasters/climate/chelsa_2.1/1981-2010/prcp",
   # "~/Downloads/prcp/",
@@ -367,7 +412,7 @@ wind_vars <- fastbioclim::stats_vars(
   variable_path = wind_path,
   n_units = 12, 
   stats = c("mean", "max", "min", "cv_cli", "max_period", "min_period"),
-  inter_variable_path = prec_path,
+  inter_variable_path = prcp_path,
   inter_stats = c("max_inter", "min_inter"),
   prefix_variable = "wind",
   suffix_inter_max = "wettest",
