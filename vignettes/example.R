@@ -88,10 +88,12 @@ gc()
 future::plan("multisession", workers = 4)
 tictoc::tic("MEX: derive_bioclim()")
 theBios_mex <- fastbioclim::derive_bioclim(
-  bios = 1:19,
+  bios = 1:35,
   tmin = terra::rast(tmin_path),
   tmax = terra::rast(tmax_path),
   prcp = terra::rast(prcp_path),
+  srad = terra::rast(srad_path),
+  mois = terra::rast(cmi_path),
   user_region = mex, 
   output_dir = "/Users/Gonzalo/bioclim_mex",
   overwrite = TRUE,
