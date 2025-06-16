@@ -70,19 +70,19 @@ stats_terra <- function(variable,
   
   # MEAN
   if ("mean" %in% stats) {
-    mean_stat <- terra::app(variable, mean, na.rm = TRUE)
+    mean_stat <- terra::app(variable, "mean", na.rm = TRUE)
     names(mean_stat) <- paste0(prefix_variable, "_mean")
   }
   
   # SUM
   if ("sum" %in% stats) {
-    sum_stat <- terra::app(variable, sum, na.rm = TRUE)
+    sum_stat <- terra::app(variable, "sum", na.rm = TRUE)
     names(sum_stat) <- paste0(prefix_variable, "_sum")
   }
   
   # MAX
   if ("max" %in% stats & is.null(max_unit)) {
-    max_stat <- terra::app(variable, max, na.rm = TRUE)
+    max_stat <- terra::app(variable, "max", na.rm = TRUE)
     names(max_stat) <- paste0(prefix_variable, "_max")
   } else if ("max" %in% stats & !is.null(max_unit)) {
     max_stat <- terra::selectRange(variable, max_unit)
@@ -91,7 +91,7 @@ stats_terra <- function(variable,
   
   # MIN
   if ("min" %in% stats & is.null(min_unit)) {
-    min_stat <- terra::app(variable, min, na.rm = TRUE)
+    min_stat <- terra::app(variable, "min", na.rm = TRUE)
     names(min_stat) <- paste0(prefix_variable, "_min")
   } else if ("min" %in% stats & !is.null(min_unit)) {
     min_stat <- terra::selectRange(variable, min_unit)
@@ -100,7 +100,7 @@ stats_terra <- function(variable,
   
   # STDEV
   if ("stdev" %in% stats) {
-    stdev_stat <- terra::app(variable, stdev, na.rm = TRUE)
+    stdev_stat <- terra::app(variable, "std", na.rm = TRUE)
     names(stdev_stat) <- paste0(prefix_variable, "_stdev")
   }
   
@@ -118,15 +118,15 @@ stats_terra <- function(variable,
   }
   ## MAX_PERIOD
   if ("max_period" %in% stats & is.null(max_period)) {
-    max_period_stat <- terra::app(period_windows, max, na.rm = TRUE)
+    max_period_stat <- terra::app(period_windows, "max", na.rm = TRUE)
     names(max_period_stat) <- paste0(prefix_variable, "_max_period")
   } else if ("max_period" %in% stats & !is.null(max_period)) {
     max_period_stat <- terra::selectRange(period_windows, max_period)
-    nnames(max_period_stat) <- paste0(prefix_variable, "_max_period")
+    names(max_period_stat) <- paste0(prefix_variable, "_max_period")
   }
   ## MIN_PERIOD
   if ("min_period" %in% stats & is.null(min_period)) {
-    min_period_stat <- terra::app(period_windows, min, na.rm = TRUE)
+    min_period_stat <- terra::app(period_windows, "min", na.rm = TRUE)
     names(min_period_stat) <- paste0(prefix_variable, "_min_period")
   } else if ("min_period" %in% stats & !is.null(min_period)) {
     min_period_stat <- terra::selectRange(period_windows, min_period)

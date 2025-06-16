@@ -220,12 +220,14 @@ bioclim_fast <- function(
       original_dims_vec <- c(terra::nrow(ref_rast_geom), terra::ncol(ref_rast_geom))
       original_crs_txt <- terra::crs(ref_rast_geom, proj = TRUE)
       original_ncol <- original_dims_vec[2]
+      original_res <- terra::res(ref_rast_geom)
 
       # Determine target geometry
       target_extent_vec <- original_extent_vec
       target_dims_vec <- original_dims_vec
       target_crs_txt <- original_crs_txt
       target_ncol <- original_ncol
+      target_res <- original_res
 
       if (!is.null(user_region)) {
           target_template_rast <- NULL

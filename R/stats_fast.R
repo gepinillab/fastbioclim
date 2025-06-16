@@ -227,13 +227,13 @@ stats_fast <- function(variable_path,
       extent = original_extent_vec,
       dimensions = original_dims_vec,
       crs = original_crs_txt,
-      res = original_res_vec # Add original resolution
+      res = original_res_vec
     ),
     target_geom = list(
       extent = target_extent_vec,
       dimensions = target_dims_vec,
       crs = target_crs_txt,
-      res = target_res_vec # Add target resolution
+      res = target_res_vec
     )
   )
 
