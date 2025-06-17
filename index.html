@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Bioclimatic variables • bioclima</title>
+<title>Scalable and Efficient Derivation of Bioclimatic Variables • fastbioclim</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Bioclimatic variables">
-<meta name="description" content="Get bioclimatic variables using terra objects">
-<meta property="og:description" content="Get bioclimatic variables using terra objects">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Scalable and Efficient Derivation of Bioclimatic Variables">
+<meta name="description" content="Provides a high-performance framework for deriving bioclimatic and custom summary variables from large-scale climate raster data. The package features a dual-backend architecture that intelligently switches between fast in-memory processing for smaller datasets (via the terra package) and a memory-safe tiled approach for massive datasets that do not fit in RAM (via exactextractr and Rfast). The main functions, derive_bioclim() and derive_statistics(), offer a unified interface with advanced options for custom time periods and static indices, making it suitable for a wide range of ecological and environmental modeling applications.">
+<meta property="og:description" content="Provides a high-performance framework for deriving bioclimatic and custom summary variables from large-scale climate raster data. The package features a dual-backend architecture that intelligently switches between fast in-memory processing for smaller datasets (via the terra package) and a memory-safe tiled approach for massive datasets that do not fit in RAM (via exactextractr and Rfast). The main functions, derive_bioclim() and derive_statistics(), offer a unified interface with advanced options for custom time periods and static indices, making it suitable for a wide range of ecological and environmental modeling applications.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -20,9 +20,9 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="index.html">bioclima</a>
+    <a class="navbar-brand me-2" href="index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0-9999</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/tutorial_v0_MNE-(ESP).html">Tutorial v0.0.2 (ESP)</a></li>
+<li><a class="dropdown-item" href="articles/tutorial_SPA.html">Tutorial</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -44,6 +44,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/gepinillab/fastbioclim/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -52,157 +53,160 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="bioclima-package">bioclima Package<a class="anchor" aria-label="anchor" href="#bioclima-package"></a>
+<div class="page-header"><h1 id="fastbioclim-scalable-derivation-of-climate-variables">
+<code>fastbioclim</code>: Scalable Derivation of Climate Variables<a class="anchor" aria-label="anchor" href="#fastbioclim-scalable-derivation-of-climate-variables"></a>
 </h1></div>
-<div class="section level2">
-<h2 id="bioclimatic-variables-using-terra">Bioclimatic variables using terra<a class="anchor" aria-label="anchor" href="#bioclimatic-variables-using-terra"></a>
-</h2>
-</div>
+<p><code>fastbioclim</code> is an R package for efficiently deriving standard bioclimatic and custom summary variables from large-scale climate raster data. It is designed to overcome the memory limitations of traditional approaches by intelligently switching between processing backends.</p>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>The <code>bioclima</code> package is an R package designed to efficiently generate bioclimatic variables using the <code>terra</code> package instead of <code>raster</code>. This choice of dependency makes the process significantly faster, as <code>terra</code> is optimized for large-scale raster operations. The <code>bioclima</code> package also have available the option to create a subset of variables, without requiring to build all of them. It can build the bioclimatic variables based on solar radiation and precipitation (bio20-35 following ANUCLIM numeration). Also, it has available the option to create bioclimatic variables base on other periods of time (e.g., weeks, days), define other periods than quarters (used for bio08, 09, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27, 32, 33, 34, 35). Or even use real average temperature (parameter ‘tavg’), instead that an approximation based on the maximum and the minimum temperature ((tmax + tmin)) / 2).</p>
-<p>The functionality provided by <code>bioclima</code> is inspired by the <code>biovars</code> function in the <code>dismo</code> package. The goal is to streamline the process of creating bioclimatic variables for ecological and environmental modeling.</p>
-<p><strong>Disclaimer: This Package is Under Development</strong></p>
-<p>This R package is currently in development and may contain errors, bugs, or incomplete features.</p>
+<p>Working with large climate datasets often presents a major challenge: the data is too large to fit into memory. <code>fastbioclim</code> solves this problem by providing a powerful and unified interface with a dual-backend architecture:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>In-Memory (<code>"terra"</code>)</strong>: For datasets that fit comfortably in RAM, <code>fastbioclim</code> uses the highly optimized <code>terra</code> package for maximum speed.</li>
+<li>
+<strong>In-Disk (<code>"tiled"</code>)</strong>: For datasets that exceed available RAM, it automatically switches to a memory-safe tiled workflow. This backend uses <code>exactextractr</code> and <code>Rfast</code> to process the data chunk by chunk, ensuring that even continent-scale analyses can run on a standard computer.</li>
+</ol>
+<p>The core of the package is a set of “smart” wrapper functions—<code><a href="reference/derive_bioclim.html">derive_bioclim()</a></code> and <code><a href="reference/derive_statistics.html">derive_statistics()</a></code>—that automatically select the best backend, providing a seamless experience for the user.</p>
 </div>
 <div class="section level2">
-<h2 id="important-notes">Important Notes<a class="anchor" aria-label="anchor" href="#important-notes"></a>
+<h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
 </h2>
 <ul>
-<li><p>Use this package at your own risk. The development team does not guarantee the stability or correctness of the code.</p></li>
-<li><p>Contributions and bug reports are welcome. If you encounter issues or have suggestions for improvement, please <a href="https://github.com/gepinillab/bioclima/issues" class="external-link">open an issue</a> on our GitHub repository.</p></li>
+<li>
+<strong>Smart <code>auto</code> Method</strong>: Automatically detects data size and chooses the optimal processing workflow (in-memory vs. tiled).</li>
+<li>
+<strong>Scalability</strong>: Robustly handles raster datasets of any size, from small study areas to global extents.</li>
+<li>
+<strong>Comprehensive Bioclimatic Variables</strong>: Calculates the full set of 35 standard bioclimatic variables, including those based on temperature, precipitation, solar radiation, and moisture.</li>
+<li>
+<strong>Custom Statistics</strong>: Provides a flexible <code><a href="reference/derive_statistics.html">derive_statistics()</a></code> function to compute custom summaries (mean, max, min, standard deviation, etc.) for any climate variable.</li>
+<li>
+<strong>Flexible Time Periods</strong>: Easily define custom periods (e.g., weeks, semesters) instead of being limited to standard quarters.</li>
+<li>
+<strong>Advanced Control</strong>: Supports static index rasters for advanced time-series analysis and defining specific seasonal periods.</li>
 </ul>
-<p>Thank you for your understanding and collaboration as we work towards improving and stabilizing this R package.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>To install <code>bioclima</code>, you can use the <code>remotes</code> package. If you don’t have it installed, you can do so by running:</p>
+<p>You can install the development version of <code>fastbioclim</code> from GitHub with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"gepinillab/bioclima"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"gepinillab/fastbioclim"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>Install and load libraries</p>
+<p>The package provides two primary, user-facing functions:</p>
+<ul>
+<li>
+<strong><code><a href="reference/derive_bioclim.html">derive_bioclim()</a></code></strong>: For calculating the standard set of 19-35 bioclimatic variables.</li>
+<li>
+<strong><code><a href="reference/derive_statistics.html">derive_statistics()</a></code></strong>: For calculating custom summary statistics on any variable.</li>
+</ul>
+<div class="section level3">
+<h3 id="example-a-quick-demonstration">Example: A Quick Demonstration<a class="anchor" aria-label="anchor" href="#example-a-quick-demonstration"></a>
+</h3>
+<p>This example demonstrates the core functionality using simple, self-contained mock data.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load libraries AND install them if necessary</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://github.com/mikejohnson51/climateR" class="external-link">"climateR"</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"mikejohnson51/climateR"</span><span class="op">)</span> <span class="op">}</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://github.com/mikejohnson51/AOI/" class="external-link">"AOI"</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"mikejohnson51/AOI"</span><span class="op">)</span> <span class="op">}</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/" class="external-link">"terra"</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"terra"</span><span class="op">)</span> <span class="op">}</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://here.r-lib.org/" class="external-link">"here"</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"here"</span><span class="op">)</span> <span class="op">}</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://magrittr.tidyverse.org" class="external-link">"magrittr"</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"magrittr"</span><span class="op">)</span> <span class="op">}</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://gepinillab.github.io/bioclima/">"bioclima"</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"gepinillab/bioclima"</span><span class="op">)</span> <span class="op">}</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="get-monthly-data">Get monthly data<a class="anchor" aria-label="anchor" href="#get-monthly-data"></a>
-</h3>
-<p>Download monthly climatic variables from <a href="https://www.climatologylab.org/terraclimate.html" class="external-link">Terraclimate</a> database using the <code>climateR</code> package. These rasters have a spatial resolution of 2.5 arcmins and a temporal resolution of from 1958 to 2022 (each year the database is updated to include last year). The follwing example will create bioclimatic variables for El Salvador summarizing a perido of 30-years.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Download data from El Salvador (30 years of monthly data; 360 months)</span></span>
-<span><span class="va">env.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/climateR/man/getTerraClim.html" class="external-link">getTerraClim</a></span><span class="op">(</span>AOI <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html" class="external-link">aoi_get</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"El Salvador"</span><span class="op">)</span>,  <span class="co"># Area of Interest</span></span>
-<span>                         varname <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tmin"</span>, <span class="st">"tmax"</span>, <span class="st">"ppt"</span>, <span class="st">"soil"</span><span class="op">)</span>,  <span class="co"># Variables to download</span></span>
-<span>                         startDate <span class="op">=</span> <span class="st">"1990-01-01"</span>,  <span class="co"># Lower limit date</span></span>
-<span>                         endDate <span class="op">=</span> <span class="st">"2019-12-01"</span><span class="op">)</span>  <span class="co"># Upper limit date</span></span>
-<span><span class="co"># Save monthly minumum temperature</span></span>
-<span><span class="va">tmin</span> <span class="op">&lt;-</span> <span class="va">env.data</span><span class="op">$</span><span class="va">tmin</span></span>
-<span><span class="co"># Save monthly maximum temperature</span></span>
-<span><span class="va">tmax</span> <span class="op">&lt;-</span> <span class="va">env.data</span><span class="op">$</span><span class="va">tmax</span></span>
-<span><span class="co"># Save monthly precipitation</span></span>
-<span><span class="va">ppt</span> <span class="op">&lt;-</span> <span class="va">env.data</span><span class="op">$</span><span class="va">ppt</span></span>
-<span><span class="co"># Save monthly solar radiation</span></span>
-<span><span class="co"># srad &lt;- env.data$srad</span></span>
-<span><span class="co"># Save monthly soil moisture</span></span>
-<span><span class="va">soilm</span> <span class="op">&lt;-</span> <span class="va">env.data</span><span class="op">$</span><span class="va">soil</span></span></code></pre></div>
-<p>Please check the raster inputs before saving the rasters. In Nov 15th, 2023 the climatic data obtained was flipped. Fortunately, it can be fixed using this code.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Plot first month (1990-01) of precipitation</span></span>
-<span><span class="co"># Check if map if flipped</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ppt</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># RUN THIS CODE IF THE MAP VALUES ARE FLIPPED</span></span>
-<span><span class="co"># tmin &lt;- rast(x = tmin, vals = values(t(tmin)))</span></span>
-<span><span class="co"># tmax &lt;- rast(x = tmax, vals = values(t(tmax)))</span></span>
-<span><span class="co"># ppt &lt;- rast(x = ppt, vals = values(t(ppt)))</span></span>
-<span><span class="co"># srad &lt;- rast(x = srad, vals = values(t(srad)))</span></span>
-<span><span class="co"># soilm &lt;- rast(x = soilm, vals = values(t(soilm)))</span></span></code></pre></div>
-<p>Then, you will be able to save the monthly rasters in a unique TIFF file. Each month will be saved in the bands of a raster, so you do not need to save each month individually.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create a folder</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co"># Save each spatRaster</span></span>
-<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">tmin</span>,</span>
-<span>                   <span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"tmin_1990-01-to-2019-12.tif"</span><span class="op">)</span>,</span>
-<span>                   overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">tmax</span>,</span>
-<span>                   <span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"tmax_1990-01-to-2019-12.tif"</span><span class="op">)</span>,</span>
-<span>                   overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">ppt</span>,</span>
-<span>                   <span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"ppt_1990-01-to-2019-12.tif"</span><span class="op">)</span>,</span>
-<span>                   overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co"># terra::writeRaster(srad,</span></span>
-<span><span class="co">#                    here("data", "srad_1990-01-to-2019-12.tif"),</span></span>
-<span><span class="co">#                    overwrite = TRUE)</span></span>
-<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">soilm</span>,</span>
-<span>                   <span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"soilm_1990-01-to-2019-12.tif"</span><span class="op">)</span>,</span>
-<span>                   overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="create-bioclimatic-variables">Create bioclimatic variables<a class="anchor" aria-label="anchor" href="#create-bioclimatic-variables"></a>
-</h3>
-<p>Once, you get the monthly variables. It is time to create the bioclimatic variables based on the monthly averages (<em>n</em> = 12 months). First, we need to create a monthly averages for each variable, and then use the clima() function to obtain the 19 bioclimatic variables.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tmin_avg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/tapp.html" class="external-link">tapp</a></span><span class="op">(</span><span class="va">tmin</span>, index <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span>, <span class="fl">30</span><span class="op">)</span>, fun <span class="op">=</span> <span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">tmax_avg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/tapp.html" class="external-link">tapp</a></span><span class="op">(</span><span class="va">tmax</span>, index <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span>, <span class="fl">30</span><span class="op">)</span>, fun <span class="op">=</span> <span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">ppt_avg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/tapp.html" class="external-link">tapp</a></span><span class="op">(</span><span class="va">ppt</span>, index <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span>, <span class="fl">30</span><span class="op">)</span>, fun <span class="op">=</span> <span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co"># srad_avg &lt;- tapp(srad, index = rep(1:12, 30), fun = mean, na.rm = TRUE)</span></span>
-<span><span class="va">soilm_avg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/tapp.html" class="external-link">tapp</a></span><span class="op">(</span><span class="va">soilm</span>, index <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span>, <span class="fl">30</span><span class="op">)</span>, fun <span class="op">=</span> <span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gepinillab.github.io/fastbioclim/">fastbioclim</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.apply.futureverse.org" class="external-link">future.apply</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://progressr.futureverse.org" class="external-link">progressr</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">bios</span> <span class="op">&lt;-</span> <span class="fu">bioclima</span><span class="fu">::</span><span class="fu"><a href="reference/clima.html">clima</a></span><span class="op">(</span>tmin <span class="op">=</span> <span class="va">tmin_avg</span>, tmax <span class="op">=</span> <span class="va">tmax_avg</span>, prcp <span class="op">=</span> <span class="va">ppt_avg</span>,</span>
-<span>                        srad <span class="op">=</span> <span class="va">srad_avg</span>, soilm <span class="op">=</span> <span class="va">soilm_avg</span>,</span>
-<span>                        bios <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">19</span>, <span class="fl">28</span><span class="op">:</span><span class="fl">35</span><span class="op">)</span>, period <span class="op">=</span> <span class="fl">3</span>, circular <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">tmin_ecu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/ecuador/"</span>, package <span class="op">=</span> <span class="st">"fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"tmin"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">tmax_ecu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/ecuador/"</span>, package <span class="op">=</span> <span class="st">"fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"tmax"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">prcp_ecu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/ecuador/"</span>, package <span class="op">=</span> <span class="st">"fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"prcp"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The function will automatically use the fast "terra" method for this small dataset</span></span>
+<span><span class="va">output_dir_bioclim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"bioclim_ecuador"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">bioclim_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/derive_bioclim.html">derive_bioclim</a></span><span class="op">(</span></span>
+<span>  bios <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">19</span>,</span>
+<span>  tmin <span class="op">=</span> <span class="va">tmin_ecu</span>,</span>
+<span>  tmax <span class="op">=</span> <span class="va">tmax_ecu</span>,</span>
+<span>  prcp <span class="op">=</span> <span class="va">prcp_ecu</span>,</span>
+<span>  output_dir <span class="op">=</span> <span class="va">output_dir_bioclim</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bioclim_vars</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bio01"</span>, <span class="st">"bio12"</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># 3. Derive custom summary statistics for a different variable (e.g., wind speed)</span></span>
+<span><span class="va">wind_rast</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/ecuador/"</span>, package <span class="op">=</span> <span class="st">"fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"wind"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">output_dir_custom</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"wind_ecuador"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">custom_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/derive_statistics.html">derive_statistics</a></span><span class="op">(</span></span>
+<span>  variable <span class="op">=</span> <span class="va">wind_rast</span>,</span>
+<span>  stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"max"</span>, <span class="st">"stdev"</span><span class="op">)</span>,</span>
+<span>  prefix_variable <span class="op">=</span> <span class="st">"wind"</span>,</span>
+<span>  output_dir <span class="op">=</span> <span class="va">output_dir_custom</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">custom_stats</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="plot-variables">Plot variables<a class="anchor" aria-label="anchor" href="#plot-variables"></a>
+<h3 id="handling-large-scale-data-the-tiled-workflow">Handling Large-Scale Data (The Tiled Workflow)<a class="anchor" aria-label="anchor" href="#handling-large-scale-data-the-tiled-workflow"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Temperature</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bios</span><span class="op">[[</span><span class="fl">1</span><span class="op">:</span><span class="fl">11</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Precipitation</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bios</span><span class="op">[[</span><span class="fl">12</span><span class="op">:</span><span class="fl">19</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Solar radiation</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bios</span><span class="op">[[</span><span class="fl">20</span><span class="op">:</span><span class="fl">27</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Soil moisture</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bios</span><span class="op">[[</span><span class="fl">28</span><span class="op">:</span><span class="fl">35</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p>The real power of <code>fastbioclim</code> shines with large datasets. The <code>method = "auto"</code> setting in <code><a href="reference/derive_bioclim.html">derive_bioclim()</a></code> and <code><a href="reference/derive_statistics.html">derive_statistics()</a></code> handles this automatically.</p>
+<p>When the wrapper function detects that the input rasters are too large to fit in memory, it seamlessly switches to the tiled workflow.</p>
+<p><strong>Important Requirement:</strong> For the tiled workflow to function, your input <code>SpatRaster</code> objects must be pointing to files on disk, not held entirely in memory.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Conceptual example for large, file-based rasters</span></span>
+<span><span class="va">tmin_neo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/neotropics/"</span>, package <span class="op">=</span> <span class="st">"fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"tmin"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">tmax_neo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/neotropics/"</span>, package <span class="op">=</span> <span class="st">"fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"tmax"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">prcp_neo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/neotropics/"</span>, package <span class="op">=</span> <span class="st">"fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"prcp"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">output_dir_bios</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"bioclim_neotropics"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Optional: ACTIVATE PROGRESS BAR</span></span>
+<span><span class="fu">progressr</span><span class="fu">::</span><span class="fu"><a href="https://progressr.futureverse.org/reference/handlers.html" class="external-link">handlers</a></span><span class="op">(</span>global <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co"># Optional: DEFINE PARALLEL PLAN FOR EVEN FASTER PROCESSING</span></span>
+<span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"multisession"</span>, workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The call is identical. `derive_bioclim` will detect the large file size</span></span>
+<span><span class="co"># and automatically use the memory-safe tiled method.</span></span>
+<span><span class="va">large_scale_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/derive_bioclim.html">derive_bioclim</a></span><span class="op">(</span></span>
+<span>  bios <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">19</span>,</span>
+<span>  tmin <span class="op">=</span> <span class="va">tmin_neo</span>,</span>
+<span>  tmax <span class="op">=</span> <span class="va">tmax_neo</span>,</span>
+<span>  prcp <span class="op">=</span> <span class="va">prcp_neo</span>,</span>
+<span>  output_dir <span class="op">=</span> <span class="va">output_dir_bios</span>,</span>
+<span>  tile_degrees <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">large_scale_vars</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">large_scale_vars</span><span class="op">[[</span><span class="st">"bio11"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+<h2 id="under-active-development">Under Active Development<a class="anchor" aria-label="anchor" href="#under-active-development"></a>
 </h2>
-<p>As November 2023, there is not a package-specific citation for <code>bioclima</code>, but the package was first used in:</p>
-<p>Pinilla-Buitrago, G. E. (2023). Predicting potential range shifts using climatic time series and niche models: A Neotropical montane shrew’s case. Ecological Informatics, 77, 102212. <a href="https://doi.org/10.1016/j.ecoinf.2023.102212" class="external-link uri">https://doi.org/10.1016/j.ecoinf.2023.102212</a></p>
-<div class="section level3">
-<h3 id="abstract">Abstract<a class="anchor" aria-label="anchor" href="#abstract"></a>
-</h3>
-<p>Ecological niche models (ENMs) can forecast species’ potential range shifts by transferring a model to a future climatic scenario. However, this approximation does not identify whether range shifts have occurred in species’ distributional limits in the last several decades. Given ongoing anthropogenic climate change, changes in distributional limits are expected to occur (poleward and upslope for several montane species). Here, I use a climatic time series to predict potential changes in distributional limits in response to climate change over the last four decades, using the Mexican small-eared shrew (<em>Cryptotis mexicanus</em>), a montane cloud-forest species, as an example. I transferred the ENM (tuned to optimize complexity) to a series of thirty-year bioclimatic periods between 1979 and 2019 created with monthly precipitation and temperature data. I detected trends in suitability and bioclimatic variables using a Mann-Kendall test and identified which variables could be driving the suitability changes in distributional limits. The detected extent and direction of suitability trends do not suggest the uniform pole-ward or upslope shifts expected under warming conditions. Comparisons between suitability and variable trends suggest that precipitation, not temperature, plays a stronger role in explaining changes in climatic suitability for <em>C. mexicanus</em>. Where precipitation decreased, there was suitability loss, while in areas where precipitation increased, suitability gain was observed. These analyses illustrate how incorporating time-series climatic data into ENMs can aid in understanding if species are already responding to changes in climate. Here, the potential response of C. mexicanus to climate change varies across its distribution and therefore the species’ range shifts may not necessarily follow expected general patterns. These findings should be verified with field data. More generally, using the valuable climatic information of the last several decades should be incorporated into studies that determine potential range shifts under recent or future climatic conditions.</p>
+<p>This R package is currently under active development. While it is functional, it may contain bugs or undergo changes to the API.</p>
+<p>Contributions, bug reports, and feature requests are highly encouraged. Please <a href="https://github.com/gepinillab/fastbioclim/issues" class="external-link">open an issue</a> on our GitHub repository to provide feedback.</p>
 </div>
 </div>
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/gepinillab/fastbioclim/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/gepinillab/fastbioclim/issues" class="external-link">Report a bug</a></li>
+</ul>
 </div>
-  </main><aside class="col-md-3"><div class="license">
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="LICENSE.html">Full license</a></li>
-<li><small>GPL (&gt;= 3)</small></li>
+<li>GPL (&gt;= 3) + file <a href="LICENSE-text.html">LICENSE</a>
+</li>
 </ul>
 </div>
 
@@ -210,14 +214,14 @@
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing bioclima</a></li>
+<li><a href="authors.html#citation">Citing fastbioclim</a></li>
 </ul>
 </div>
 
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Gonzalo E. Pinilla-Buitrago <br><small class="roles"> Maintainer </small>  </li>
+<li>Gonzalo E. Pinilla-Buitrago <br><small class="roles"> Maintainer </small>   </li>
 </ul>
 </div>
 
@@ -232,7 +236,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
