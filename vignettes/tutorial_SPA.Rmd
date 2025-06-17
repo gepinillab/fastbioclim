@@ -11,20 +11,20 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Paquete `fastbioclim`: *Derivación eficiente de variables bioclimáticas*
 
-El paquete `fastbioclim` está diseñado para generar variables bioclimáticas de manera eficiente, utilizando dos flujos de trabajo (workflows) distintos.
+El paquete `fastbioclim` está diseñado para generar variables bioclimáticas de manera eficiente, utilizando dos flujos de trabajo (*workflows*) distintos.
 
 **En Memoria ("terra"):** El primer método se basa en el paquete `terra` y es ideal cuando los rásters pueden ser procesados completamente en la memoria RAM del computador.
 
-**Fuera de Memoria ("tiled"):** El segundo método está diseñado para grandes rásters. Divide el área de interés en mosaicos (o cuadrículas) que son procesados de forma independiente utilizando los paquetes `exactextractr` y `Rfast`. Este enfoque out-of-core (fuera de memoria) permite analizar datos de cualquier tamaño, sin importar la memoria RAM disponible.
+**Fuera de Memoria ("tiled"):** El segundo método está diseñado para grandes rásters. Divide el área de interés en mosaicos (o cuadrículas) que son procesados de forma independiente utilizando los paquetes `exactextractr` y `Rfast`. Este enfoque *out-of-core* (fuera de memoria) permite analizar datos de cualquier tamaño, sin importar la memoria RAM disponible.
 
-La principal ventaja de `fastbioclim` es que puede seleccionar de forma inteligente el método más adecuado con el argumento method = "auto", garantizando siempre el mejor balance entre velocidad y uso de memoria.
+La principal ventaja de `fastbioclim` es que puede seleccionar de forma inteligente el método más adecuado con el argumento `method = "auto"`, garantizando siempre el mejor balance entre velocidad y uso de memoria.
 
 Además de su rendimiento, `fastbioclim` ofrece una gran flexibilidad:
 
-- Permite calcular un subconjunto de variables sin necesidad de generar el set completo.
-- Expande el set a 35 variables bioclimáticas, incluyendo radiación solar (bios 20-27) y resúmenes de humedad (bios 28-35) basados en la nomenclatura de ANUCLIM 6.1 (Xu & Hutchinson, 2012).
+- Permite calcular un subconjunto de variables sin necesidad de generar el conjunto completo.
+- Expande el conjunto a 35 variables bioclimáticas, incluyendo radiación solar (bios 20-27) y resúmenes de humedad (bios 28-35) basados en la nomenclatura de ANUCLIM 6.1 (Xu & Hutchinson, 2012).
 - Ofrece la opción de definir períodos de tiempo personalizados (ej. semanas, semestres) para las variables basadas en períodos (como bio08 o bio18).
-- Permite utilizar un ráster de temperatura promedio real (parámetro tavg), en lugar de la aproximación estándar de (tmax + tmin) / 2.
+- Permite utilizar un ráster de temperatura promedio real (parámetro `tavg`), en lugar de la aproximación estándar de (tmax + tmin) / 2.
 - Permite analizar cualquier variable temporal (velocidad del viento, humedad, etc.) con la misma arquitectura potente y escalable, usando la función `derive_statistics()`.
 - Permite el uso de índices estáticos para un control avanzado, ideal para análisis de series temporales (p. ej., asegurar que el "período más cálido" se refiera siempre a los mismos meses cada año).
 
@@ -39,7 +39,8 @@ Se agradecen las contribuciones y los informes de errores. Si encuentra problema
 ## Instalación
 
 Para instalar `fastbioclim`, puede utilizar el paquete `remotes`. Si aún no lo tiene instalado, puede hacerlo ejecutando:
-```{r message=FALSE}
+
+```{r, eval=FALSE}
 install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
 ```
@@ -47,22 +48,27 @@ remotes::install_github("gepinillab/fastbioclim")
 Instale y cargue los paquetes necesarios:
 
 ```{r message=FALSE}
-# Cargue librerias e instálelas si es necesario
+# Cargue librerías e instálelas si es necesario
 if (!require("terra")) {
-  install.packages("terra") }
+  install.packages("terra") 
+}
 if (!require("future.apply")) {
-  install.packages("future.apply") }
+  install.packages("future.apply") 
+}
 if (!require("progressr")) {
-  install.packages("progressr") }
+  install.packages("progressr") 
+}
 if (!require("fastbioclim")) {
-  remotes::install_github("gepinillab/fastbioclim") }
+  remotes::install_github("gepinillab/fastbioclim") 
+}
 ```
 
-### Obtener las 19 variables bioclimáticas para el Ecuador
-Al igual que `biovars()`, este paquete requiere que el usuario provea las variables climáticas promedio por unidad de tiempo para el calculo de variables. Tradicionamente dichas unidades de tiempo corresponden a promedios mensuales de temperatura y precipación para decenas de años. Para este ejemplo vamos a usar variables obtenidas y procesadas de CHELSA v2.1 (XXXX) para el Ecuador que estan disponibles dentro del paquete (solo en la versión de GitHub)
+## Obtener las 19 variables bioclimáticas para Ecuador
+
+Al igual que `biovars()`, este paquete requiere que el usuario provea las variables climáticas promedio por unidad de tiempo para el cálculo de variables. Tradicionalmente dichas unidades de tiempo corresponden a promedios mensuales de temperatura y precipitación para decenas de años. Para este ejemplo vamos a usar variables obtenidas y procesadas de CHELSA v2.1 (Karger et al., 2017) para Ecuador que están disponibles dentro del paquete (solo en la versión de GitHub).
 
 ```{r}
-# Obtener lista de rasters y crea un spatRaster para cada variable
+# Obtener lista de rasters y crear un spatRaster para cada variable
 # Temperatura mínima
 tmin_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
   list.files("tmin", full.names = TRUE) |> rast()
@@ -73,10 +79,10 @@ tmax_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
 prcp_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
   list.files("prcp", full.names = TRUE) |> rast()
 
-# Definir dirtectorio donde se guardarán los rasters
+# Definir directorio donde se guardarán los rasters
 output_dir_bioclim <- file.path(tempdir(), "bioclim_ecuador")
 
-# Obtener las 19 variables para el Ecuador
+# Obtener las 19 variables para Ecuador
 bioclim_ecu <- derive_bioclim(
   bios = 1:19,
   tmin = tmin_ecu,
@@ -88,13 +94,16 @@ bioclim_ecu <- derive_bioclim(
 # Plot bio01 y bio12
 plot(bioclim_ecu[[c("bio01", "bio12")]])
 ```
-#### Usando temperatura promedio cómo input
-El paquete `fastbioclim` también ofrece la opción de usar temperatura promedio (definida el parametro 'tavg') para el calculo de variables bioclimáticas.
+
+### Usando temperatura promedio como input
+
+El paquete `fastbioclim` también ofrece la opción de usar temperatura promedio (definida con el parámetro `tavg`) para el cálculo de variables bioclimáticas.
+
 ```{r}
 # Temperatura promedio
 tavg_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
   list.files("tavg", full.names = TRUE) |> rast()
-# Definir dirtectorio donde se guardarán los rasters
+# Definir directorio donde se guardarán los rasters
 output_dir_bioclim_v2 <- file.path(tempdir(), "bioclim_ecuador_v2")
 
 bioclim_ecu_v2 <- derive_bioclim(
@@ -107,23 +116,28 @@ bioclim_ecu_v2 <- derive_bioclim(
   overwrite = TRUE
 )
 # Diferencia entre bio01s cuando se usa tavg
-plot(bioclim_ecu_v2[[c("bio01")]] - bioclim_ecu[[c("bio01")]])
+plot(bioclim_ecu_v2[["bio01"]] - bioclim_ecu[["bio01"]])
 ```
 
 ### Seleccionar un grupo de variables
-Muchas veces no es necesario utilizar todas las variables bioclimáticas en nuestros análisis. Por este motivo, y a diferencia de biovars(), se puede definir en el parámetro 'bios' el número que identifica cada una de las variables bioclimáticas. De esta forma no es necesario obtener todas las 19 variables para luego solo seleccionar las variables de interés. En el siguiente ejemplo solo se obtendrán cuatro variables (bio05, bio06, bio13 y bio14). Este ejemplo es algo más rápido, ya que no es necesario calcular internamente los trimestres más cálidos/fríos o secos/húmedos.
+
+Muchas veces no es necesario utilizar todas las variables bioclimáticas en nuestros análisis. Por este motivo, y a diferencia de `biovars()`, se puede definir en el parámetro `bios` el número que identifica cada una de las variables bioclimáticas. De esta forma no es necesario obtener todas las 19 variables para luego solo seleccionar las variables de interés. En el siguiente ejemplo solo se obtendrán cuatro variables (bio05, bio06, bio13 y bio14). Este ejemplo es algo más rápido, ya que no es necesario calcular internamente los trimestres más cálidos/fríos o secos/húmedos.
+
 ```{r message=FALSE}
 bios4_ecu <- derive_bioclim(
   tmin = tmin_ecu, 
   tmax = tmax_ecu, 
   prcp = prcp_ecu,
   bios = c(5, 6, 13, 14),
-  overwrite = TRUE)
+  overwrite = TRUE
+)
 plot(bios4_ecu)
 ```
 
-### Contruir resumenes con otras variables
-Otra funcionalidad importante de `fastbioclim` es la opción de obtener estadisticas similares a las bioclimaticas pero con otras variables. Cómo ejemplo, realizaremos resumenes de variables promedio mensuales de viento. Para las variables interactivas trimestrales, usaremos los trimestres más humedos y secos.
+### Construir resúmenes con otras variables
+
+Otra funcionalidad importante de `fastbioclim` es la opción de obtener estadísticas similares a las bioclimáticas pero con otras variables. Como ejemplo, realizaremos resúmenes de variables promedio mensuales de viento. Para las variables interactivas trimestrales, usaremos los trimestres más húmedos y secos.
+
 ```{r}
 wind_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
   list.files("wind", full.names = TRUE) |> rast()
@@ -143,7 +157,8 @@ ecu_stats <- derive_statistics(
 plot(ecu_stats)
 ```
 
-También se pueden contruir subconjunto de variables, en este caso vamos a construir variables de viento, pero en este caso solo basado en la interacción con la temperatura, las cuales corresponden a "Viento en el trimestre más cálido" y "Viento en el trimestre más frio".
+También se pueden construir subconjuntos de variables, en este caso vamos a construir variables de viento, pero solo basado en la interacción con la temperatura, las cuales corresponden a "Viento en el trimestre más cálido" y "Viento en el trimestre más frío".
+
 ```{r}
 ecu_stats_v2 <- derive_statistics(
   variable = wind_ecu,
@@ -159,16 +174,18 @@ ecu_stats_v2 <- derive_statistics(
 plot(ecu_stats_v2)
 ```
 
-# Construir Neotropico 35 variables
-Basado en la nomemclatura de ANUSCLIM 6.1 (Xu & Hutchinson, 2012), `derive_bioclim()`también ofrece la opción de crear variables bioclimáticas basadas en indices de humedad ("moisture" en inglés) y radiación solar. En este caso, vamos a contruir las 35 variables bioclimáticas para la extensión que cubra el Neotrópico. 
+## Construir Neotrópico: 35 variables
 
-En este caso, el método "auto" debería usar la creación de las variables usando el método de "tiles" (mosaicos). Pero también se puede forzar a usar dicho método usando el parametro 'method="tiled"'. Este método dividira el área de interés en mosaico usando los grados decímales definidos en el parámetro `tile_degrees` (5 es el valor por defecto).
+Basado en la nomenclatura de ANUCLIM 6.1 (Xu & Hutchinson, 2012), `derive_bioclim()` también ofrece la opción de crear variables bioclimáticas basadas en índices de humedad (*moisture* en inglés) y radiación solar. En este caso, vamos a construir las 35 variables bioclimáticas para la extensión que cubra el Neotrópico.
 
-Paralelización: También es importante mencionar que el método 'tiled' se puede paralelizar usando `future::plan()`. Para más información checar la documentación de dicho paquete (XXXX).
-Barra de progreso: Barra de progreso está disponible usando el paquete `progressr`. Para activarla es necesario usar la función `progressr::handlers()` o `progressr::with_progress()`. Para más información checar la documentación de dicho paquete (XXXX).
+En este caso, el método "auto" debería usar la creación de las variables usando el método de "tiles" (mosaicos). Pero también se puede forzar a usar dicho método usando el parámetro `method="tiled"`. Este método dividirá el área de interés en mosaicos usando los grados decimales definidos en el parámetro `tile_degrees` (5 es el valor por defecto).
+
+**Paralelización:** También es importante mencionar que el método 'tiled' se puede paralelizar usando `future::plan()`. Para más información consulte la documentación de dicho paquete.
+
+**Barra de progreso:** La barra de progreso está disponible usando el paquete `progressr`. Para activarla es necesario usar la función `progressr::handlers()` o `progressr::with_progress()`. Para más información consulte la documentación de dicho paquete.
 
 ```{r}
-# Obtener lista de rasters y crea un spatRaster para cada variable
+# Obtener lista de rasters y crear un spatRaster para cada variable
 # Temperatura promedio
 tavg_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
   list.files("tavg", full.names = TRUE) |> rast()
@@ -188,14 +205,14 @@ srad_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
 mois_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
   list.files("cmi", full.names = TRUE) |> rast()
 
-# Definir dirtectorio donde se guardarán los rasters
+# Definir directorio donde se guardarán los rasters
 output_dir_neo <- file.path(tempdir(), "bioclim_neotropics")
 
-# Activar barra de progressor
-progressr::handlers(global = TRUE)
+# Activar barra de progreso
+# progressr::handlers(global = TRUE)
 
 # Definir plan de paralelización
-future::plan("multisession", workers = 4)
+# future::plan("multisession", workers = 4)
 
 # Obtener las 35 variables para el Neotrópico
 bioclim_neo <- derive_bioclim(
@@ -213,11 +230,13 @@ bioclim_neo <- derive_bioclim(
 )
 print(bioclim_neo)
 ```
-# Ejemplo con user region
-Otro parametro útil en el paquete `fastbioclim` es la opción de proveer un objeto 'sf' para delimitar y enmascarar a un área de intéres. El calculo de las variables bioclimáticas solo se realizará en dicha área.
+
+## Ejemplo con región definida por el usuario
+
+Otro parámetro útil en el paquete `fastbioclim` es la opción de proveer un objeto 'sf' para delimitar y enmascarar un área de interés. El cálculo de las variables bioclimáticas solo se realizará en dicha área.
 
 ```{r}
-# Obtener áreas de intéres
+# Obtener áreas de interés
 mex <- qs::qread(system.file("extdata/mex.qs", package = "fastbioclim"))
 # Obtener solo bio10
 bio10_mex <- derive_bioclim(
@@ -231,11 +250,11 @@ bio10_mex <- derive_bioclim(
 plot(bio10_mex)
 ```
 
+## Ejemplo con variable estática
 
-# Ejemplo con variable estática
-Una opción avanzada dentro del paquete es la opción de determinar variables estáticas para las variables máximas y minímas por meses (o unidades) y periodos. Esto puede llegar a ser útil si las preguntas de investigación están relacionadas con un tiempo éspecifico (p.ej. estaciones del año) o en la contrucción de series de tiempo. 
+Una opción avanzada dentro del paquete es la posibilidad de determinar variables estáticas para las variables máximas y mínimas por meses (o unidades) y períodos. Esto puede llegar a ser útil si las preguntas de investigación están relacionadas con un tiempo específico (p.ej. estaciones del año) o en la construcción de series de tiempo.
 
-En este caso, vamos a crear neuvamenete la variable bio10 en México, pero usando cómo referencia el trimestre de Junio, Julio y Agosto. Para ello, debemos crear un spatRaster que defina el periodo de ínteres. En `fastbioclim` siempre se referencia el primer mes del periodo o la unidad. En este caso, dicho mes corresponde al número 6. Por lo cual, crearemos un raster lleno de este número, para luego ser usado cómo referencia en la creación de la variable 'bio10.
+En este caso, vamos a crear nuevamente la variable bio10 en México, pero usando como referencia el trimestre de junio, julio y agosto. Para ello, debemos crear un spatRaster que defina el período de interés. En `fastbioclim` siempre se referencia el primer mes del período o la unidad. En este caso, dicho mes corresponde al número 6. Por lo cual, crearemos un raster lleno de este número, para luego ser usado como referencia en la creación de la variable 'bio10'.
 
 ```{r}
 # Crear un raster de 6s para el neotrópico
