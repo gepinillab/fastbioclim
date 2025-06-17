@@ -168,7 +168,6 @@ derive_bioclim <- function(bios,
 
   static_index_rasters <- dot_args[names(dot_args) %in% valid_static_indices]
   other_args <- dot_args[!names(dot_args) %in% valid_static_indices]
-
   is_spat_rast <- sapply(static_index_rasters, inherits, "SpatRaster")
   if (length(static_index_rasters) > 0 && !all(is_spat_rast)) {
     rlang::abort("All static indices provided via '...' must be SpatRaster objects.")
@@ -217,7 +216,7 @@ derive_bioclim <- function(bios,
       }
     }
   }
-
+  
   # --- 5. Warn about Misused Arguments ---
   if (use_terra_workflow) {
     if (!missing(tile_degrees)) {
@@ -236,7 +235,7 @@ derive_bioclim <- function(bios,
         gdal_opt = gdal_opt, overwrite = overwrite), final_rasters, other_args)
     bioclim_results <- do.call(bioclim_terra, call_args_terra)
   } else { # Tiled workflow
-    if (any(sapply(all_input_rasters, terra::inMemory))) {
+    if (any(unlist(sapply(all_input_rasters, terra::inMemory, simplify = FALSE)))) {
       rlang::abort(
         c("The 'tiled' workflow requires all input SpatRasters (including static indices) to point to files on disk.",
           "i" = "Please save any in-memory rasters to disk first or use `method = 'terra'` if they are small enough."))

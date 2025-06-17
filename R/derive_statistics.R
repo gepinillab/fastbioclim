@@ -175,7 +175,7 @@ derive_statistics <- function(variable,
     bioclim_results <- terra::rast(stats_rast_stack)
 
   } else { # Tiled workflow
-    if (any(sapply(all_input_rasters, terra::inMemory))) {
+    if (any(unlist(sapply(all_input_rasters, terra::inMemory, simplify = FALSE)))) {
       rlang::abort("Tiled workflow requires all input SpatRasters to be file-backed.")
     }
 

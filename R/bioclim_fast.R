@@ -450,9 +450,9 @@ bioclim_fast <- function(
         if (worker_req_tavg) { 
           if (req_tavg_load) {
             tavg_cols <- grep(pattern = "^tavg_", path_variables$climate)
-            if (all(tavg_cols %in% colnames(climate_matrix))) {
+            if ((length(tavg_cols) > 1) & any(grepl("tavg", colnames(climate_matrix)))) {
               tile_results$temperature_avg <- check_evar(climate_matrix[, tavg_cols, drop = FALSE])
-              tavg_available < TRUE
+              tavg_available <- TRUE
               if (write_raw_vars && "tavg" %in% names(raw_paths_list)) {
                 rio::export(cbind(tile_results$temperature_avg, cell = cell_ids), raw_paths_list$tavg[x])
               }

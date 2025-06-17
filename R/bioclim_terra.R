@@ -128,7 +128,6 @@ bioclim_terra <- function(bios,
       }
     } 
   }
-
   ## ONLY TEMPERATURE
   # Bio01
   if (1 %in% bios) bio01 <- bio01_terra(tavg)
@@ -174,11 +173,7 @@ bioclim_terra <- function(bios,
   ### ONLY TEMPERATURE PERIOD
   
   if (any(c(8:11, 18:19, 26:27, 34:35) %in% bios)) {
-    if (any(c(8:9) %in% bios) | 
-        (any(c(10, 18, 26, 34) %in% bios) & !exists("warmest_period")) |
-        (any(c(11, 19, 27, 35) %in% bios) & !exists("coldest_period"))) {
-      tmp <- fastbioclim::get_window(tavg, period_length, circular) / period_length
-    }
+    tmp <- fastbioclim::get_window(tavg, period_length, circular) / period_length
     if (any(c(10, 18, 26, 34) %in% bios) & !exists("warmest_period")) {
       warmest_period <- terra::which.max(tmp)
     }
