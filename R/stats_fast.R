@@ -478,14 +478,14 @@ stats_fast <- function(variable_path,
   tile_data_prepared$cell_ids <- extracted_data_for_tile$cell_ids
 
   if (write_raw_vars && "variable" %in% names(raw_paths_list)) {
-    rio::export(cbind(tile_data_prepared$variable_matrix, cell = tile_data_prepared$cell_ids),
+    qs::qsave(cbind(tile_data_prepared$variable_matrix, cell = tile_data_prepared$cell_ids),
                       raw_paths_list$variable[tile_idx])
   }
 
   if (req_inter_variable_data && !is.null(extracted_data_for_tile$inter_variable_matrix)) {
     tile_data_prepared$inter_variable_matrix <- check_evar(extracted_data_for_tile$inter_variable_matrix)
     if (write_raw_vars && "inter_variable" %in% names(raw_paths_list)) {
-      rio::export(cbind(tile_data_prepared$inter_variable_matrix, cell = tile_data_prepared$cell_ids),
+      qs::qsave(cbind(tile_data_prepared$inter_variable_matrix, cell = tile_data_prepared$cell_ids),
                         raw_paths_list$inter_variable[tile_idx])
     }
   } else if (req_inter_variable_data) {
@@ -655,7 +655,7 @@ stats_fast <- function(variable_path,
 
     # Save the calculated statistic if successful
     if (!is.null(result_value) && !is.null(output_stat_name_full) && output_stat_name_full %in% names(stats_output_qs_paths)) {
-      rio::export(cbind(value = result_value, cell = tile_data_prepared$cell_ids),
+      qs::qsave(cbind(value = result_value, cell = tile_data_prepared$cell_ids),
       stats_output_qs_paths[[output_stat_name_full]][tile_idx])
     } else if (is.null(output_stat_name_full) && current_stat_type %in% all_stat_names_to_calc) {
       # This means a stat was requested, loop entered, but not handled by if/else if. Should not happen.
@@ -677,7 +677,7 @@ stats_fast <- function(variable_path,
   }, 
   future.seed = TRUE,
   future.globals = structure(export_vars, names = export_vars),
-  future.packages = c("sf", "terra", "exactextractr", "Rfast", "rio", "purrr")
+  future.packages = c("sf", "terra", "exactextractr", "Rfast", "purrr", "qs")
   )
 
   message("Tiled computation finished.")

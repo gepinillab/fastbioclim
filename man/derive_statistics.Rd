@@ -10,6 +10,8 @@ derive_statistics(
   inter_variable = NULL,
   inter_stats = NULL,
   prefix_variable = "var",
+  suffix_inter_max = "inter_high",
+  suffix_inter_min = "inter_low",
   output_dir = tempdir(),
   period_length = 3,
   period_stats = "mean",
@@ -37,6 +39,10 @@ Requires `inter_variable`. Supported: `"max_inter"`, `"min_inter"`.}
 \item{prefix_variable}{A character string used as the prefix for all output file
 names (e.g., `prefix_variable = "wind"` results in "wind_mean.tif", "wind_max.tif").}
 
+\item{suffix_inter_max}{Character. Suffix for the "max_inter" statistic name. Default: "inter_high".}
+
+\item{suffix_inter_min}{Character. Suffix for the "min_inter" statistic name. Default: "inter_low".}
+
 \item{output_dir}{The directory where the final summary rasters will be saved.}
 
 \item{period_length}{Integer. The number of temporal units defining a "period". Default: 3.}
@@ -61,10 +67,6 @@ stop if output files already exist.}
 
 \item{...}{Additional arguments, primarily for passing static index `SpatRaster`
 objects. See the "Static Indices" section.}
-
-\item{suffix_inter_max}{Character. Suffix for the "max_inter" statistic name. Default: "inter_high".}
-
-\item{suffix_inter_min}{Character. Suffix for the "min_inter" statistic name. Default: "inter_low".}
 }
 \value{
 A `terra::SpatRaster` object pointing to the newly created summary rasters.

@@ -127,7 +127,7 @@ bio10_terra <- function(tmp, warmest_period) {
 #' @title bio11_terra: Mean Temperature of Coldest Period
 #' @description Calculates mean temperature of the period with the lowest temperature sum.
 #' @param tmp spatRaster of temperature period sums.
-#' @param coldest_perio Vector indicating the index (1-based) of the coldest period.
+#' @param coldest_period Vector indicating the index (1-based) of the coldest period.
 #' @return spatRaster with "bio11".
 #' @keywords internal
 bio11_terra <- function(tmp, coldest_period) {

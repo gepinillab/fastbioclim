@@ -18,7 +18,6 @@ derive_bioclim(
   user_region = NULL,
   method = c("auto", "tiled", "terra"),
   tile_degrees = 5,
-  temp_dir = tempdir(),
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
   overwrite = FALSE,
   ...

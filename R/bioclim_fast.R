@@ -10,7 +10,7 @@
 #'   indices (e.g., `warmest_period_path`).
 #' @param period_length Integer, length of a calculation period.
 #' @param circular Logical, whether to wrap periods.
-#' @param user_region An `sf` or `SpatVector` object for the AOI.
+#' @param user_region An `sf` or `SpatVector` object for the area of interest.
 #' @param tile_degrees Numeric, size of processing tiles.
 #' @param output_dir Character, path for temporary files.
 #' @return Character string: Path to the temporary directory containing
@@ -419,31 +419,31 @@ bioclim_fast <- function(
         if (req_tmin_path) {
           tile_results$tmin <- check_evar(climate_matrix[, grep(pattern = "^tmin_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "tmin" %in% names(raw_paths_list)) {
-            rio::export(cbind(tile_results$tmin, cell = cell_ids), raw_paths_list$tmin[x])
+            qs::qsave(cbind(tile_results$tmin, cell = cell_ids), raw_paths_list$tmin[x])
           }
         }
         if (req_tmax_path) {
           tile_results$tmax <- check_evar(climate_matrix[, grep(pattern = "^tmax_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "tmax" %in% names(raw_paths_list)) {
-            rio::export(cbind(tile_results$tmax, cell = cell_ids), raw_paths_list$tmax[x])
+            qs::qsave(cbind(tile_results$tmax, cell = cell_ids), raw_paths_list$tmax[x])
           }
         }
         if (req_prcp_path) {
           tile_results$prec_vals <- check_evar(climate_matrix[, grep(pattern = "^prec_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "prec" %in% names(raw_paths_list)) {
-            rio::export(cbind(tile_results$prec_vals, cell = cell_ids), raw_paths_list$prec[x])
+            qs::qsave(cbind(tile_results$prec_vals, cell = cell_ids), raw_paths_list$prec[x])
           }
         }
         if (req_srad_path) {
           tile_results$srad_vals <- check_evar(climate_matrix[, grep(pattern = "^srad_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "srad" %in% names(raw_paths_list)) {
-            rio::export(cbind(tile_results$srad_vals, cell = cell_ids), raw_paths_list$srad[x])
+            qs::qsave(cbind(tile_results$srad_vals, cell = cell_ids), raw_paths_list$srad[x])
           }
         }
         if (req_mois_path) {
           tile_results$mois_vals <- check_evar(climate_matrix[, grep(pattern = "^mois_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "mois" %in% names(raw_paths_list)) {
-            rio::export(cbind(tile_results$mois_vals, cell = cell_ids), raw_paths_list$mois[x])
+            qs::qsave(cbind(tile_results$mois_vals, cell = cell_ids), raw_paths_list$mois[x])
           }
         }
         tavg_available <- FALSE
@@ -454,7 +454,7 @@ bioclim_fast <- function(
               tile_results$temperature_avg <- check_evar(climate_matrix[, tavg_cols, drop = FALSE])
               tavg_available <- TRUE
               if (write_raw_vars && "tavg" %in% names(raw_paths_list)) {
-                rio::export(cbind(tile_results$temperature_avg, cell = cell_ids), raw_paths_list$tavg[x])
+                qs::qsave(cbind(tile_results$temperature_avg, cell = cell_ids), raw_paths_list$tavg[x])
               }
             } else { 
               warning("Tile ", x, ": Failed Tavg load.")
@@ -468,7 +468,7 @@ bioclim_fast <- function(
                 colnames(tile_results$temperature_avg) <- paste0("tavg_",seq_len(n_units))
               }
               if (write_raw_vars && ("tavg" %in% names(raw_paths_list))) {
-                rio::export(cbind(tile_results$temperature_avg, cell = cell_ids),raw_paths_list$tavg[x])
+                qs::qsave(cbind(tile_results$temperature_avg, cell = cell_ids),raw_paths_list$tavg[x])
                 
               }
             } else { 
@@ -735,7 +735,7 @@ bioclim_fast <- function(
           if (!is.null(result_var)) { 
             calculated_bios_in_tile[[bio_output_name]] <- result_var
             if (bio_num %in% bios) { 
-              rio::export(result_var, 
+              qs::qsave(result_var, 
                 bios_qs_paths[[bio_output_name]][x])
             }
           }
@@ -754,7 +754,7 @@ bioclim_fast <- function(
       }, 
       future.seed = TRUE, 
       future.globals = export_vars, 
-      future.packages = c("sf", "terra", "exactextractr", "Rfast", "rio", "purrr"))
+      future.packages = c("sf", "terra", "exactextractr", "Rfast", "purrr", "qs"))
       
       message("Tiled computation finished.")
       return(bioclima_dir)

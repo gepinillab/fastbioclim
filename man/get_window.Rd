@@ -16,3 +16,4 @@ get_window(x, period, circular)
 \description{
 Windows
 }
+\keyword{internal}

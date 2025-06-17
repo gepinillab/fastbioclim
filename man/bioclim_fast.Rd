@@ -30,7 +30,7 @@ bioclim_fast(
 
 \item{circular}{Logical, whether to wrap periods.}
 
-\item{user_region}{An `sf` or `SpatVector` object for the AOI.}
+\item{user_region}{An `sf` or `SpatVector` object for the area of interest.}
 
 \item{tile_degrees}{Numeric, size of processing tiles.}
 

@@ -48,7 +48,7 @@ bioclim_terra <- function(bios,
   # resolution, and origin
   sameGeom <- class(purrr::reduce(list(tmin, tmax, tavg, prcp, srad, mois) |>
                                     purrr::discard(is.null),
-                                  fastbioclim::testGeom))
+                                  testGeom))
   if (sameGeom == "SpatRaster") {
     message("SpatRasters have same extent, number of rows and columns, ",
             "projection, resolution, and origin")
@@ -124,7 +124,7 @@ bioclim_terra <- function(bios,
       if (is.null(tmin) | is.null(tmax)) {
         stop("tavg cannot be calculated because tmin and/or tmax are NULL")
       } else {
-        tavg <- fastbioclim::t_avg(tmin, tmax)
+        tavg <- t_avg(tmin, tmax)
       }
     } 
   }
@@ -157,7 +157,7 @@ bioclim_terra <- function(bios,
   
   ## ONLY PRECIPITATION PERIOD
   if (any(c(8:9, 16:19, 24:25) %in% bios)) {
-    wet <- fastbioclim::get_window(prcp, period_length, circular)
+    wet <- get_window(prcp, period_length, circular)
     if (any(c(8, 16, 24) %in% bios) & !exists("wettest_period")) {
       wettest_period <- terra::which.max(wet)
     }
@@ -173,7 +173,7 @@ bioclim_terra <- function(bios,
   ### ONLY TEMPERATURE PERIOD
   
   if (any(c(8:11, 18:19, 26:27, 34:35) %in% bios)) {
-    tmp <- fastbioclim::get_window(tavg, period_length, circular) / period_length
+    tmp <- get_window(tavg, period_length, circular) / period_length
     if (any(c(10, 18, 26, 34) %in% bios) & !exists("warmest_period")) {
       warmest_period <- terra::which.max(tmp)
     }
@@ -198,7 +198,7 @@ bioclim_terra <- function(bios,
   
   ### GET SOLAR RADIATION PERIOD
   if (any(c(24:27) %in% bios)) {
-    prad <- fastbioclim::get_window(srad, period_length, circular) / period_length
+    prad <- get_window(srad, period_length, circular) / period_length
   }
   
   ## ONLY MOISTURE
@@ -213,7 +213,7 @@ bioclim_terra <- function(bios,
   
   ### ONLY MOISTURE PERIOD
   if (any(c(32:35) %in% bios)) {
-    pmois <- fastbioclim::get_window(mois, period_length, circular) / period_length
+    pmois <- get_window(mois, period_length, circular) / period_length
     if ((32 %in% bios) & !exists("high_mois_period")) {
       high_mois_period <- terra::which.max(pmois)
     }

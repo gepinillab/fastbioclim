@@ -9,7 +9,7 @@ bio11_terra(tmp, coldest_period)
 \arguments{
 \item{tmp}{spatRaster of temperature period sums.}
 
-\item{coldest_perio}{Vector indicating the index (1-based) of the coldest period.}
+\item{coldest_period}{Vector indicating the index (1-based) of the coldest period.}
 }
 \value{
 spatRaster with "bio11".

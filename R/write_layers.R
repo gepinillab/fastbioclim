@@ -23,7 +23,7 @@
 #' @return None. Writes GeoTIFF files to `output_dir`.
 #' @author Luis Osorio-Olvera, Gonzalo E. Pinilla-Buitrago
 #' @keywords internal
-#' @import terra purrr stringr qs rio
+#' @import terra purrr qs
 
 write_layers <- function(input_dir, 
                          output_dir,
@@ -62,7 +62,7 @@ write_layers <- function(input_dir,
     stop("No intermediate '.qs' files found in ", input_dir, " (excluding template_info.qs).")
   }
   
-  var_base_names <- stringr::str_extract(basename(all_qs_paths), "^.*(?=_\\d+\\.qs$)")
+  var_base_names <- sub("_\\d+\\.qs$", "", basename(all_qs_paths))
   if (!is.null(file_pattern) && nchar(file_pattern) > 0) {
       # Ensure var_base_names start with the file_pattern
       valid_indices <- startsWith(var_base_names, file_pattern)
@@ -82,7 +82,7 @@ write_layers <- function(input_dir,
 
   qs_paths_dfL <- split(qs_paths_df, qs_paths_df$names)
   if (file_pattern == "bio") {
-    writing_order <- as.numeric(stringr::str_extract(pattern = "\\d{1,2}", names(qs_paths_dfL))) |> order()
+    writing_order <- order(as.numeric(gsub("\\D", "", names(qs_paths_dfL))))
   } else {
     writing_order <- order(names(qs_paths_dfL))
   }
@@ -119,12 +119,12 @@ write_layers <- function(input_dir,
     rvals <- rep(NA_real_, n_target_cells)
     
     for (i in seq_along(var_paths)) {
-      bioval <- tryCatch(rio::import(var_paths[i]), error = function(e) NULL)
+      bioval <- tryCatch(qs::qread(var_paths[i]), error = function(e) NULL)
       if (is.null(bioval) || !("cell" %in% colnames(bioval)) || nrow(bioval) == 0) {
         next
       }
-      cellID <- bioval$cell
-      rvals[cellID] <- bioval[[1]]
+      cellID <- bioval[, 2]
+      rvals[cellID] <- bioval[, 1]
     }
     
     # Write to GeoTIFF

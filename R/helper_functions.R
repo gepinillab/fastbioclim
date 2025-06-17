@@ -4,7 +4,7 @@
 # TERRA mode
 
 # Average Temperature
-#' @export
+#' @keywords internal
 t_avg <- function(tmin, tmax) {
   misqua <- (tmin + tmax) / 2
   names(misqua) <- paste0("tavg_", 1:terra::nlyr(misqua))
@@ -12,7 +12,7 @@ t_avg <- function(tmin, tmax) {
 }
 
 # CV terra
-#' @export
+#' @keywords internal
 cv_cli <- function(prcp) {
   pr <- prcp + 1
   x <- terra::mean(abs(pr))
@@ -25,7 +25,7 @@ cv_cli <- function(prcp) {
 #' @param x spatRaster
 #' @param period Length of period. Default is three. If you are using months. It will be a quarter.
 #' @param circular logical Include first month/weeks?
-#' @export
+#' @keywords internal
 get_window <- function(x, period, circular)  {
   lng <- terra::nlyr(x)
   if (circular == TRUE) {
@@ -55,7 +55,7 @@ get_window <- function(x, period, circular)  {
   return(terra::rast(vent))
 }
 
-#' @export
+#' @keywords internal
 testGeom <- function(x, y) {
   testGeom <- terra::compareGeom(x, y, lyrs = TRUE)
   if (testGeom == TRUE) {
@@ -63,7 +63,7 @@ testGeom <- function(x, y) {
   }
 }
 
-#' @export
+#' @keywords internal
 mismatch_NA <- function(layer) {
   # Get number of layers
   num_lyr <- terra::nlyr(layer)
