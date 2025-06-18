@@ -28,3 +28,4 @@ to a target raster grid, considering potential offsets and different dimensions.
 Handles cases where the target grid is a subset (e.g., cropped/masked)
 of the source grid.
 }
+\keyword{internal}

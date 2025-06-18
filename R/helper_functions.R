@@ -278,6 +278,7 @@ var_periods <- function(variable, periodos, n_units, period_length, stat) {
 #' @return A function that takes a vector of source cell IDs (`cell_src`) and
 #'   returns a vector of corresponding target cell IDs. Cells falling outside
 #'   the target grid bounds will have `NA_integer_` as their target ID.
+#' @keywords internal
 define_translate <- function(ncol_src, ncol_tgt, row_offset, col_offset) {
   force(ncol_src) # Force evaluation of arguments in the enclosing environment
   force(ncol_tgt)
