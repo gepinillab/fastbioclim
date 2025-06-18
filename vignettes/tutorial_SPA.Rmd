@@ -67,7 +67,7 @@ if (!require("fastbioclim")) {
 
 Al igual que `biovars()`, este paquete requiere que el usuario provea las variables climáticas promedio por unidad de tiempo para el cálculo de variables. Tradicionalmente dichas unidades de tiempo corresponden a promedios mensuales de temperatura y precipitación para decenas de años. Para este ejemplo vamos a usar variables obtenidas y procesadas de CHELSA v2.1 (Karger et al., 2017) para Ecuador que están disponibles dentro del paquete (solo en la versión de GitHub).
 
-```{r}
+```{r message=FALSE}
 # Obtener lista de rasters y crear un spatRaster para cada variable
 # Temperatura mínima
 tmin_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
@@ -99,7 +99,7 @@ plot(bioclim_ecu[[c("bio01", "bio12")]])
 
 El paquete `fastbioclim` también ofrece la opción de usar temperatura promedio (definida con el parámetro `tavg`) para el cálculo de variables bioclimáticas.
 
-```{r}
+```{r message=FALSE}
 # Temperatura promedio
 tavg_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
   list.files("tavg", full.names = TRUE) |> rast()
@@ -138,7 +138,7 @@ plot(bios4_ecu)
 
 Otra funcionalidad importante de `fastbioclim` es la opción de obtener estadísticas similares a las bioclimáticas pero con otras variables. Como ejemplo, realizaremos resúmenes de variables promedio mensuales de viento. Para las variables interactivas trimestrales, usaremos los trimestres más húmedos y secos.
 
-```{r}
+```{r message=FALSE}
 wind_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
   list.files("wind", full.names = TRUE) |> rast()
 wind_dir_ecu <- file.path(tempdir(), "wind_ecuador")
@@ -159,7 +159,7 @@ plot(ecu_stats)
 
 También se pueden construir subconjuntos de variables, en este caso vamos a construir variables de viento, pero solo basado en la interacción con la temperatura, las cuales corresponden a "Viento en el trimestre más cálido" y "Viento en el trimestre más frío".
 
-```{r}
+```{r message=FALSE}
 ecu_stats_v2 <- derive_statistics(
   variable = wind_ecu,
   stats = NULL,
@@ -184,7 +184,7 @@ En este caso, el método "auto" debería usar la creación de las variables usan
 
 **Barra de progreso:** La barra de progreso está disponible usando el paquete `progressr`. Para activarla es necesario usar la función `progressr::handlers()` o `progressr::with_progress()`. Para más información consulte la documentación de dicho paquete.
 
-```{r}
+```{r message=FALSE}
 # Obtener lista de rasters y crear un spatRaster para cada variable
 # Temperatura promedio
 tavg_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
@@ -235,7 +235,7 @@ print(bioclim_neo)
 
 Otro parámetro útil en el paquete `fastbioclim` es la opción de proveer un objeto 'sf' para delimitar y enmascarar un área de interés. El cálculo de las variables bioclimáticas solo se realizará en dicha área.
 
-```{r}
+```{r message=FALSE}
 # Obtener áreas de interés
 mex <- qs::qread(system.file("extdata/mex.qs", package = "fastbioclim"))
 # Obtener solo bio10
@@ -256,7 +256,7 @@ Una opción avanzada dentro del paquete es la posibilidad de determinar variable
 
 En este caso, vamos a crear nuevamente la variable bio10 en México, pero usando como referencia el trimestre de junio, julio y agosto. Para ello, debemos crear un spatRaster que defina el período de interés. En `fastbioclim` siempre se referencia el primer mes del período o la unidad. En este caso, dicho mes corresponde al número 6. Por lo cual, crearemos un raster lleno de este número, para luego ser usado como referencia en la creación de la variable 'bio10'.
 
-```{r}
+```{r message=FALSE}
 # Crear un raster de 6s para el neotrópico
 warmest <- tavg_neo[[1]]
 warmest[!is.na(warmest)] <- 6
@@ -267,7 +267,7 @@ warmest <- terra::rast(file.path(tempdir(), "warmest_static.tif"))
 plot(warmest)
 ```
 
-```{r}
+```{r message=FALSE}
 # Obtener solo bio10
 bio10_war <- derive_bioclim(
   bios = 10,

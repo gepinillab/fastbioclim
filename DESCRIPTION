@@ -9,7 +9,7 @@ Author: c(person("Gonzalo E.", "Pinilla-Buitrago",
           person(given = "Luis", family = "Osorio-Olvera", 
                  email = "luismurao@gmail.com", 
                  role = c("aut"),
-                 comment = c(ORCID = "0000-0003-0701-5398"))
+                 comment = c(ORCID = "0000-0003-0701-5398")))
 Maintainer: Gonzalo E. Pinilla-Buitrago <gepinillab@gmail.com>
 Description: Provides a high-performance framework for deriving bioclimatic and custom summary variables from 
     large-scale climate raster data. The package features a dual-backend architecture that intelligently switches 
