@@ -2,14 +2,14 @@ Package: fastbioclim
 Type: Package
 Title: Scalable and Efficient Derivation of Bioclimatic Variables
 Version: 0.1.0-9999
-Author: c(person("Gonzalo E.", "Pinilla-Buitrago", 
-                 email = "gepinillab@gmail.com", 
-                 role = c("aut", "cre"),
-                 comment = c(ORCID = "0000-0002-0065-945X")),
-          person(given = "Luis", family = "Osorio-Olvera", 
-                 email = "luismurao@gmail.com", 
-                 role = c("aut"),
-                 comment = c(ORCID = "0000-0003-0701-5398")))
+Authors@R: c(person("Gonzalo E.", "Pinilla-Buitrago", 
+                    email = "gepinillab@gmail.com", 
+                    role = c("aut", "cre"),
+                    comment = c(ORCID = "0000-0002-0065-945X")),
+             person(given = "Luis", family = "Osorio-Olvera", 
+                    email = "luismurao@gmail.com", 
+                    role = c("aut"),
+                    comment = c(ORCID = "0000-0003-0701-5398")))
 Maintainer: Gonzalo E. Pinilla-Buitrago <gepinillab@gmail.com>
 Description: Provides a high-performance framework for deriving bioclimatic and custom summary variables from 
     large-scale climate raster data. The package features a dual-backend architecture that intelligently switches 

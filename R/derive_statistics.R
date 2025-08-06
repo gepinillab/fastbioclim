@@ -169,7 +169,8 @@ derive_statistics <- function(variable,
     call_args_terra <- c(
       list(stats = stats, inter_stats = inter_stats, prefix_variable = prefix_variable,
            period_length = period_length, period_stats = period_stats, circular = circular,
-           output_dir = output_dir, overwrite = overwrite, gdal_opt = gdal_opt),
+           output_dir = output_dir, overwrite = overwrite, gdal_opt = gdal_opt,
+           suffix_inter_max = suffix_inter_max, suffix_inter_min = suffix_inter_min),
       final_rasters, other_args)
 
     # Call the internal function to get the results in memory
@@ -195,7 +196,8 @@ derive_statistics <- function(variable,
     call_args_tiled <- c(
       list(n_units = n_units, stats = stats, inter_stats = inter_stats,
            prefix_variable = prefix_variable, period_length = period_length, period_stats = period_stats,
-           circular = circular, user_region = user_region, tile_degrees = tile_degrees, output_dir = output_dir),
+           circular = circular, user_region = user_region, tile_degrees = tile_degrees, output_dir = output_dir,
+           suffix_inter_max = suffix_inter_max, suffix_inter_min = suffix_inter_min),
       input_paths, static_index_paths, other_args
     )
 
