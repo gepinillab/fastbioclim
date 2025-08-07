@@ -107,7 +107,6 @@ write_layers <- function(input_dir,
                    !all(dim(original_template)[1:2] == dim(target_template)[1:2])
   
   n_target_cells <- terra::ncell(target_template)
-  
   # --- 4. Process Each Bioclim Variable ---
   if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
   
@@ -117,7 +116,6 @@ write_layers <- function(input_dir,
     current_qs_name <- qs_paths_df_base$names[1]
     
     rvals <- rep(NA_real_, n_target_cells)
-    
     for (i in seq_along(var_paths)) {
       bioval <- tryCatch(qs::qread(var_paths[i]), error = function(e) NULL)
       if (is.null(bioval) || !("cell" %in% colnames(bioval)) || nrow(bioval) == 0) {
@@ -126,7 +124,6 @@ write_layers <- function(input_dir,
       cellID <- bioval[, 2]
       rvals[cellID] <- bioval[, 1]
     }
-    
     # Write to GeoTIFF
     outRast <- terra::rast(target_template, names = current_qs_name)
     output_file <- file.path(output_dir, paste0(current_qs_name, ".tif"))
@@ -154,7 +151,6 @@ write_layers <- function(input_dir,
         start_cell_block <- terra::cellFromRowCol(outRast, start_row_block, 1)
         end_cell_block <- terra::cellFromRowCol(outRast, start_row_block + num_rows_in_block - 1, n_target_cols)
         values_for_block <- rvals[start_cell_block:end_cell_block]
-        
         terra::writeValues(x = outRast, v = values_for_block,
                            start = start_row_block, 
                            nrows = num_rows_in_block)
