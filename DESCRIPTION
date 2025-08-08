@@ -29,6 +29,7 @@ Depends:
 Imports:
     exactextractr,
     future.apply,
+    glue,
     progressr,
     purrr,
     qs,

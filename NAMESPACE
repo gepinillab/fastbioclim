@@ -2,6 +2,7 @@
 
 export(bionames)
 export(calculate_average)
+export(calculate_roll)
 export(check_rasters)
 export(derive_bioclim)
 export(derive_statistics)
