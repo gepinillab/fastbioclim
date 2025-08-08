@@ -43,6 +43,7 @@ Para instalar `fastbioclim`, puede utilizar el paquete `remotes`. Si aún no lo 
 ```{r, eval=FALSE}
 install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
+remotes::install_github("gepinillab/egdata.fastbioclim")
 ```
 
 Instale y cargue los paquetes necesarios:
@@ -61,22 +62,25 @@ if (!require("progressr")) {
 if (!require("fastbioclim")) {
   remotes::install_github("gepinillab/fastbioclim") 
 }
+if (!require("egdata.fastbioclim")) {
+  remotes::install_github("gepinillab/egdata.fastbioclim") 
+}
 ```
 
 ## Obtener las 19 variables bioclimáticas para Ecuador
 
-Al igual que `biovars()`, este paquete requiere que el usuario provea las variables climáticas promedio por unidad de tiempo para el cálculo de variables. Tradicionalmente dichas unidades de tiempo corresponden a promedios mensuales de temperatura y precipitación para decenas de años. Para este ejemplo vamos a usar variables obtenidas y procesadas de CHELSA v2.1 (Karger et al., 2017) para Ecuador que están disponibles dentro del paquete (solo en la versión de GitHub).
+Al igual que `biovars()`, este paquete requiere que el usuario provea las variables climáticas promedio por unidad de tiempo para el cálculo de variables. Tradicionalmente dichas unidades de tiempo corresponden a promedios mensuales de temperatura y precipitación para decenas de años. Para este ejemplo vamos a usar variables obtenidas y procesadas de CHELSA v2.1 (Karger et al., 2017) para Ecuador que están disponibles dentro del paquete de datos (`egdata.fastbioclim` solo en GitHub).
 
 ```{r message=FALSE}
 # Obtener lista de rasters y crear un spatRaster para cada variable
 # Temperatura mínima
-tmin_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
+tmin_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("tmin", full.names = TRUE) |> rast()
 # Temperatura máxima
-tmax_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
+tmax_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("tmax", full.names = TRUE) |> rast()
 # Precipitación
-prcp_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
+prcp_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("prcp", full.names = TRUE) |> rast()
 
 # Definir directorio donde se guardarán los rasters
@@ -101,7 +105,7 @@ El paquete `fastbioclim` también ofrece la opción de usar temperatura promedio
 
 ```{r message=FALSE}
 # Temperatura promedio
-tavg_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
+tavg_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("tavg", full.names = TRUE) |> rast()
 # Definir directorio donde se guardarán los rasters
 output_dir_bioclim_v2 <- file.path(tempdir(), "bioclim_ecuador_v2")
@@ -139,7 +143,7 @@ plot(bios4_ecu)
 Otra funcionalidad importante de `fastbioclim` es la opción de obtener estadísticas similares a las bioclimáticas pero con otras variables. Como ejemplo, realizaremos resúmenes de variables promedio mensuales de viento. Para las variables interactivas trimestrales, usaremos los trimestres más húmedos y secos.
 
 ```{r message=FALSE}
-wind_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
+wind_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("wind", full.names = TRUE) |> rast()
 wind_dir_ecu <- file.path(tempdir(), "wind_ecuador")
 
@@ -187,22 +191,22 @@ En este caso, el método "auto" debería usar la creación de las variables usan
 ```{r message=FALSE}
 # Obtener lista de rasters y crear un spatRaster para cada variable
 # Temperatura promedio
-tavg_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
+tavg_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
   list.files("tavg", full.names = TRUE) |> rast()
 # Temperatura mínima
-tmin_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
+tmin_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
   list.files("tmin", full.names = TRUE) |> rast()
 # Temperatura máxima
-tmax_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
+tmax_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
   list.files("tmax", full.names = TRUE) |> rast()
 # Precipitación
-prcp_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
+prcp_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
   list.files("prcp", full.names = TRUE) |> rast()
 # Radiación solar
-srad_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
+srad_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
   list.files("srad", full.names = TRUE) |> rast()
 # Índice climático de humedad
-mois_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
+mois_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
   list.files("cmi", full.names = TRUE) |> rast()
 
 # Definir directorio donde se guardarán los rasters
@@ -237,7 +241,7 @@ Otro parámetro útil en el paquete `fastbioclim` es la opción de proveer un ob
 
 ```{r message=FALSE}
 # Obtener áreas de interés
-mex <- qs::qread(system.file("extdata/mex.qs", package = "fastbioclim"))
+mex <- qs::qread(system.file("extdata/mex.qs", package = "egdata.fastbioclim"))
 # Obtener solo bio10
 bio10_mex <- derive_bioclim(
   bios = 10,
