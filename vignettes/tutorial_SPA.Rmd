@@ -40,7 +40,7 @@ Se agradecen las contribuciones y los informes de errores. Si encuentra problema
 
 Para instalar `fastbioclim`, puede utilizar el paquete `remotes`. Si aún no lo tiene instalado, puede hacerlo ejecutando:
 
-```{r, eval=FALSE}
+```{r message=FALSE}
 install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
 remotes::install_github("gepinillab/egdata.fastbioclim")
