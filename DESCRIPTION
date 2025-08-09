@@ -37,3 +37,5 @@ Imports:
     rlang,
     sf,
     terra (>= 1.7-0)
+Remotes: 
+    gepinillab/egdata.fastbioclim
