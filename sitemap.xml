@@ -82,6 +82,7 @@
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/bioclim_terra.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/bionames.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/calculate_average.html</loc></url>
+<url><loc>https://gepinillab.github.io/fastbioclim/reference/calculate_roll.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/check_evar.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/check_rasters.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/compute_periods.html</loc></url>
@@ -90,6 +91,8 @@
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/derive_statistics.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/get_window.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/index.html</loc></url>
+<url><loc>https://gepinillab.github.io/fastbioclim/reference/roll_fast.html</loc></url>
+<url><loc>https://gepinillab.github.io/fastbioclim/reference/roll_terra.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/stats_fast.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/stats_terra.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/var_periods.html</loc></url>
