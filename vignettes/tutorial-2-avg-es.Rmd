@@ -35,10 +35,10 @@ library(terra)
 library(progressr)
 
 # Configurar el procesamiento en paralelo para acelerar los cálculos
-# Usaremos solo un núcleo en este ejemplo.
-future::plan("sequential")
+# Usaremos solo un núcleo en este ejemplo. OPCIONAL
+# future::plan("sequential")
 
-# Habilitar las barras de progreso globales para ver el avance
+# Habilitar las barras de progreso globales para ver el avance. OPCIONAL
 progressr::handlers(global = TRUE)
 ```
 

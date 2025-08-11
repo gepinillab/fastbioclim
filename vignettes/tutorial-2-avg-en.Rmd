@@ -34,11 +34,11 @@ library(fastbioclim)
 library(terra)
 library(progressr)
 
-# Configure the processing plan. In this example, we'll use sequential processing.
-future::plan("sequential")
+# Configure the processing plan. In this example, we'll use sequential processing. OPTIONAL
+# future::plan("sequential")
 
-# Enable global progress bars to monitor progress
-progressr::handlers(global = TRUE)
+# Enable global progress bars to monitor progress. OPTIONAL
+# progressr::handlers(global = TRUE)
 ```
 
 ## 2. Loading the Sample Data
