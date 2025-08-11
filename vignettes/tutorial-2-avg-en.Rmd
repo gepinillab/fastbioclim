@@ -2,7 +2,7 @@
 title: "Calculating Temporal Averages with `fastbioclim`"
 author: "Gonzalo E. Pinilla-Buitrago"
 date: "11-08-2025"
-output: html_vignette
+output: html_document
 ---
 
 ```{r, include = FALSE}

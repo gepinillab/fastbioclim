@@ -13,13 +13,13 @@ navbar:
     tutorials:
       text: "Tutorials"
       menu:
-        - text: "---" # This creates a horizontal line separator
+        - text: "---"
         - text: "English"
         - text: "Bioclimatics"
           href: articles/tutorial-1-intro-en.html
         - text: "Averages"
           href: articles/tutorial-2-avg-en.html
-        - text: "---" # Another separator
+        - text: "---"
         - text: "Español"
         - text: "Biolcimaticas"
           href: articles/tutorial-1-intro-es.html

@@ -1,8 +1,8 @@
 ---
 title: "Cálculo de Promedios Temporales con `fastbioclim`"
 author: "Gonzalo E. Pinilla-Buitrago"
-date: "`11-08-2025"
-output: html_vignette
+date: "11-08-2025"
+output: html_document
 ---
 
 ```{r, include = FALSE}
