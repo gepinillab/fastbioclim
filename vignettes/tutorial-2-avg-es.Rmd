@@ -39,7 +39,7 @@ library(progressr)
 # future::plan("sequential")
 
 # Habilitar las barras de progreso globales para ver el avance. OPCIONAL
-progressr::handlers(global = TRUE)
+# progressr::handlers(global = TRUE)
 ```
 
 ## 2. Cargar los Datos de Ejemplo
