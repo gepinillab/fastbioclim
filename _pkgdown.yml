@@ -18,13 +18,13 @@ navbar:
         - text: "Bioclimatics"
           href: articles/tutorial-1-intro-en.html
         - text: "Averages"
-          href: articles/tutorial-2-advanced-en.html
+          href: articles/tutorial-2-avg-en.html
         - text: "---" # Another separator
         - text: "Español"
         - text: "Biolcimaticas"
           href: articles/tutorial-1-intro-es.html
         - text: "Promedios"
-          href: articles/tutorial-2-advanced-es.html
+          href: articles/tutorial-2-avg-es.html
     
     # A link to the changelog
     news:
