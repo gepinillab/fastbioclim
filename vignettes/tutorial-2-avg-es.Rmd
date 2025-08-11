@@ -1,0 +1,196 @@
+---
+title: "Cálculo de Promedios Temporales con `fastbioclim`"
+author: "Gonzalo E. Pinilla-Buitrago"
+date: "`11-08-2025"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Cálculo de Promedios Temporales con fastbioclim}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5, 
+  echo = TRUE, 
+  warning = FALSE, 
+  progress = FALSE
+)
+```
+
+## Introducción
+
+En el análisis de datos climáticos y ambientales, una tarea fundamental es resumir series de tiempo de datos ráster. Esto nos permite, por ejemplo, calcular "climatologías" o entender cómo han cambiado las condiciones a lo largo del tiempo.
+
+El paquete `fastbioclim` ofrece dos funciones potentes y eficientes para esta tarea:
+
+1.  `calculate_average()`: Calcula un **promedio climatológico estático**. Responde a la pregunta: *"¿Cuál es la temperatura máxima promedio para todos los eneros en mi serie de tiempo?"*.
+2.  `calculate_roll()`: Calcula un **promedio climatológico móvil (rodante)**. Responde a la pregunta: *"¿Cómo ha cambaido el promedio de enero a lo largo de diferentes ventanas de tiempo?"*.
+
+En este tutorial, exploraremos cómo usar ambas funciones utilizando un conjunto de datos de ejemplo de temperatura máxima mensual para Belice.
+
+## 1. Configuración del Entorno
+
+Antes de empezar, necesitamos cargar los paquetes necesarios. `fastbioclim` es el paquete principal, `terra` se usa para manejar los datos ráster, y `progressr` junto con `future` nos permitirán ver barras de progreso y ejecutar los cálculos en paralelo para mayor eficiencia.
+
+```{r setup}
+# Cargar los paquetes
+library(fastbioclim)
+library(terra)
+library(progressr)
+
+# Configurar el procesamiento en paralelo para acelerar los cálculos
+# Usaremos solo un núcleo en este ejemplo.
+future::plan("sequential")
+
+# Habilitar las barras de progreso globales para ver el avance
+progressr::handlers(global = TRUE)
+```
+
+## 2. Cargar los Datos de Ejemplo
+
+Utilizaremos una serie de tiempo de temperatura máxima (`tmax`) para Belice, que viene incluida en un paquete de datos de ejemplo. Esta serie contiene 39 años de datos mensuales (468 capas en total).
+
+```{r load-data}
+# Obtener la ruta a los archivos de ejemplo
+# system.file() busca archivos dentro de un paquete instalado
+tmax_paths <- system.file("extdata/belize/", package = "egdata.fastbioclim") |>
+  list.files(full.names = TRUE)
+
+# Cargar los archivos como un único objeto SpatRaster de terra
+tmax_bel <- rast(tmax_paths)
+
+# Verifiquemos la estructura de nuestros datos
+# Deberíamos tener 468 capas, que corresponden a 12 meses * 39 años
+print(tmax_bel)
+```
+
+Como podemos ver, `tmax_bel` es un `SpatRaster` con 468 capas, perfecto para nuestros ejemplos.
+
+## 3. Promedios Climatológicos Estáticos con `calculate_average()`
+
+Esta es la forma más común de calcular una climatología. Queremos obtener 12 rásters: uno para el promedio de todos los eneros, uno para todos los febreros, y así sucesivamente.
+
+El argumento clave aquí es `index`. Es un vector numérico que le dice a la función cómo agrupar las capas. Para el primer ejemplo, vamos a usar 30 años de datos mensuales. Para ello creamos un índice que repite la secuencia `1, 2, ..., 12` treinta veces.
+
+```{r static-average, message=TRUE}
+# Usaremos las primeras 360 capas para nuestro ejemplo de 30 años
+tmax_subset <- tmax_bel[[1:360]]
+
+# Crear el vector de índice: repite la secuencia 1:12 (meses) 30 veces (años)
+index_mensual <- rep(1:12, times = 30)
+
+# Crear un directorio temporal para guardar los resultados
+output_path_static <- file.path(tempdir(), "tmax_belize_static_avg")
+
+# Ejecutar la función
+# progressr mostrará una barra de progreso si la operación es larga
+tmax_avg_static <- calculate_average(
+  x = tmax_subset,
+  index = index_mensual,
+  output_dir = output_path_static,
+  overwrite = TRUE, # Permitir sobreescribir si el directorio ya existe
+  output_names = "tmax_avg" # Prefijo para los archivos de salida
+)
+
+# El resultado es un SpatRaster con 12 capas
+print(tmax_avg_static)
+
+# Podemos visualizar los 12 promedios mensuales
+plot(tmax_avg_static)
+```
+¡Listo! `tmax_avg_static` contiene la climatología de 30 años. La primera capa es el promedio de todos los eneros, la segunda de todos los febreros, etc.
+
+## 4. Promedios Climatológicos Móviles con `calculate_roll()`
+
+¿Y si queremos ver si el clima está cambiando? En lugar de un único promedio, podemos calcular promedios para ventanas de tiempo que se deslizan. Por ejemplo, el promedio de los años 1-20, luego 2-21, 3-22, y así sucesivamente.
+
+Para esto, usamos `calculate_roll()`. Sus argumentos clave son:
+
+*   `window_size`: El tamaño de la ventana (en **ciclos**, por ejemplo, años).
+*   `freq`: El número de **unidades** (capas) por ciclo (e.g., 12 para meses en un año).
+
+### Ejemplo 1: Ventana de 20 años
+
+Calculemos los promedios mensuales para ventanas móviles de 20 años.
+
+```{r rolling-average, message=TRUE}
+# Crear un directorio de salida para este análisis
+output_path_rolling <- file.path(tempdir(), "tmax_belize_rolling_avg")
+
+tmax_roll_avg <- calculate_roll(
+  x = tmax_bel,
+  window_size = 20, # Una ventana de 20 ciclos (años)
+  freq = 12,        # 12 unidades (meses) por ciclo
+  output_dir = output_path_rolling,
+  output_prefix = "tmax",
+  overwrite = TRUE
+)
+
+# ¿Cuántas capas hemos creado?
+# (39 ciclos - 20 de ventana + 1) * 12 unidades = 20 * 12 = 240 capas
+print(tmax_roll_avg)
+
+# Veamos los nombres de las primeras 13 capas para entender la salida
+# Deberíamos ver los 12 meses para la primera ventana (w1-20) y el primero de la siguiente
+names(tmax_roll_avg)[1:13]
+```
+Como se puede ver, los nombres de las capas nos indican la ventana (`w1-20`) y el índice de la unidad (`u`).
+
+### Ejemplo 2: Personalizando los Nombres de Salida
+
+La función es muy flexible gracias al argumento `name_template`. Podemos definir exactamente cómo queremos que se llamen nuestros archivos de salida.
+
+```{r rolling-naming, message=TRUE}
+# Definir una plantilla de nombres más descriptiva
+template_personalizado <- "{prefix}_año_{start_window}-{end_window}_mes_{idx_unit}"
+
+# Directorio de salida para el ejemplo con nombres personalizados
+output_path_custom <- file.path(tempdir(), "tmax_belize_custom_names")
+
+tmax_roll_custom <- calculate_roll(
+  x = tmax_bel,
+  window_size = 20,
+  freq = 12,
+  output_dir = output_path_custom,
+  output_prefix = "tmax",
+  name_template = template_personalizado, # Usamos nuestra plantilla
+  overwrite = TRUE
+)
+
+# Verifiquemos los nuevos nombres
+names(tmax_roll_custom)[1:13]
+```
+
+### Analizando los Resultados del Promedio Móvil
+
+Visualizar 240 capas a la vez no es práctico. Un análisis más interesante es, por ejemplo, ver cómo ha cambiado el promedio de un mes específico a lo largo de las ventanas.
+
+Vamos a extraer y visualizar todos los promedios de **enero** (`idx01`).
+
+```{r analyze-rolling}
+# Seleccionar todas las capas que corresponden a enero (índice 01)
+# Usamos grep() para buscar el patrón "_u01" en los nombres de las capas
+indices_enero <- grep("_u01", names(tmax_roll_avg), value = TRUE)
+
+# Crear un subconjunto del SpatRaster solo con los eneros
+eneros_moviles <- tmax_roll_avg[[indices_enero]]
+
+# Cambiemos los nombres para que sean más claros (indican la ventana)
+names(eneros_moviles) <- paste0("Enero", 1:20)
+
+# Ahora podemos visualizar el cambio entre el primer y último enero
+plot(eneros_moviles[[20]] - eneros_moviles[[1]])
+```
+Este gráfico nos muestra cómo ha cambiado la temperatura máxima promedio de enero en lso últimos años, permitiéndonos identificar tendencias de calentamiento o enfriamiento. Es importante mencionar que las capas usadas de temperatura máxima están multiplicadas por 10. Por lo cual, existe partes con cambios de hast 0.8 grados centigrados.
+
+## Conclusión
+
+El paquete `fastbioclim` simplifica enormemente el cálculo de resúmenes temporales en series de tiempo de rásters.
+*   Usa `calculate_average()` para climatologías estáticas sobre todo el período de estudio.
+*   Usa `calculate_roll()` para analizar tendencias y cambios a través de ventanas de tiempo móviles.
+
+Ambas funciones están optimizadas para ser eficientes y pueden aprovechar el procesamiento en paralelo para manejar grandes volúmenes de datos.

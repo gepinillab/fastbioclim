@@ -1,4 +1,42 @@
 url: https://gepinillab.github.io/fastbioclim/
 template:
   bootstrap: 5
+# Define the structure of the top navigation bar
+navbar:
+  components:
+    # A link to the main "getting started" page (optional but good practice)
+    getting-started:
+      text: "Get started"
+      href: articles/tutorial-1-intro-en.html
 
+    # This is the custom dropdown menu for your tutorials
+    tutorials:
+      text: "Tutorials"
+      menu:
+        - text: "---" # This creates a horizontal line separator
+        - text: "English"
+        - text: "Bioclimatics"
+          href: articles/tutorial-1-intro-en.html
+        - text: "Averages"
+          href: articles/tutorial-2-advanced-en.html
+        - text: "---" # Another separator
+        - text: "Español"
+        - text: "Biolcimaticas"
+          href: articles/tutorial-1-intro-es.html
+        - text: "Promedios"
+          href: articles/tutorial-2-advanced-es.html
+    
+    # A link to the changelog
+    news:
+      text: "Changelog"
+      href: news/index.html
+
+    # A link to the function reference
+    reference:
+      text: "Reference"
+      href: reference/index.html
+      
+    # A link to the source code on GitHub
+    github:
+      icon: fab fa-github
+      href: https://github.com/gepinillab/fastbioclim/

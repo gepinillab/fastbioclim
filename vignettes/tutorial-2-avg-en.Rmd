@@ -1,0 +1,195 @@
+---
+title: "Calculating Temporal Averages with `fastbioclim`"
+author: "Gonzalo E. Pinilla-Buitrago"
+date: "11-08-2025"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Calculating Temporal Averages with fastbioclim}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  echo = TRUE,
+  warning = FALSE,
+  progress = FALSE
+)
+```
+
+## Introduction
+
+In climatic and environmental data analysis, a fundamental task is to summarize time series of raster data. This allows us, for example, to calculate "climatologies" or to understand how conditions have changed over time.
+
+The `fastbioclim` package offers two powerful and efficient functions for this task:
+
+1.  `calculate_average()`: Calculates a **static climatological average**. It answers the question: *"What is the average maximum temperature for all Januaries in my time series?"*.
+2.  `calculate_roll()`: Calculates a **rolling climatological average**. It answers the question: *"How has the average for January evolved across different time windows?"*.
+
+In this tutorial, we will explore how to use both functions with a sample dataset of monthly maximum temperature for Belize.
+
+## 1. Setting up the Environment
+
+Before we begin, we need to load the necessary packages. `fastbioclim` is the main package, `terra` is used for handling raster data, and `progressr` along with `future` will allow us to see progress bars and run calculations in parallel for greater efficiency.
+
+```{r setup}
+# Load the packages
+library(fastbioclim)
+library(terra)
+library(progressr)
+
+# Configure the processing plan. In this example, we'll use sequential processing.
+future::plan("sequential")
+
+# Enable global progress bars to monitor progress
+progressr::handlers(global = TRUE)
+```
+
+## 2. Loading the Sample Data
+
+We will use a time series of maximum temperature (`tmax`) for Belize, which is included in a sample data package. This series contains 39 years of monthly data (468 layers in total).
+
+```{r load-data}
+# Get the path to the example files
+# system.file() finds files within an installed package
+tmax_paths <- system.file("extdata/belize/", package = "egdata.fastbioclim") |>
+  list.files(full.names = TRUE)
+
+# Load the files as a single terra SpatRaster object
+tmax_bel <- rast(tmax_paths)
+
+# Let's check the structure of our data
+# We should have 468 layers, corresponding to 12 months * 39 years
+print(tmax_bel)
+```
+
+As we can see, `tmax_bel` is a `SpatRaster` with 468 layers, perfect for our examples.
+
+## 3. Static Climatological Averages with `calculate_average()`
+
+This is the most common way to calculate a climatology. We want to obtain 12 rasters: one for the average of all Januaries, one for all Februaries, and so on.
+
+The key argument here is `index`. It is a numeric vector that tells the function how to group the layers. For our first example, we will use 30 years of monthly data. To do this, we create an index that repeats the sequence `1, 2, ..., 12` thirty times.
+
+```{r static-average, message=TRUE}
+# We will use the first 360 layers for our 30-year example
+tmax_subset <- tmax_bel[[1:360]]
+
+# Create the index vector: repeat the sequence 1:12 (months) 30 times (years)
+monthly_index <- rep(1:12, times = 30)
+
+# Create a temporary directory to save the results
+output_path_static <- file.path(tempdir(), "tmax_belize_static_avg")
+
+# Run the function
+# progressr will display a progress bar if the operation is lengthy
+tmax_avg_static <- calculate_average(
+  x = tmax_subset,
+  index = monthly_index,
+  output_dir = output_path_static,
+  overwrite = TRUE, # Allow overwriting if the directory already exists
+  output_names = "tmax_avg" # Prefix for the output files
+)
+
+# The result is a SpatRaster with 12 layers
+print(tmax_avg_static)
+
+# We can visualize the 12 monthly averages
+plot(tmax_avg_static)
+```
+Done! `tmax_avg_static` now holds the 30-year climatology. The first layer is the average of all Januaries, the second of all Februaries, etc.
+
+## 4. Rolling Climatological Averages with `calculate_roll()`
+
+What if we want to see if the climate is changing? Instead of a single average, we can calculate averages for sliding time windows. For example, the average for years 1-20, then 2-21, 3-22, and so on.
+
+For this, we use `calculate_roll()`. Its key arguments are:
+
+*   `window_size`: The size of the window (in **cycles**, e.g., years).
+*   `freq`: The number of **units** (layers) per cycle (e.g., 12 for months in a year).
+
+### Example 1: 20-Year Window
+
+Let's calculate the monthly averages for rolling 20-year windows.
+
+```{r rolling-average, message=TRUE}
+# Create an output directory for this analysis
+output_path_rolling <- file.path(tempdir(), "tmax_belize_rolling_avg")
+
+tmax_roll_avg <- calculate_roll(
+  x = tmax_bel,
+  window_size = 20, # A window of 20 cycles (years)
+  freq = 12,        # 12 units (months) per cycle
+  output_dir = output_path_rolling,
+  output_prefix = "tmax",
+  overwrite = TRUE
+)
+
+# How many layers have we created?
+# (39 cycles - 20 window size + 1) * 12 units = 20 * 12 = 240 layers
+print(tmax_roll_avg)
+
+# Let's check the names of the first 13 layers to understand the output
+# We should see the 12 months for the first window (w1-20) and the first of the next
+names(tmax_roll_avg)[1:13]
+```
+As you can see, the layer names indicate the window (`w1-20`) and the unit index (`u`).
+
+### Example 2: Customizing Output Names
+
+The function is highly flexible thanks to the `name_template` argument. We can define exactly how we want our output files to be named.
+
+```{r rolling-naming, message=TRUE}
+# Define a more descriptive name template
+custom_template <- "{prefix}_year_{start_window}-{end_window}_month_{idx_unit}"
+
+# Output directory for the custom names example
+output_path_custom <- file.path(tempdir(), "tmax_belize_custom_names")
+
+tmax_roll_custom <- calculate_roll(
+  x = tmax_bel,
+  window_size = 20,
+  freq = 12,
+  output_dir = output_path_custom,
+  output_prefix = "tmax",
+  name_template = custom_template, # Use our custom template
+  overwrite = TRUE
+)
+
+# Let's verify the new names
+names(tmax_roll_custom)[1:13]
+```
+
+### Analyzing the Rolling Average Results
+
+Visualizing 240 layers at once is not practical. A more interesting analysis is to see how the average of a specific month has changed across the different windows.
+
+Let's extract and visualize all the averages for **January** (`_u01`).
+
+```{r analyze-rolling}
+# Select all layers corresponding to January (unit index 01)
+# We use grep() to find the pattern "_u01" in the layer names
+january_indices <- grep("_u01", names(tmax_roll_avg), value = TRUE)
+
+# Create a SpatRaster subset with only the January layers
+rolling_januaries <- tmax_roll_avg[[january_indices]]
+
+# Let's rename the layers for clarity (indicating the window)
+names(rolling_januaries) <- paste0("January_window_", 1:20)
+
+# Now we can visualize the change between the first and last rolling average for January
+plot(rolling_januaries[[20]] - rolling_januaries[[1]])
+```
+This map shows how the average maximum temperature in January has changed over the last years, allowing us to identify warming or cooling trends. It's important to note that the temperature layers used are scaled by 10. Therefore, some areas show changes of up to 0.8 degrees Celsius.
+
+## Conclusion
+
+The `fastbioclim` package greatly simplifies the calculation of temporal summaries for raster time series.
+*   Use `calculate_average()` for static climatologies over the entire study period.
+*   Use `calculate_roll()` to analyze trends and changes across moving time windows.
+
+Both functions are optimized for efficiency and can leverage parallel processing to handle large datasets.

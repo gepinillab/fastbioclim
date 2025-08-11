@@ -17,13 +17,13 @@
 #' @param output_prefix A character string for output filenames. Default is "output".
 #' @param output_dir Directory to save the final GeoTIFF files.
 #' @param name_template A character string defining the template for output filenames,
-#'   using `glue` syntax. Default: `"{prefix}_w{start_window}-{end_window}_u{idx_unit}"`.
+#'   using `glue` syntax. Default: `"\{prefix\}_w\{start_window\}-\{end_window\}_u\{idx_unit\}"`.
 #'   Available placeholders are:
 #'   \itemize{
-#'     \item `{prefix}`: The value from `output_prefix`.
-#'     \item `{start_window}`: The starting **cycle** index of the window.
-#'     \item `{end_window}`: The ending **cycle** index of the window.
-#'     \item `{idx_unit}`: The index of the time **unit** within the cycle (e.g., the month number).
+#'     \item `\{prefix\}`: The value from `output_prefix`.
+#'     \item `\{start_window\}`: The starting **cycle** index of the window.
+#'     \item `\{end_window\}`: The ending **cycle** index of the window.
+#'     \item `\{idx_unit\}`: The index of the time **unit** within the cycle (e.g., the month number).
 #'   }
 #' @param user_region (Optional) An `sf` or `terra::SpatVector` for clipping.
 #' @param method Processing method: "auto", "tiled", or "terra".
