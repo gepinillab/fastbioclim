@@ -31,24 +31,15 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/tutorial-1-intro-en.html">Tutorial</a></li>
-    <li><a class="dropdown-item" href="../articles/tutorial-1-intro-es.html">Tutorial</a></li>
-    <li><a class="dropdown-item" href="../articles/tutorial-2-avg-en.html">Calculating Temporal Averages with `fastbioclim`</a></li>
-    <li><a class="dropdown-item" href="../articles/tutorial-2-avg-es.html">Cálculo de Promedios Temporales con `fastbioclim`</a></li>
-  </ul>
-</li>
-<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>English</h6></li>
-    <li><a class="dropdown-item" href="../articles/tutorial-1-intro-en.html">Bioclimatics</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>[ENGLISH]</h6></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-1-intro-en.html">Bioclimatics (Intro)</a></li>
     <li><a class="dropdown-item" href="../articles/tutorial-2-avg-en.html">Averages</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Español</h6></li>
-    <li><a class="dropdown-item" href="../articles/tutorial-1-intro-es.html">Biolcimaticas</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>[ESPAÑOL]</h6></li>
+    <li><a class="dropdown-item" href="../articles/tutorial-1-intro-es.html">Bioclimaticas (Intro)</a></li>
     <li><a class="dropdown-item" href="../articles/tutorial-2-avg-es.html">Promedios</a></li>
   </ul>
 </li>
@@ -200,7 +191,7 @@ repite la secuencia <code>1, 2, ..., 12</code> treinta veces.</p>
 <span><span class="co">## Data appears to fit in memory. Selecting 'terra' workflow.</span></span>
 <span><span class="co">## Calculating averages using terra::tapp...</span></span>
 <span><span class="co">## Writing final GeoTIFFs...</span></span>
-<span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpS8wVbu/tmax_belize_static_avg</span></span></code></pre>
+<span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpOKfJiX/tmax_belize_static_avg</span></span></code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># El resultado es un SpatRaster con 12 capas</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tmax_avg_static</span><span class="op">)</span></span></code></pre></div>
@@ -219,8 +210,8 @@ repite la secuencia <code>1, 2, ..., 12</code> treinta veces.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Podemos visualizar los 12 promedios mensuales</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tmax_avg_static</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-2-avg-es_files/figure-html/static-average-1.png" width="700">
-¡Listo! <code>tmax_avg_static</code> contiene la climatología de 30
+<p><img src="tutorial-2-avg-es_files/figure-html/static-average-1.png" width="700"></p>
+<p>¡Listo! <code>tmax_avg_static</code> contiene la climatología de 30
 años. La primera capa es el promedio de todos los eneros, la segunda de
 todos los febreros, etc.</p>
 </div>
@@ -282,7 +273,7 @@ años.</p>
 <span><span class="co">## Processing window: Cycle 19 to 38</span></span>
 <span><span class="co">## Processing window: Cycle 20 to 39</span></span>
 <span><span class="co">## Writing final GeoTIFFs...</span></span>
-<span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpS8wVbu/tmax_belize_rolling_avg</span></span></code></pre>
+<span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpOKfJiX/tmax_belize_rolling_avg</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ¿Cuántas capas hemos creado?</span></span>
 <span><span class="co"># (39 ciclos - 20 de ventana + 1) * 12 unidades = 20 * 12 = 240 capas</span></span>
@@ -355,7 +346,7 @@ que se llamen nuestros archivos de salida.</p>
 <span><span class="co">## Processing window: Cycle 19 to 38</span></span>
 <span><span class="co">## Processing window: Cycle 20 to 39</span></span>
 <span><span class="co">## Writing final GeoTIFFs...</span></span>
-<span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpS8wVbu/tmax_belize_custom_names</span></span></code></pre>
+<span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpOKfJiX/tmax_belize_custom_names</span></span></code></pre>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Verifiquemos los nuevos nombres</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tmax_roll_custom</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span><span class="op">]</span></span></code></pre></div>
@@ -386,12 +377,12 @@ específico a lo largo de las ventanas.</p>
 <span></span>
 <span><span class="co"># Ahora podemos visualizar el cambio entre el primer y último enero</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eneros_moviles</span><span class="op">[[</span><span class="fl">20</span><span class="op">]</span><span class="op">]</span> <span class="op">-</span> <span class="va">eneros_moviles</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-2-avg-es_files/figure-html/analyze-rolling-1.png" width="700">
-Este gráfico nos muestra cómo ha cambiado la temperatura máxima promedio
-de enero en lso últimos años, permitiéndonos identificar tendencias de
-calentamiento o enfriamiento. Es importante mencionar que las capas
-usadas de temperatura máxima están multiplicadas por 10. Por lo cual,
-existe partes con cambios de hast 0.8 grados centigrados.</p>
+<p><img src="tutorial-2-avg-es_files/figure-html/analyze-rolling-1.png" width="700"></p>
+<p>Este gráfico nos muestra cómo ha cambiado la temperatura máxima
+promedio de enero en lso últimos años, permitiéndonos identificar
+tendencias de calentamiento o enfriamiento. Es importante mencionar que
+las capas usadas de temperatura máxima están multiplicadas por 10. Por
+lo cual, existe partes con cambios de hast 0.8 grados centigrados.</p>
 </div>
 </div>
 <div class="section level2">
