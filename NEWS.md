@@ -1,3 +1,11 @@
+fastbioclim 0.2.0
+=============
+- New package based on bioclima (https://github.com/gepinillab/bioclima)
+- New workflow to handle calculations based on Rfast and exactextract.
+- New functions to calculate averages and roll averages.
+- Tutorials in Spanish and English.
+- Canned data available in egdata.fastbioclim (just in GitHub)
+
 bioclima 0.1.0
 =============
 - Easier names for internal functions

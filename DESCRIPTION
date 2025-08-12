@@ -1,7 +1,7 @@
 Package: fastbioclim
 Type: Package
 Title: Scalable and Efficient Derivation of Bioclimatic Variables
-Version: 0.1.0-9999
+Version: 0.2.0
 Authors@R: c(person("Gonzalo E.", "Pinilla-Buitrago", 
                     email = "gepinillab@gmail.com", 
                     role = c("aut", "cre"),
