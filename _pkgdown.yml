@@ -3,13 +3,9 @@ template:
   bootstrap: 5
 # Define the structure of the top navigation bar
 navbar:
+  structure:
+    left:  [articles, news, reference]
   components:
-    # A link to the main "getting started" page (optional but good practice)
-    getting-started:
-      text: "Get started"
-      href: articles/tutorial-1-intro-en.html
-
-    # This is the custom dropdown menu for your tutorials
     articles:
       text: "Tutorials"
       menu:
@@ -25,18 +21,3 @@ navbar:
           href: articles/tutorial-1-intro-es.html
         - text: "Promedios"
           href: articles/tutorial-2-avg-es.html
-    
-    # A link to the changelog
-    news:
-      text: "Changelog"
-      href: news/index.html
-
-    # A link to the function reference
-    reference:
-      text: "Reference"
-      href: reference/index.html
-      
-    # A link to the source code on GitHub
-    github:
-      icon: fab fa-github
-      href: https://github.com/gepinillab/fastbioclim/
