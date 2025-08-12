@@ -93,6 +93,7 @@ print(tmax_avg_static)
 # We can visualize the 12 monthly averages
 plot(tmax_avg_static)
 ```
+
 Done! `tmax_avg_static` now holds the 30-year climatology. The first layer is the average of all Januaries, the second of all Februaries, etc.
 
 ## 4. Rolling Climatological Averages with `calculate_roll()`
@@ -129,6 +130,7 @@ print(tmax_roll_avg)
 # We should see the 12 months for the first window (w1-20) and the first of the next
 names(tmax_roll_avg)[1:13]
 ```
+
 As you can see, the layer names indicate the window (`w1-20`) and the unit index (`u`).
 
 ### Example 2: Customizing Output Names
@@ -176,6 +178,7 @@ names(rolling_januaries) <- paste0("January_window_", 1:20)
 # Now we can visualize the change between the first and last rolling average for January
 plot(rolling_januaries[[20]] - rolling_januaries[[1]])
 ```
+
 This map shows how the average maximum temperature in January has changed over the last years, allowing us to identify warming or cooling trends. It's important to note that the temperature layers used are scaled by 10. Therefore, some areas show changes of up to 0.8 degrees Celsius.
 
 ## Conclusion

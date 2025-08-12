@@ -94,6 +94,7 @@ print(tmax_avg_static)
 # Podemos visualizar los 12 promedios mensuales
 plot(tmax_avg_static)
 ```
+
 ¡Listo! `tmax_avg_static` contiene la climatología de 30 años. La primera capa es el promedio de todos los eneros, la segunda de todos los febreros, etc.
 
 ## 4. Promedios Climatológicos Móviles con `calculate_roll()`
@@ -130,6 +131,7 @@ print(tmax_roll_avg)
 # Deberíamos ver los 12 meses para la primera ventana (w1-20) y el primero de la siguiente
 names(tmax_roll_avg)[1:13]
 ```
+
 Como se puede ver, los nombres de las capas nos indican la ventana (`w1-20`) y el índice de la unidad (`u`).
 
 ### Ejemplo 2: Personalizando los Nombres de Salida
@@ -177,6 +179,7 @@ names(eneros_moviles) <- paste0("Enero", 1:20)
 # Ahora podemos visualizar el cambio entre el primer y último enero
 plot(eneros_moviles[[20]] - eneros_moviles[[1]])
 ```
+
 Este gráfico nos muestra cómo ha cambiado la temperatura máxima promedio de enero en lso últimos años, permitiéndonos identificar tendencias de calentamiento o enfriamiento. Es importante mencionar que las capas usadas de temperatura máxima están multiplicadas por 10. Por lo cual, existe partes con cambios de hast 0.8 grados centigrados.
 
 ## Conclusión

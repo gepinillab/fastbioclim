@@ -10,18 +10,18 @@ navbar:
       href: articles/tutorial-1-intro-en.html
 
     # This is the custom dropdown menu for your tutorials
-    tutorials:
+    articles:
       text: "Tutorials"
       menu:
         - text: "---"
-        - text: "English"
-        - text: "Bioclimatics"
+        - text: "[ENGLISH]"
+        - text: "Bioclimatics (Intro)"
           href: articles/tutorial-1-intro-en.html
         - text: "Averages"
           href: articles/tutorial-2-avg-en.html
         - text: "---"
-        - text: "Español"
-        - text: "Biolcimaticas"
+        - text: "[ESPAÑOL]"
+        - text: "Bioclimaticas (Intro)"
           href: articles/tutorial-1-intro-es.html
         - text: "Promedios"
           href: articles/tutorial-2-avg-es.html
