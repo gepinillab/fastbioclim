@@ -69,7 +69,7 @@ Pinilla-Buitrago</h4>
             
             <h4 data-toc-skip class="date">11-08-2025</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/vignettes/tutorial-2-avg-en.Rmd" class="external-link"><code>vignettes/tutorial-2-avg-en.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.2.0/vignettes/tutorial-2-avg-en.Rmd" class="external-link"><code>vignettes/tutorial-2-avg-en.Rmd</code></a></small>
       <div class="d-none name"><code>tutorial-2-avg-en.Rmd</code></div>
     </div>
 
@@ -188,7 +188,7 @@ that repeats the sequence <code>1, 2, ..., 12</code> thirty times.</p>
 <span><span class="co">## Data appears to fit in memory. Selecting 'terra' workflow.</span></span>
 <span><span class="co">## Calculating averages using terra::tapp...</span></span>
 <span><span class="co">## Writing final GeoTIFFs...</span></span>
-<span><span class="co">## Processing complete. Final rasters are in: /tmp/Rtmpzc15Va/tmax_belize_static_avg</span></span></code></pre>
+<span><span class="co">## Processing complete. Final rasters are in: /tmp/Rtmpq9QgWR/tmax_belize_static_avg</span></span></code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The result is a SpatRaster with 12 layers</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tmax_avg_static</span><span class="op">)</span></span></code></pre></div>
@@ -268,7 +268,7 @@ cycle (e.g., 12 for months in a year).</li>
 <span><span class="co">## Processing window: Cycle 19 to 38</span></span>
 <span><span class="co">## Processing window: Cycle 20 to 39</span></span>
 <span><span class="co">## Writing final GeoTIFFs...</span></span>
-<span><span class="co">## Processing complete. Final rasters are in: /tmp/Rtmpzc15Va/tmax_belize_rolling_avg</span></span></code></pre>
+<span><span class="co">## Processing complete. Final rasters are in: /tmp/Rtmpq9QgWR/tmax_belize_rolling_avg</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># How many layers have we created?</span></span>
 <span><span class="co"># (39 cycles - 20 window size + 1) * 12 units = 20 * 12 = 240 layers</span></span>
@@ -341,7 +341,7 @@ our output files to be named.</p>
 <span><span class="co">## Processing window: Cycle 19 to 38</span></span>
 <span><span class="co">## Processing window: Cycle 20 to 39</span></span>
 <span><span class="co">## Writing final GeoTIFFs...</span></span>
-<span><span class="co">## Processing complete. Final rasters are in: /tmp/Rtmpzc15Va/tmax_belize_custom_names</span></span></code></pre>
+<span><span class="co">## Processing complete. Final rasters are in: /tmp/Rtmpq9QgWR/tmax_belize_custom_names</span></span></code></pre>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Let's verify the new names</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tmax_roll_custom</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span><span class="op">]</span></span></code></pre></div>
