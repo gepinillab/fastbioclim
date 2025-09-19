@@ -15,7 +15,7 @@ Description: Provides a high-performance framework for deriving bioclimatic and 
     large-scale climate raster data. The package features a dual-backend architecture that intelligently switches 
     between fast in-memory processing for smaller datasets (via the 'terra' package) and a memory-safe tiled approach 
     for massive datasets that do not fit in RAM (via 'exactextractr' and 'Rfast'). The main functions, 
-    'derive_bioclim()' and 'derive_statistics()', offer a unified interface with advanced options for 
+    derive_bioclim() and derive_statistics(), offer a unified interface with advanced options for 
     custom time periods and static indices, making it suitable for a wide range of ecological and 
     environmental modeling applications. A software note is in preparation. In the meantime, you can visit 
     the package website <https://gepinillab.github.io/fastbioclim/> to find tutorials in English and Spanish.
