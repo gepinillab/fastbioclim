@@ -27,6 +27,8 @@ You can install the development version of `fastbioclim` from GitHub with:
 ```r
 # install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
+# Install to get the package example data 
+remotes::install_github("gepinillab/egdata.fastbioclim")
 ```
 
 ## Usage
@@ -46,11 +48,11 @@ library(terra)
 library(future.apply)
 library(progressr)
 
-tmin_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
+tmin_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("tmin", full.names = TRUE) |> rast()
-tmax_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
+tmax_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("tmax", full.names = TRUE) |> rast()
-prcp_ecu <- system.file("extdata/ecuador/", package = "fastbioclim") |>
+prcp_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("prcp", full.names = TRUE) |> rast()
 
 # The function will automatically use the fast "terra" method for this small dataset
@@ -70,7 +72,7 @@ plot(bioclim_vars[[c("bio01", "bio12")]])
 
 ```r
 # 3. Derive custom summary statistics for a different variable (e.g., wind speed)
-wind_rast <- system.file("extdata/ecuador/", package = "fastbioclim") |>
+wind_rast <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("wind", full.names = TRUE) |> rast()
 output_dir_custom <- file.path(tempdir(), "wind_ecuador")
 
@@ -94,11 +96,11 @@ When the wrapper function detects that the input rasters are too large to fit in
 
 ```r
 # Conceptual example for large, file-based rasters
-tmin_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
+tmin_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
   list.files("tmin", full.names = TRUE) |> rast()
-tmax_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
+tmax_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
   list.files("tmax", full.names = TRUE) |> rast()
-prcp_neo <- system.file("extdata/neotropics/", package = "fastbioclim") |>
+prcp_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
   list.files("prcp", full.names = TRUE) |> rast()
 output_dir_bios <- file.path(tempdir(), "bioclim_neotropics")
 

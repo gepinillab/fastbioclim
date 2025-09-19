@@ -145,7 +145,7 @@ include:
 
 \examples{
 # This is a conceptual example, requires data setup
-if (FALSE) {
+\dontrun{
   # Assume tmin_rast, tmax_rast, prcp_rast are 12-layer SpatRasters
   bioclim_vars <- derive_bioclim(
     bios = 1:19,

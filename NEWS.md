@@ -1,3 +1,8 @@
+fastbioclim 0.2.1
+=============
+- Small changes for making the package ready for CRAN.
+- Update example data in README file.
+
 fastbioclim 0.2.0
 =============
 - New package based on bioclima (https://github.com/gepinillab/bioclima)

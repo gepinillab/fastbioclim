@@ -1,7 +1,7 @@
 Package: fastbioclim
 Type: Package
 Title: Scalable and Efficient Derivation of Bioclimatic Variables
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(person("Gonzalo E.", "Pinilla-Buitrago", 
                     email = "gepinillab@gmail.com", 
                     role = c("aut", "cre"),
@@ -17,15 +17,16 @@ Description: Provides a high-performance framework for deriving bioclimatic and 
     for massive datasets that do not fit in RAM (via 'exactextractr' and 'Rfast'). The main functions, 
     'derive_bioclim()' and 'derive_statistics()', offer a unified interface with advanced options for 
     custom time periods and static indices, making it suitable for a wide range of ecological and 
-    environmental modeling applications.
-License: GPL (>= 3) + file LICENSE
+    environmental modeling applications. A software note is in preparation. In the meantime, you can visit 
+    the package website <https://gepinillab.github.io/fastbioclim/> to find tutorials in English and Spanish.
+License: GPL (>= 3)
 URL: https://gepinillab.github.io/fastbioclim/
 BugReports: https://github.com/gepinillab/fastbioclim/issues
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
 Depends: 
-    R (>= 4.0)
+    R (>= 4.1)
 Imports:
     exactextractr,
     future.apply,

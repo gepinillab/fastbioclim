@@ -24,6 +24,17 @@ El paquete `fastbioclim` ofrece dos funciones potentes y eficientes para esta ta
 
 En este tutorial, exploraremos cómo usar ambas funciones utilizando un conjunto de datos de ejemplo de temperatura máxima mensual para Belice.
 
+## 0. Instalación
+
+Para instalar `fastbioclim`, puede utilizar el paquete `remotes`. Si aún no lo tiene instalado, puede hacerlo ejecutando:
+
+```{r message=FALSE}
+install.packages("remotes")
+remotes::install_github("gepinillab/fastbioclim")
+# Instalar para obtener los datos de ejemplo 
+remotes::install_github("gepinillab/egdata.fastbioclim")
+```
+
 ## 1. Configuración del Entorno
 
 Antes de empezar, necesitamos cargar los paquetes necesarios. `fastbioclim` es el paquete principal, `terra` se usa para manejar los datos ráster, y `progressr` junto con `future` nos permitirán ver barras de progreso y ejecutar los cálculos en paralelo para mayor eficiencia.
