@@ -33,7 +33,7 @@ Imports:
     glue,
     progressr,
     purrr,
-    qs,
+    qs2,
     Rfast,
     rlang,
     sf,

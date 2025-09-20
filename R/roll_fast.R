@@ -112,9 +112,9 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
       col_offset = col_offset
     )
   }
-  template_info_file <- file.path(qs_dir, "template_info.qs")
+  template_info_file <- file.path(qs_dir, "template_info.qs2")
   tryCatch({
-    qs::qsave(template_info, template_info_file)
+    qs2::qs_save(template_info, template_info_file)
   }, error = function(e){
     stop("Failed to save template geometry information: ", e$message)
   })
@@ -215,8 +215,8 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
         avg_values <- avg_matrix_for_window[, p_idx]
         
         tile_result <- data.frame(value = avg_values, cell = cell_ids_source)
-        qs_filename <- file.path(qs_dir, paste0(current_output_name, "_", i, ".qs"))
-        qs::qsave(tile_result, qs_filename)
+        qs_filename <- file.path(qs_dir, paste0(current_output_name, "_", i, ".qs2"))
+        qs2::qs_save(tile_result, qs_filename)
       }
     }
     return(NULL)

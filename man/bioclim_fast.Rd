@@ -41,7 +41,7 @@ indices (e.g., `warmest_period_path`).}
 }
 \value{
 Character string: Path to the temporary directory containing
-  intermediate `.qs` files, to be used by an assembly function.
+  intermediate `.qs2` files, to be used by an assembly function.
 }
 \description{
 Internal function to calculate bioclimatic variables for very large datasets

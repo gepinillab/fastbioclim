@@ -241,7 +241,7 @@ Another useful parameter in the fastbioclim `package` is the option to provide a
 
 ```{r message=FALSE}
 # Get areas of interest
-mex <- qs::qread(system.file("extdata/mex.qs", package = "egdata.fastbioclim"))
+mex <- qs2::qs_read(system.file("extdata/mex.qs2", package = "egdata.fastbioclim"))
 # Get only bio10
 bio10_mex <- derive_bioclim(
   bios = 10,

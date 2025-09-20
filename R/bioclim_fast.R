@@ -14,7 +14,7 @@
 #' @param tile_degrees Numeric, size of processing tiles.
 #' @param output_dir Character, path for temporary files.
 #' @return Character string: Path to the temporary directory containing
-#'   intermediate `.qs` files, to be used by an assembly function.
+#'   intermediate `.qs2` files, to be used by an assembly function.
 #' @keywords internal
 #' @seealso The user-facing wrapper function `derive_bioclim()`.
 bioclim_fast <- function(
@@ -297,9 +297,9 @@ bioclim_fast <- function(
       }
   
       # Save the template info within that directory
-      template_info_file <- file.path(bioclima_dir, "template_info.qs")
+      template_info_file <- file.path(bioclima_dir, "template_info.qs2")
       tryCatch({
-          qs::qsave(template_info, template_info_file)
+          qs2::qs_save(template_info, template_info_file)
       }, error = function(e){
           stop("Failed to save template geometry information: ", e$message)
       })
@@ -318,11 +318,11 @@ bioclim_fast <- function(
       message("Rasters divided into ", ntiles, " tiles for processing.")
       
       
-      # --- 5. Define Intermediate File Paths (.qs) ---
+      # --- 5. Define Intermediate File Paths (.qs2) ---
       bios_qs_paths <- list()
       for (bio_num in bios) { 
         bio_name <- paste0("bio", sprintf("%02d", bio_num))
-        bios_qs_paths[[bio_name]] <- file.path(bioclima_dir, paste0(bio_name, "_", seq_len(ntiles), ".qs"))
+        bios_qs_paths[[bio_name]] <- file.path(bioclima_dir, paste0(bio_name, "_", seq_len(ntiles), ".qs2"))
       }
       
       # Enable the debug mode: Sys.setenv(BIOCLIM_DEBUG_RAW_VARS = "TRUE")
@@ -333,12 +333,12 @@ bioclim_fast <- function(
       }
       if (write_raw_vars) {
         raw_paths_list <- list()
-        if (req_tmin_path) raw_paths_list$tmin <- file.path(bioclima_dir, paste0("raw_tmin_", seq_len(ntiles), ".qs"))
-        if (req_tmax_path) raw_paths_list$tmax <- file.path(bioclima_dir, paste0("raw_tmax_", seq_len(ntiles), ".qs"))
-        if (req_prcp_path) raw_paths_list$prec <- file.path(bioclima_dir, paste0("raw_prec_", seq_len(ntiles), ".qs"))
-        if (req_tavg_value) raw_paths_list$tavg <- file.path(bioclima_dir, paste0("raw_tavg_", seq_len(ntiles), ".qs"))
-        if (req_srad_path) raw_paths_list$srad <- file.path(bioclima_dir, paste0("raw_srad_", seq_len(ntiles), ".qs"))
-        if (req_mois_path) raw_paths_list$mois <- file.path(bioclima_dir, paste0("raw_mois_", seq_len(ntiles), ".qs"))
+        if (req_tmin_path) raw_paths_list$tmin <- file.path(bioclima_dir, paste0("raw_tmin_", seq_len(ntiles), ".qs2"))
+        if (req_tmax_path) raw_paths_list$tmax <- file.path(bioclima_dir, paste0("raw_tmax_", seq_len(ntiles), ".qs2"))
+        if (req_prcp_path) raw_paths_list$prec <- file.path(bioclima_dir, paste0("raw_prec_", seq_len(ntiles), ".qs2"))
+        if (req_tavg_value) raw_paths_list$tavg <- file.path(bioclima_dir, paste0("raw_tavg_", seq_len(ntiles), ".qs2"))
+        if (req_srad_path) raw_paths_list$srad <- file.path(bioclima_dir, paste0("raw_srad_", seq_len(ntiles), ".qs2"))
+        if (req_mois_path) raw_paths_list$mois <- file.path(bioclima_dir, paste0("raw_mois_", seq_len(ntiles), ".qs2"))
       }
       # --- 6. Parallel Processing Loop ---
       # progressr::with_progress({
@@ -419,31 +419,31 @@ bioclim_fast <- function(
         if (req_tmin_path) {
           tile_results$tmin <- check_evar(climate_matrix[, grep(pattern = "^tmin_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "tmin" %in% names(raw_paths_list)) {
-            qs::qsave(cbind(tile_results$tmin, cell = cell_ids), raw_paths_list$tmin[x])
+            qs2::qs_save(cbind(tile_results$tmin, cell = cell_ids), raw_paths_list$tmin[x])
           }
         }
         if (req_tmax_path) {
           tile_results$tmax <- check_evar(climate_matrix[, grep(pattern = "^tmax_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "tmax" %in% names(raw_paths_list)) {
-            qs::qsave(cbind(tile_results$tmax, cell = cell_ids), raw_paths_list$tmax[x])
+            qs2::qs_save(cbind(tile_results$tmax, cell = cell_ids), raw_paths_list$tmax[x])
           }
         }
         if (req_prcp_path) {
           tile_results$prec_vals <- check_evar(climate_matrix[, grep(pattern = "^prec_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "prec" %in% names(raw_paths_list)) {
-            qs::qsave(cbind(tile_results$prec_vals, cell = cell_ids), raw_paths_list$prec[x])
+            qs2::qs_save(cbind(tile_results$prec_vals, cell = cell_ids), raw_paths_list$prec[x])
           }
         }
         if (req_srad_path) {
           tile_results$srad_vals <- check_evar(climate_matrix[, grep(pattern = "^srad_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "srad" %in% names(raw_paths_list)) {
-            qs::qsave(cbind(tile_results$srad_vals, cell = cell_ids), raw_paths_list$srad[x])
+            qs2::qs_save(cbind(tile_results$srad_vals, cell = cell_ids), raw_paths_list$srad[x])
           }
         }
         if (req_mois_path) {
           tile_results$mois_vals <- check_evar(climate_matrix[, grep(pattern = "^mois_", path_variables$climate), drop = FALSE])
           if (write_raw_vars && "mois" %in% names(raw_paths_list)) {
-            qs::qsave(cbind(tile_results$mois_vals, cell = cell_ids), raw_paths_list$mois[x])
+            qs2::qs_save(cbind(tile_results$mois_vals, cell = cell_ids), raw_paths_list$mois[x])
           }
         }
         tavg_available <- FALSE
@@ -454,7 +454,7 @@ bioclim_fast <- function(
               tile_results$temperature_avg <- check_evar(climate_matrix[, tavg_cols, drop = FALSE])
               tavg_available <- TRUE
               if (write_raw_vars && "tavg" %in% names(raw_paths_list)) {
-                qs::qsave(cbind(tile_results$temperature_avg, cell = cell_ids), raw_paths_list$tavg[x])
+                qs2::qs_save(cbind(tile_results$temperature_avg, cell = cell_ids), raw_paths_list$tavg[x])
               }
             } else { 
               warning("Tile ", x, ": Failed Tavg load.")
@@ -468,7 +468,7 @@ bioclim_fast <- function(
                 colnames(tile_results$temperature_avg) <- paste0("tavg_",seq_len(n_units))
               }
               if (write_raw_vars && ("tavg" %in% names(raw_paths_list))) {
-                qs::qsave(cbind(tile_results$temperature_avg, cell = cell_ids),raw_paths_list$tavg[x])
+                qs2::qs_save(cbind(tile_results$temperature_avg, cell = cell_ids),raw_paths_list$tavg[x])
                 
               }
             } else { 
@@ -735,7 +735,7 @@ bioclim_fast <- function(
           if (!is.null(result_var)) { 
             calculated_bios_in_tile[[bio_output_name]] <- result_var
             if (bio_num %in% bios) { 
-              qs::qsave(result_var, 
+              qs2::qs_save(result_var, 
                 bios_qs_paths[[bio_output_name]][x])
             }
           }

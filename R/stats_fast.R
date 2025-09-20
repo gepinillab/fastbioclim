@@ -10,7 +10,7 @@
 #' @param ... Other arguments including inter_variable_path, period_length, circular,
 #'   static index paths, etc.
 #' @return Character string: Path to the temporary directory containing
-#'   intermediate `.qs` files.
+#'   intermediate `.qs2` files.
 #' @keywords internal
 #' @seealso The user-facing wrapper function `derive_statistics()`.
 stats_fast <- function(variable_path,
@@ -270,9 +270,9 @@ stats_fast <- function(variable_path,
     )
   }
 
-  template_info_file <- file.path(stats_qs_dir, "template_info.qs")
+  template_info_file <- file.path(stats_qs_dir, "template_info.qs2")
   tryCatch({
-    qs::qsave(template_info, template_info_file)
+    qs2::qs_save(template_info, template_info_file)
   }, error = function(e) {
     stop("Failed to save template geometry information: ", e$message)
   })
@@ -293,7 +293,7 @@ stats_fast <- function(variable_path,
   if (ntiles == 0) stop("No overlapping tiles found for the processing area.")
   message("Processing area divided into ", ntiles, " tiles.")
 
-  # --- 5. Define Intermediate File Paths (.qs) ---
+  # --- 5. Define Intermediate File Paths (.qs2) ---
   all_stat_names_to_calc <- c()
   if ("mean" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_mean"))
   if ("max" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_max"))
@@ -308,7 +308,7 @@ stats_fast <- function(variable_path,
 
   stats_output_qs_paths <- list()
   for (stat_name_full in all_stat_names_to_calc) {
-    stats_output_qs_paths[[stat_name_full]] <- file.path(stats_qs_dir, paste0(stat_name_full, "_", seq_len(ntiles), ".qs"))
+    stats_output_qs_paths[[stat_name_full]] <- file.path(stats_qs_dir, paste0(stat_name_full, "_", seq_len(ntiles), ".qs2"))
   }
     
   raw_paths_list <- list()
@@ -320,10 +320,10 @@ stats_fast <- function(variable_path,
   }
   if (write_raw_vars) {
     raw_paths_list$variable <- file.path(stats_qs_dir, 
-      paste0("raw_", prefix_variable, "_", seq_len(ntiles), ".qs"))
+      paste0("raw_", prefix_variable, "_", seq_len(ntiles), ".qs2"))
     if (req_inter_variable_data && !is.null(inter_variable_path)) {
       raw_paths_list$inter_variable <- file.path(stats_qs_dir, 
-        paste0("raw_intervar_", prefix_variable, "_", seq_len(ntiles), ".qs"))
+        paste0("raw_intervar_", prefix_variable, "_", seq_len(ntiles), ".qs2"))
     }
   }
 
@@ -478,14 +478,14 @@ stats_fast <- function(variable_path,
   tile_data_prepared$cell_ids <- extracted_data_for_tile$cell_ids
 
   if (write_raw_vars && "variable" %in% names(raw_paths_list)) {
-    qs::qsave(cbind(tile_data_prepared$variable_matrix, cell = tile_data_prepared$cell_ids),
+    qs2::qs_save(cbind(tile_data_prepared$variable_matrix, cell = tile_data_prepared$cell_ids),
                       raw_paths_list$variable[tile_idx])
   }
 
   if (req_inter_variable_data && !is.null(extracted_data_for_tile$inter_variable_matrix)) {
     tile_data_prepared$inter_variable_matrix <- check_evar(extracted_data_for_tile$inter_variable_matrix)
     if (write_raw_vars && "inter_variable" %in% names(raw_paths_list)) {
-      qs::qsave(cbind(tile_data_prepared$inter_variable_matrix, cell = tile_data_prepared$cell_ids),
+      qs2::qs_save(cbind(tile_data_prepared$inter_variable_matrix, cell = tile_data_prepared$cell_ids),
                         raw_paths_list$inter_variable[tile_idx])
     }
   } else if (req_inter_variable_data) {
@@ -655,7 +655,7 @@ stats_fast <- function(variable_path,
 
     # Save the calculated statistic if successful
     if (!is.null(result_value) && !is.null(output_stat_name_full) && output_stat_name_full %in% names(stats_output_qs_paths)) {
-      qs::qsave(cbind(value = result_value, cell = tile_data_prepared$cell_ids),
+      qs2::qs_save(cbind(value = result_value, cell = tile_data_prepared$cell_ids),
       stats_output_qs_paths[[output_stat_name_full]][tile_idx])
     } else if (is.null(output_stat_name_full) && current_stat_type %in% all_stat_names_to_calc) {
       # This means a stat was requested, loop entered, but not handled by if/else if. Should not happen.

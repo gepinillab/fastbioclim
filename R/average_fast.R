@@ -134,9 +134,9 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
   }
     
   # Save the template info within that directory
-  template_info_file <- file.path(qs_dir, "template_info.qs")
+  template_info_file <- file.path(qs_dir, "template_info.qs2")
   tryCatch({
-    qs::qsave(template_info, template_info_file)
+    qs2::qs_save(template_info, template_info_file)
   }, error = function(e){
     stop("Failed to save template geometry information: ", e$message)
   })
@@ -189,7 +189,7 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
     }
     value_cols <- names(df)[!names(df) %in% c("cell", "coverage_fraction")]
     pixel_matrix <- Rfast::data.frame.to_matrix(df[nonaID[noMap], value_cols, drop = FALSE])
-    # Calculate average for each output group and save it to a separate .qs file
+    # Calculate average for each output group and save it to a separate .qs2 file
     for (j in 1:n_units_out) {
       current_idx_val <- unique_indices[j]
       current_output_name <- output_names[j]
@@ -199,9 +199,9 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
       
       # Create 2-column data frame that write_layers expects: value, cell
       tile_result <- data.frame(value = avg_values, cell = cell_ids_source)
-      # Filename format: [variable_name]_[tile_number].qs
-      qs_filename <- file.path(qs_dir, paste0(current_output_name, "_", i, ".qs"))
-      qs::qsave(tile_result, qs_filename)
+      # Filename format: [variable_name]_[tile_number].qs2
+      qs_filename <- file.path(qs_dir, paste0(current_output_name, "_", i, ".qs2"))
+      qs2::qs_save(tile_result, qs_filename)
     }
     return(NULL)
   }, 

@@ -13,14 +13,14 @@ write_layers(
 )
 }
 \arguments{
-\item{input_dir}{Character string. Path to directory with intermediate `.qs` files and `template_info.qs`}
+\item{input_dir}{Character string. Path to directory with intermediate `.qs2` files and `template_info.qs2`}
 
 \item{output_dir}{Character string. Path for the final GeoTIFF files.}
 
 \item{file_pattern}{Character string. A prefix or base pattern to identify the
-groups of `.qs` files. For example, if files are "bio01_1.qs", "bio01_2.qs",
-"bio02_1.qs", etc., `file_pattern` would be "bio". If files are
-"var_mean_1.qs", "var_sum_1.qs", etc., `file_pattern` could be "var".
+groups of `.qs2` files. For example, if files are "bio01_1.qs2", "bio01_2.qs2",
+"bio02_1.qs2", etc., `file_pattern` would be "bio". If files are
+"var_mean_1.qs2", "var_sum_1.qs2", etc., `file_pattern` could be "var".
 The function will attempt to extract the full variable name (e.g., "bio01", "var_mean")
 from the filenames. Default is "bio".}
 
@@ -39,7 +39,7 @@ which is a safety measure to prevent accidental data loss.}
 None. Writes GeoTIFF files to `output_dir`.
 }
 \description{
-Assembles intermediate `.qs` files into a full vector in memory, performs
+Assembles intermediate `.qs2` files into a full vector in memory, performs
 cell ID mapping if necessary, and writes final GeoTIFF rasters.
 }
 \author{
