@@ -13,7 +13,7 @@ tiled) based on data size and user-defined region of interest."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ tiled) based on data size and user-defined region of interest."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Derive Comprehensive Bioclimatic Variables</h1>
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.2.0/R/derive_bioclim.R" class="external-link"><code>R/derive_bioclim.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/R/derive_bioclim.R" class="external-link"><code>R/derive_bioclim.R</code></a></small>
       <div class="d-none name"><code>derive_bioclim.Rd</code></div>
     </div>
 
@@ -296,7 +296,7 @@ ANUCLIM 6.1 User Guide. Centre for Resource and Environmental Studies, The Austr
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># This is a conceptual example, requires data setup</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span>  <span class="co"># Assume tmin_rast, tmax_rast, prcp_rast are 12-layer SpatRasters</span></span></span>
 <span class="r-in"><span>  <span class="va">bioclim_vars</span> <span class="op">&lt;-</span> <span class="fu">derive_bioclim</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    bios <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">19</span>,</span></span>
@@ -307,7 +307,7 @@ ANUCLIM 6.1 User Guide. Centre for Resource and Environmental Studies, The Austr
 <span class="r-in"><span>    overwrite <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bioclim_vars</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bio01"</span>, <span class="st">"bio12"</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
