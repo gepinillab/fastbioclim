@@ -117,7 +117,7 @@ write_layers <- function(input_dir,
     
     rvals <- rep(NA_real_, n_target_cells)
     for (i in seq_along(var_paths)) {
-      bioval <- tryCatch(qs2::qs_read(var_paths[i]), error = function(e) NULL)
+      bioval <- tryCatch(qs2::qd_read(var_paths[i]), error = function(e) NULL)
       if (is.null(bioval) || !("cell" %in% colnames(bioval)) || nrow(bioval) == 0) {
         next
       }

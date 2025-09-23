@@ -201,7 +201,7 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
       tile_result <- data.frame(value = avg_values, cell = cell_ids_source)
       # Filename format: [variable_name]_[tile_number].qs2
       qs_filename <- file.path(qs_dir, paste0(current_output_name, "_", i, ".qs2"))
-      qs2::qs_save(tile_result, qs_filename)
+      qs2::qd_save(tile_result, qs_filename)
     }
     return(NULL)
   }, 

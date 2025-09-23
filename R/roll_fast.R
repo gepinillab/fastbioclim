@@ -216,7 +216,7 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
         
         tile_result <- data.frame(value = avg_values, cell = cell_ids_source)
         qs_filename <- file.path(qs_dir, paste0(current_output_name, "_", i, ".qs2"))
-        qs2::qs_save(tile_result, qs_filename)
+        qs2::qd_save(tile_result, qs_filename)
       }
     }
     return(NULL)
