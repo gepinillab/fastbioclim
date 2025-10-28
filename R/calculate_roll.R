@@ -63,15 +63,15 @@ calculate_roll <- function(x,
   }
 
   start_units <- seq(1, total_cycles - window_size + 1, by = step)
-
+  tail_unit <- tail(start_units, 1)
   output_names_list <- lapply(start_units, function(start_w) {
     end_w <- start_w + window_size - 1
     
     sapply(1:freq, function(p) {
       fun <- fun
       prefix <- output_prefix
-      start_window <- sprintf(paste0("%0", nchar(end_w), "d"), start_w)
-      end_window <- end_w
+      start_window <- sprintf(paste0("%0", nchar(tail_unit), "d"), start_w)
+      end_window <- sprintf(paste0("%0", nchar(tail_unit), "d"), end_w)
       idx_unit <- sprintf(paste0("%0", nchar(freq), "d"), p)
       
       # Aplicamos la plantilla
