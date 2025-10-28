@@ -141,16 +141,27 @@ derive_bioclim <- function(bios,
   dot_args <- list(...)
 
   # --- 2. Fail-Fast Pre-Check for Existing Files ---
+  expected_filenames <- paste0("bio", sprintf("%02d", sort(unique(bios))), ".tif")
+  expected_filepaths <- file.path(output_dir, expected_filenames)
+  existing_files <- expected_filepaths[file.exists(expected_filepaths)]
   if (!overwrite) {
-    expected_filenames <- paste0("bio", sprintf("%02d", sort(unique(bios))), ".tif")
-    expected_filepaths <- file.path(output_dir, expected_filenames)
-    existing_files <- expected_filepaths[file.exists(expected_filepaths)]
     if (length(existing_files) > 0) {
       rlang::abort(
         c("Output files already exist and `overwrite` is FALSE.",
           "i" = "The following files would be overwritten:",
           "*" = paste(basename(existing_files), collapse = ", "),
           "i" = "To proceed, set `overwrite = TRUE` or remove these files manually."))
+    }
+  } else {
+    if (length(existing_files) > 0) {
+      rlang::warn(
+        c("Overwriting existing files in the output directory.",
+          "i" = "The following files will be replaced:",
+          "*" = paste(basename(existing_files), collapse = ", "),
+          "!" = "CAUTION: If this run uses a different context (e.g., a new spatial extent or time period) than a previous run, you will be altering the source files for those results (whcih could be another R object already created).",
+          "i" = "To ensure data integrity, it is strongly recommended to use a new, empty `output_dir` for each distinct analysis (e.g., extent or period)."
+        )
+      )
     }
   }
   if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
