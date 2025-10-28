@@ -141,8 +141,7 @@ write_layers <- function(input_dir,
       terra::writeStart(outRast, filename = output_file, overwrite = TRUE,
                         gdal = gdal_opt)
       
-      pb_write <- utils::txtProgressBar(min = 0, max = length(comienzo), style = 3, width = 50)
-      
+      pb_write <- progressr::progressor(steps = length(comienzo))
       for (i in seq_along(comienzo)) {
         start_row_block <- comienzo[i]
         num_rows_in_block <- min(step_size_write, n_target_rows - start_row_block + 1)
@@ -155,9 +154,8 @@ write_layers <- function(input_dir,
                            start = start_row_block, 
                            nrows = num_rows_in_block)
         
-        utils::setTxtProgressBar(pb_write, i)
+        pb_write()
       }
-      close(pb_write)
       write_success <- TRUE
     }, error = function(e) {
       warning("Write error ", output_file, ": ", e$message, call. = FALSE)
