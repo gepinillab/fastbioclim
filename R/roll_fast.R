@@ -142,7 +142,7 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
                    "start_units", "output_names_list", "qs_dir", "translate_cell", "user_region")
 
   future.apply::future_lapply(seq_len(ntiles), function(i) {
-    p(message = sprintf("Processing tile %d/%d", i, ntiles))
+    p(message = glue::glue("Processing tile {i}/{ntiles}"))
     tile_geom <- sf::st_geometry(rtt[i, ])
 
     # Lógica de extracción idéntica a la tuya

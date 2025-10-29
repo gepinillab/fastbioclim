@@ -43,7 +43,7 @@ stats_fast <- function(variable_path,
   # Validate core inputs
   if (missing(variable_path) || !is.character(variable_path) || length(variable_path) == 0) stop("'variable_path' is required.")
   if (missing(n_units) || !is.numeric(n_units) || n_units <= 0 || length(variable_path) != n_units) {
-    stop(sprintf("'n_units' required and must match length of 'variable_path' (%d).", n_units))
+    stop(glue::glue("'n_units' required and must match length of 'variable_path' ({n_units})."))
   }
   if (!is.numeric(period_length) || period_length <= 0 || period_length > n_units) stop("'period_length' invalid.")
   if (!(period_stats %in% c("mean", "sum"))) stop("'period_stats' must be 'mean' or 'sum'.")
@@ -96,7 +96,7 @@ stats_fast <- function(variable_path,
   req_period_calculation_for_inter_var <- req_inter_variable_data && length(inter_stats) > 0
 
   if (req_inter_variable_data && (is.null(inter_variable_path) || length(inter_variable_path) != n_units)) {
-    stop(sprintf("'inter_variable_path' must be provided with %d layers if 'inter_stats' are requested.", n_units))
+    stop(glue::glue("'inter_variable_path' must be provided with {n_units} layers if 'inter_stats' are requested."))
   }
   if (!req_inter_variable_data && length(inter_stats) > 0) {
     warning("'inter_stats' requested, but 'inter_variable_path' not provided or invalid. Interactive stats will not be calculated.")
@@ -345,7 +345,7 @@ stats_fast <- function(variable_path,
 
 
   future.apply::future_lapply(seq_len(ntiles), function(tile_idx) {
-  p(message = sprintf("Processing tile %d of %d", tile_idx, ntiles))
+  p(message = glue::glue("Processing tile {tile_idx} of {ntiles}"))
 
   tile_data_prepared <- list() # To store matrices like variable_matrix, inter_variable_matrix
   static_indices_for_tile <- list() # To store extracted static index values
@@ -354,7 +354,7 @@ stats_fast <- function(variable_path,
   # `paths` contains all variable, inter_variable, and static_index paths
   raster_stack_for_tile <- tryCatch({ terra::rast(paths) }, error = function(e) { NULL })
   if (is.null(raster_stack_for_tile)) {
-    warning(sprintf("Tile %d: Failed to load raster stack. Skipping.", tile_idx))
+    warning(glue::glue("Tile {tile_idx}: Failed to load raster stack. Skipping."))
     return(NULL)
   }
   names(raster_stack_for_tile) <- names(paths) # Critical for exct_fun_combined
@@ -459,18 +459,18 @@ stats_fast <- function(variable_path,
       include_cell = TRUE, # Cell IDs are crucial
       stack_apply = FALSE) # Process rasters together for exct_fun
     }, error = function(e) {
-      warning(sprintf("Tile %d: exact_extract failed: %s", tile_idx, e$message))
+      warning(glue::glue("Tile {tile_idx}: exact_extract failed: {e$message}"))
       NULL
   })
 
   if (is.null(extracted_data_list_raw) || length(extracted_data_list_raw) == 0 || is.null(extracted_data_list_raw[[1]])) {
-    warning(sprintf("Tile %d: No data extracted or extraction function returned NULL.", tile_idx))
+    warning(glue::glue("Tile {tile_idx}: No data extracted or extraction function returned NULL."))
     return(NULL)
   }
   # Assuming single polygon feature per tile after st_intersection and st_collection_extract
   extracted_data_for_tile <- extracted_data_list_raw[, 1]
   if (!is.list(extracted_data_for_tile) || is.null(extracted_data_for_tile$variable_matrix) || nrow(extracted_data_for_tile$variable_matrix) == 0) {
-    warning(sprintf("Tile %d: Extracted data is invalid or empty.", tile_idx))
+    warning(glue::glue("Tile {tile_idx}: Extracted data is invalid or empty."))
     return(NULL)
   }
 
@@ -489,10 +489,7 @@ stats_fast <- function(variable_path,
                         raw_paths_list$inter_variable[tile_idx])
     }
   } else if (req_inter_variable_data) {
-    warning(sprintf("Tile %d: Interactive variable data expected but not found after extraction.", tile_idx))
-    # Downgrade requirements if inter_variable matrix is missing
-    # req_inter_variable_data_tile <- FALSE # This would need to be passed to stat calculation logic
-    # For now, assume subsequent checks for matrix availability will handle it
+    warning(glue::glue("Tile {tile_idx}: Interactive variable data expected but not found after extraction."))
   }
 
   static_indices_for_tile <- extracted_data_for_tile$static_indices
@@ -510,7 +507,7 @@ stats_fast <- function(variable_path,
       periodos = defined_periods,
       stat = period_stats)
     } else {
-      warning(sprintf("Tile %d: Variable matrix not available for period calculation.", tile_idx))
+      warning(glue::glue("Tile {tile_idx}: Interactive variable matrix not available for period calculation."))
       req_period_calculation_for_var <- FALSE
     }
   }
@@ -522,7 +519,7 @@ stats_fast <- function(variable_path,
       periodos = defined_periods,
       stat = period_stats)
     } else {
-      warning(sprintf("Tile %d: Interactive variable matrix not available for period calculation.", tile_idx))
+      warning(glue::glue("Tile {tile_idx}: Interactive variable matrix not available for period calculation."))
       req_period_calculation_for_inter_var <- FALSE
     }
   }
@@ -548,7 +545,7 @@ stats_fast <- function(variable_path,
     }
 
     if (!can_calculate_stat) {
-      warning(sprintf("Tile %d: Skipping stat '%s' due to missing prerequisite data for this tile.", tile_idx, current_stat_type))
+      warning(glue::glue("Tile {tile_idx}: Skipping stat '{current_stat_type}' due to missing prerequisite data for this tile."))
       next # Skip to the next statistic
     }
 
@@ -659,9 +656,9 @@ stats_fast <- function(variable_path,
       stats_output_qs_paths[[output_stat_name_full]][tile_idx])
     } else if (is.null(output_stat_name_full) && current_stat_type %in% all_stat_names_to_calc) {
       # This means a stat was requested, loop entered, but not handled by if/else if. Should not happen.
-      warning(sprintf("Tile %d: Stat '%s' was attempted but no calculation logic matched or output name not resolved.", tile_idx, current_stat_type))
+      warning(glue::glue("Tile {tile_idx}: Stat '{current_stat_type}' was attempted but no calculation logic matched or output name not resolved."))
     } else if (!is.null(output_stat_name_full) && !(output_stat_name_full %in% names(stats_output_qs_paths)) ) {
-      warning(sprintf("Tile %d: Output name '%s' for stat '%s' does not match any predefined Q_S path.", tile_idx, output_stat_name_full, current_stat_type))
+      warning(glue::glue("Tile {tile_idx}: Output name '{output_stat_name_full}' for stat '{current_stat_type}' does not match any predefined QS path."))
     }
   }
 

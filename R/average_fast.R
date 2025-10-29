@@ -163,12 +163,12 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
   export_vars <- c("paths", "path_variables", "rtt", "ntiles", "unique_indices", 
                    "n_units_out", "output_names", "qs_dir", "translate_cell")
   future.apply::future_lapply(seq_len(ntiles), function(i) {
-    p(message = sprintf("Processing tile %d/%d", i, ntiles))
+    p(message = glue::glue("Processing tile {i}/{ntiles}"))
     tile_geom <- sf::st_geometry(rtt[i, ])
     
     evars_stack_tile <- tryCatch({ terra::rast(paths) }, error = function(e) { NULL })
         if (is.null(evars_stack_tile)) { 
-          warning(sprintf("Tile %d: Failed load", i))
+          warning(glue::glue("Tile {i}: Failed load"))
           return(NULL)
         }
 
@@ -208,6 +208,6 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
   future.seed = TRUE, future.globals = export_vars,
   future.packages = c("terra", "exactextractr", "Rfast", "qs", "sf"))
   
-  rlang::inform("Tiled computation finished. Assembly will be handled by write_layers.")
+  message("Tiled computation finished. Assembly will be handled by write_layers.")
   return(qs_dir)
 }

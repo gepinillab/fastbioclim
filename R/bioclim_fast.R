@@ -116,12 +116,30 @@ bioclim_fast <- function(
     if (req_prcp_path && is.null(prcp_path)) stop("prcp_path required.")
     if (req_srad_path && is.null(srad_path)) stop("srad_path required.")
     if (req_mois_path && is.null(mois_path)) stop("mois_path required.")  
-    if (req_tmin_path && length(tmin_path) != n_units) stop(sprintf("tmin_path length error: expected %d, received %d. Check if you provided a single multi-band file instead of separate files for each unit.", n_units, length(tmin_path)))
-    if (req_tmax_path && length(tmax_path) != n_units) stop(sprintf("tmax_path length error: expected %d, received %d. Check if you provided a single multi-band file instead of separate files for each unit.", n_units, length(tmax_path)))
-    if (req_prcp_path && length(prcp_path) != n_units) stop(sprintf("prcp_path length error: expected %d, received %d. Check if you provided a single multi-band file instead of separate files for each unit.", n_units, length(prcp_path)))
-    if (req_tavg_load && length(tavg_path) != n_units) stop(sprintf("tavg_path length error: expected %d, received %d. Check if you provided a single multi-band file instead of separate files for each unit.", n_units, length(tavg_path)))
-    if (req_srad_path && length(srad_path) != n_units) stop(sprintf("srad_path length error: expected %d, received %d. Check if you provided a single multi-band file instead of separate files for each unit.", n_units, length(srad_path)))
-    if (req_mois_path && length(mois_path) != n_units) stop(sprintf("mois_path length error: expected %d, received %d. Check if you provided a single multi-band file instead of separate files for each unit.", n_units, length(mois_path)))
+    if (req_tmin_path && length(tmin_path) != n_units) stop(glue::glue(
+      "tmin_path length error: expected {n_units}, received {length(tmin_path)}. ",
+      "Check if you provided a single multi-band file instead of separate files for each unit."
+    ))
+    if (req_tmax_path && length(tmax_path) != n_units) stop(glue::glue(
+      "tmax_path length error: expected {n_units}, received {length(tmax_path)}. ",
+      "Check if you provided a single multi-band file instead of separate files for each unit."
+    ))
+    if (req_prcp_path && length(prcp_path) != n_units) stop(glue::glue(
+      "prcp_path length error: expected {n_units}, received {length(prcp_path)}. ",
+      "Check if you provided a single multi-band file instead of separate files for each unit."
+    ))
+    if (req_tavg_load && length(tavg_path) != n_units) stop(glue::glue(
+      "tavg_path length error: expected {n_units}, received {length(tavg_path)}. ",
+      "Check if you provided a single multi-band file instead of separate files for each unit."
+    ))
+    if (req_srad_path && length(srad_path) != n_units) stop(glue::glue(
+      "srad_path length error: expected {n_units}, received {length(srad_path)}. ",
+      "Check if you provided a single multi-band file instead of separate files for each unit."
+    ))
+    if (req_mois_path && length(mois_path) != n_units) stop(glue::glue(
+      "mois_path length error: expected {n_units}, received {length(mois_path)}. ",
+      "Check if you provided a single multi-band file instead of separate files for each unit."
+    ))
     # --- 1. Setup Input Paths ---
     paths <- c()
     path_variables <- list()
@@ -357,12 +375,12 @@ bioclim_fast <- function(
                         paste0("bio", 1:35, "_fast"), "bios_qs_paths", "write_raw_vars", "bioclima_dir")
       if (exists("raw_paths_list")) export_vars <- c(export_vars, "raw_paths_list")
       vals <- future.apply::future_lapply(seq_len(ntiles), function(x) {
-        p(message = sprintf("Processing tile %d of %d", x, ntiles))
+        p(message = glue::glue("Processing tile {x} of {ntiles}"))
         tile_results <- list()
         static_indices_tile <- list()
         evars_stack_tile <- tryCatch({ terra::rast(paths) }, error = function(e) { NULL })
         if (is.null(evars_stack_tile)) { 
-          warning(sprintf("Tile %d: Failed load",x))
+          warning(glue::glue("Tile {x}: Failed load"))
           return(NULL)
         }
         names(evars_stack_tile) <- names(paths)

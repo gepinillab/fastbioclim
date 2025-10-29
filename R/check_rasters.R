@@ -80,7 +80,7 @@ check_rasters <- function(..., check_nas = TRUE) {
     
     if (mismatch_count > 0) {
       report$is_valid <- FALSE
-      report$na_report <- sprintf("FAILURE: Found %d pixels with inconsistent NA patterns across variables.", mismatch_count)
+      report$na_report <- glue::glue("FAILURE: Found {mismatch_count} pixels with inconsistent NA patterns across variables.")
       report$mismatch_raster <- mismatch_rast
     } else {
       report$na_report <- "SUCCESS: NA patterns are consistent across all variables."
