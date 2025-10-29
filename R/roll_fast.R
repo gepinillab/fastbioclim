@@ -222,8 +222,8 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
     return(NULL)
   }, 
   future.seed = TRUE, future.globals = export_vars,
-  future.packages = c("terra", "exactextractr", "Rfast", "qs", "sf", "rlang", "glue"))
+  future.packages = c("terra", "exactextractr", "Rfast", "qs", "sf", "glue"))
   
-  rlang::inform("Tiled computation finished. Assembly will be handled by write_layers.")
+  message("Tiled computation finished. Assembly will be handled by write_layers.")
   return(qs_dir)
 }

@@ -35,7 +35,6 @@ Imports:
     purrr,
     qs2,
     Rfast,
-    rlang,
     sf,
     terra (>= 1.7-0)
 

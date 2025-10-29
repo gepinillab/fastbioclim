@@ -49,17 +49,17 @@ calculate_roll <- function(x,
 
   # --- 1. Argument Validation and Setup ---
   method <- match.arg(method)
-  if (!inherits(x, "SpatRaster")) rlang::abort("Input 'x' must be a SpatRaster.")
+  if (!inherits(x, "SpatRaster")) stop("Input 'x' must be a SpatRaster.")
   n_in <- nlyr(x)
 
   # Validate time series parameters
-  if (missing(window_size)) rlang::abort("'window_size' is required.")
+  if (missing(window_size)) stop("'window_size' is required.")
   if (n_in %% freq != 0) {
-    rlang::abort(glue::glue("Total layers ({n_in}) is not divisible by frequency ({freq})."))
+    stop(glue::glue("Total layers ({n_in}) is not divisible by frequency ({freq})."))
   }
   total_cycles <- n_in / freq
   if (window_size > total_cycles) {
-    rlang::abort(glue::glue("window_size ({window_size}) cannot be larger than total cycles ({total_cycles})."))
+    stop(glue::glue("window_size ({window_size}) cannot be larger than total cycles ({total_cycles})."))
   }
 
   start_units <- seq(1, total_cycles - window_size + 1, by = step)
@@ -92,7 +92,7 @@ calculate_roll <- function(x,
   if (!overwrite) {
     expected_filepaths <- file.path(output_dir, paste0(all_output_names, ".tif"))
     if (any(file.exists(expected_filepaths))) {
-      rlang::abort(
+      stop(
       c("Output files already exist and `overwrite` is FALSE.",
       "i" = "To proceed, set `overwrite = TRUE` or remove the existing files.")
       )
@@ -103,29 +103,29 @@ calculate_roll <- function(x,
   use_terra_workflow <- FALSE
   if (method == "terra") {
     use_terra_workflow <- TRUE
-    rlang::inform("User forced 'terra' (in-memory) workflow.")
+    message("User forced 'terra' (in-memory) workflow.")
   } else if (method == "tiled") {
     use_terra_workflow <- FALSE
-    rlang::inform("User forced 'tiled' (out-of-core) workflow.")
+    message("User forced 'tiled' (out-of-core) workflow.")
   } else { # "auto"
-    rlang::inform("Using 'auto' method to select workflow...")
+    message("Using 'auto' method to select workflow...")
     # For rolling average, the memory peak is one window + its results
     n_layers_for_check <- (window_size * freq) + freq
     template_rast <- if (is.null(user_region)) x[[1]] else crop(x[[1]], user_region)
     mem_info <- terra::mem_info(template_rast, n = n_layers_for_check, print = FALSE)
     if (mem_info["fits_mem"] == 1) {
       use_terra_workflow <- TRUE
-      rlang::inform("A single window appears to fit in memory. Selecting 'terra' workflow.")
+      message("A single window appears to fit in memory. Selecting 'terra' workflow.")
     } else {
       use_terra_workflow <- FALSE
-      rlang::inform("A single window may be too large for memory. Selecting 'tiled' workflow.")
+      message("A single window may be too large for memory. Selecting 'tiled' workflow.")
     }
   }
 
   # --- 4. Delegate to the Correct Workflow ---
   if (use_terra_workflow) {
     final_raster <- if (!is.null(user_region)) {
-    rlang::inform("Performing crop operation for 'terra' workflow...")
+    message("Performing crop operation for 'terra' workflow...")
     terra::crop(x, user_region, mask = TRUE)
     } else {
     x
@@ -145,7 +145,7 @@ calculate_roll <- function(x,
 
   } else { # Tiled workflow
     if (all(terra::inMemory(x))) {
-      rlang::abort("The 'tiled' workflow requires the input SpatRaster to point to a file on disk.")
+      stop("The 'tiled' workflow requires the input SpatRaster to point to a file on disk.")
     }
 
     temp_qs_dir <- roll_fast(
@@ -169,6 +169,6 @@ calculate_roll <- function(x,
       overwrite = overwrite
     )
   }
-  rlang::inform(paste("Processing complete. Final rasters are in:", normalizePath(output_dir)))
+  message(paste("Processing complete. Final rasters are in:", normalizePath(output_dir)))
   return(terra::rast(result_paths))
 }
