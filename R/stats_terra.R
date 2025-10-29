@@ -31,6 +31,7 @@ stats_terra <- function(variable,
                         gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
                         overwrite = FALSE, 
                         output_dir = tempdir(),
+                        verbose = TRUE,
                         ...) {
   # Check for same extent, number of rows and columns, projection,
   # resolution, and origin
@@ -40,7 +41,7 @@ stats_terra <- function(variable,
                                     purrr::discard(is.null),
                                   testGeom))
   if (sameGeom == "SpatRaster") {
-    message("SpatRasters have same extent, number of rows and columns, ",
+    if (verbose) message("SpatRasters have same extent, number of rows and columns, ",
             "projection, resolution, and origin")
   }
   # Find invalid characters
@@ -167,7 +168,7 @@ stats_terra <- function(variable,
   
   output_files <- file.path(output_dir, paste0(names(raster_stats), ".tif"))
   
-  message("Writing GeoTIFFs...")
+  if (verbose) message("Writing GeoTIFFs...")
   terra::writeRaster(
     raster_stats,
     filename = output_files,

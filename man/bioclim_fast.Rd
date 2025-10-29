@@ -18,6 +18,7 @@ bioclim_fast(
   user_region = NULL,
   tile_degrees = 5,
   output_dir = tempdir(),
+  verbose = TRUE,
   ...
 )
 }
@@ -35,6 +36,8 @@ bioclim_fast(
 \item{tile_degrees}{Numeric, size of processing tiles.}
 
 \item{output_dir}{Character, path for temporary files.}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
 
 \item{...}{File paths for climate variables (e.g., `tmin_path`) and static
 indices (e.g., `warmest_period_path`).}

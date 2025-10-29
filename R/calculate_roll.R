@@ -30,7 +30,7 @@
 #' @param tile_degrees (Tiled method only) Approximate size of processing tiles.
 #' @param gdal_opt (Optional) GDAL creation options for GeoTIFFs.
 #' @param overwrite Logical. If `FALSE` (default), stops if output files exist.
-#'
+#' @param verbose Logical, If `TRUE`, prints messages.
 #' @return A `terra::SpatRaster` object pointing to the newly created files.
 #' @export
 calculate_roll <- function(x,
@@ -45,7 +45,8 @@ calculate_roll <- function(x,
   method = c("auto", "tiled", "terra"),
   tile_degrees = 5,
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
-  overwrite = FALSE) {
+  overwrite = FALSE,
+  verbose = TRUE) {
 
   # --- 1. Argument Validation and Setup ---
   method <- match.arg(method)
@@ -74,7 +75,7 @@ calculate_roll <- function(x,
       end_window <- sprintf(paste0("%0", nchar(tail_unit), "d"), end_w)
       idx_unit <- sprintf(paste0("%0", nchar(freq), "d"), p)
       
-      # Aplicamos la plantilla
+      # Make template
       glue::glue(name_template)
     })
   })
@@ -103,29 +104,29 @@ calculate_roll <- function(x,
   use_terra_workflow <- FALSE
   if (method == "terra") {
     use_terra_workflow <- TRUE
-    message("User forced 'terra' (in-memory) workflow.")
+    if (verbose) message("User forced 'terra' (in-memory) workflow.")
   } else if (method == "tiled") {
     use_terra_workflow <- FALSE
-    message("User forced 'tiled' (out-of-core) workflow.")
+    if (verbose) message("User forced 'tiled' (out-of-core) workflow.")
   } else { # "auto"
-    message("Using 'auto' method to select workflow...")
+    if (verbose) message("Using 'auto' method to select workflow...")
     # For rolling average, the memory peak is one window + its results
     n_layers_for_check <- (window_size * freq) + freq
     template_rast <- if (is.null(user_region)) x[[1]] else crop(x[[1]], user_region)
     mem_info <- terra::mem_info(template_rast, n = n_layers_for_check, print = FALSE)
     if (mem_info["fits_mem"] == 1) {
       use_terra_workflow <- TRUE
-      message("A single window appears to fit in memory. Selecting 'terra' workflow.")
+      if (verbose) message("A single window appears to fit in memory. Selecting 'terra' workflow.")
     } else {
       use_terra_workflow <- FALSE
-      message("A single window may be too large for memory. Selecting 'tiled' workflow.")
+      if (verbose) message("A single window may be too large for memory. Selecting 'tiled' workflow.")
     }
   }
 
   # --- 4. Delegate to the Correct Workflow ---
   if (use_terra_workflow) {
     final_raster <- if (!is.null(user_region)) {
-    message("Performing crop operation for 'terra' workflow...")
+    if (verbose) message("Performing crop operation for 'terra' workflow...")
     terra::crop(x, user_region, mask = TRUE)
     } else {
     x
@@ -140,7 +141,8 @@ calculate_roll <- function(x,
       output_names_list = output_names_list, # Pass the list of names
       output_dir = output_dir,
       gdal_opt = gdal_opt,
-      overwrite = overwrite
+      overwrite = overwrite,
+      verbose = verbose
     )
 
   } else { # Tiled workflow
@@ -157,7 +159,8 @@ calculate_roll <- function(x,
       output_names_list = output_names_list,
       user_region = user_region,
       tile_degrees = tile_degrees,
-      output_dir = output_dir
+      output_dir = output_dir,
+      verbose = verbose
     )
 
     # Use write_layers to assemble the results
@@ -166,9 +169,10 @@ calculate_roll <- function(x,
       output_dir = output_dir,
       file_pattern = file_pattern_prefix,
       gdal_opt = gdal_opt,
-      overwrite = overwrite
+      overwrite = overwrite,
+      verbose = verbose
     )
   }
-  message(paste("Processing complete. Final rasters are in:", normalizePath(output_dir)))
+  if (verbose) message(paste("Processing complete. Final rasters are in:", normalizePath(output_dir)))
   return(terra::rast(result_paths))
 }

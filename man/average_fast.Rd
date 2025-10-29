@@ -4,7 +4,15 @@
 \alias{average_fast}
 \title{Tiled, Out-of-Core Time Series Averaging (Internal)}
 \usage{
-average_fast(paths, index, output_names, user_region, tile_degrees, output_dir)
+average_fast(
+  paths,
+  index,
+  output_names,
+  user_region,
+  tile_degrees,
+  output_dir,
+  verbose
+)
 }
 \description{
 Tiled, Out-of-Core Time Series Averaging (Internal)

@@ -20,6 +20,7 @@
 #'        with the same name will be overwritten. If `FALSE` (the default), the function
 #'        will throw an error if it attempts to write to a file that already exists,
 #'        which is a safety measure to prevent accidental data loss.
+#' @param verbose Logical, If `TRUE`, prints messages.
 #' @return None. Writes GeoTIFF files to `output_dir`.
 #' @author Luis Osorio-Olvera, Gonzalo E. Pinilla-Buitrago
 #' @keywords internal
@@ -29,7 +30,8 @@ write_layers <- function(input_dir,
                          output_dir,
                          file_pattern = "bio",
                          gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
-                         overwrite = FALSE) {
+                         overwrite = FALSE,
+                         verbose = TRUE) {
 
   # --- 1. Input Validation and Load Template Info ---
   if (!dir.exists(input_dir)) stop("Input directory not found: ", input_dir)
@@ -128,7 +130,7 @@ write_layers <- function(input_dir,
     outRast <- terra::rast(target_template, names = current_qs_name)
     output_file <- file.path(output_dir, paste0(current_qs_name, ".tif"))
     
-    message("Writing GeoTIFF: ", output_file)
+    if (verbose) message("Writing GeoTIFF: ", output_file)
     write_success <- FALSE
     
     tryCatch({
@@ -174,8 +176,8 @@ write_layers <- function(input_dir,
   # Enable the debug mode: Sys.setenv(BIOCLIM_DEBUG_RAW_VARS = "TRUE")
   clean_temporary_files <- identical(toupper(Sys.getenv("BIOCLIM_DEBUG_KEEP_TEMP_FILES")), "TRUE")
   if (clean_temporary_files) {
-    message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_KEEP_TEMP_FILES is set to TRUE.")
-    message("Intermediate files kept: ", input_dir)
+    if (verbose) message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_KEEP_TEMP_FILES is set to TRUE.")
+    if (verbose) message("Intermediate files kept: ", input_dir)
   } else {
     unlink(input_dir, recursive = TRUE, force = TRUE)
   }

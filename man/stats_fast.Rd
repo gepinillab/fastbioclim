@@ -26,6 +26,7 @@ stats_fast(
   tile_degrees = 5,
   output_dir = tempdir(),
   write_raw_vars = FALSE,
+  verbose = TRUE,
   ...
 )
 }

@@ -17,7 +17,8 @@ calculate_roll(
   method = c("auto", "tiled", "terra"),
   tile_degrees = 5,
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
-  overwrite = FALSE
+  overwrite = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -59,6 +60,8 @@ Available placeholders are:
 \item{gdal_opt}{(Optional) GDAL creation options for GeoTIFFs.}
 
 \item{overwrite}{Logical. If `FALSE` (default), stops if output files exist.}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
 }
 \value{
 A `terra::SpatRaster` object pointing to the newly created files.

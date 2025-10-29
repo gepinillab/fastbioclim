@@ -11,6 +11,7 @@
 #' @param circular Logical, whether to wrap periods.
 #' @param gdal_opt Character vector of GDAL options for writing.
 #' @param overwrite Logical, whether to overwrite existing files.
+#' @param verbose Logical, If `TRUE`, prints messages.
 #' @return A `terra::SpatRaster` object pointing to the newly created files.
 #' @keywords internal
 #' @seealso The user-facing wrapper function `derive_bioclim()`.
@@ -27,6 +28,7 @@ bioclim_terra <- function(bios,
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
   overwrite = FALSE, 
   output_dir = tempdir(),
+  verbose = TRUE,
   ...) {
   # Add dor arguments
   dot_args <- list(...)
@@ -50,7 +52,7 @@ bioclim_terra <- function(bios,
                                     purrr::discard(is.null),
                                   testGeom))
   if (sameGeom == "SpatRaster") {
-    message("SpatRasters have same extent, number of rows and columns, ",
+    if (verbose) message("SpatRasters have same extent, number of rows and columns, ",
             "projection, resolution, and origin")
   }
 
@@ -250,7 +252,7 @@ bioclim_terra <- function(bios,
   
   # Window message
   if (any(c(8:11, 16:19, 24:27, 32:35) %in% bios)) {
-    message(
+    if (verbose) message(
       paste0(paste0("Bio", sprintf("%02d", c(8:11, 16:19, 24:27, 32:35)[c(8:11, 16:19, 24:27, 32:35) %in% bios]),
                     collapse = ", "),
              " was(were) built with a period of ", period_length,
@@ -262,7 +264,7 @@ bioclim_terra <- function(bios,
   bios_rast <- terra::rast(mget(paste0("bio", sprintf("%02d", bios))))
   output_files <- file.path(output_dir, paste0(names(bios_rast), ".tif"))
 
-  message("Writing GeoTIFFs...")
+  if (verbose) message("Writing GeoTIFFs...")
   terra::writeRaster(
     bios_rast,
     filename = output_files,

@@ -17,6 +17,7 @@ bioclim_terra(
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
   overwrite = FALSE,
   output_dir = tempdir(),
+  verbose = TRUE,
   ...
 )
 }
@@ -32,6 +33,8 @@ bioclim_terra(
 \item{overwrite}{Logical, whether to overwrite existing files.}
 
 \item{output_dir}{Character, path to save final rasters.}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
 
 \item{...}{`SpatRaster` objects for climate variables (e.g., `tmin`, `tmax`)
 and static indices (e.g., `warmest_period`).}

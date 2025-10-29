@@ -33,11 +33,7 @@ get_window <- function(x, period, circular)  {
     m <- matrix(ncol = period, nrow = lng)
     for (i in 1:period) {
       m[, i] <- ind[i:(lng + i - 1)]
-      # if (i != 3) {
-      #   m[, i] <- ind[i:(lng + i - 1)]
-      # } else {
-      #   m[, i] <- ind[(i - 1):(lng + i - 2)]
-      # }
+      
     }
   }
   if (circular == FALSE) {
@@ -61,30 +57,6 @@ testGeom <- function(x, y) {
   if (testGeom == TRUE) {
     return(x)
   }
-}
-
-#' @keywords internal
-mismatch_NA <- function(layer) {
-  # Get number of layers
-  num_lyr <- terra::nlyr(layer)
-  # Create a raster that sums if cells has values for all of them
-  sum_lyr <- sum(!is.na(layer))
-  # Create vector to check if there is a mismatch between NAs
-  v_unique <- unique(as.vector(sum_lyr))
-  # Check for cell values lower than the number of layers. This means that there
-  # are cells with NA values
-  if (any(v_unique != 0 & v_unique != num_lyr)) {
-    miss_na <- v_unique[v_unique != 0 & v_unique != num_lyr]
-    cells_na <- unlist(terra::cells(sum_lyr, miss_na))
-    layer_na <- sapply(as.list(cells_na),
-                       function(x) {which(is.na(extract(layer, x)))})
-    message(paste0("Unexpected NA value in '", substitute(layer), "' object",
-                   " | Layer number: ", layer_na,
-                   " | Cell ID: ", cells_na, "\n"))
-
-  }
-  return(list(logical = any(v_unique != 0 & v_unique != num_lyr),
-              sum_lyr = sum_lyr))
 }
 
 #' @title Print Bioclimatic Variable Names
@@ -146,12 +118,6 @@ bionames <- function(bios = 1:35) {
   cat(bioclim_vars[bios], sep = "\n")
 }
 
-# ======================================================================
-
-# FAST mode
-
-# --- Core Helper Functions ---
-
 `%||%` <- function(x, y) { if (is.null(x)) y else x }
 
 #' Standardize Environmental Variable Input Format
@@ -175,7 +141,6 @@ check_evar <- function(evar){
     names_col <- names(evar)
     evar <- t(evar) # Transpose vector to a 1-row matrix
   }
-  # Add check if it's already a matrix? - Assumed handled if not df or vector
   colnames(evar) <- names_col
 
   return(evar)

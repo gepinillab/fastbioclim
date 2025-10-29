@@ -4,11 +4,13 @@
 \alias{check_rasters}
 \title{Validate Climate Input Rasters}
 \usage{
-check_rasters(..., check_nas = TRUE)
+check_rasters(..., verbose = TRUE, check_nas = TRUE)
 }
 \arguments{
 \item{...}{Named arguments providing character vectors of file paths for each
 climate variable (e.g., `tmin_files = c(...)`, `prcp_files = c(...)`).}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
 
 \item{check_nas}{Logical. If `TRUE` (the default), perform the potentially
 slow check for mismatched NA values. If `FALSE`, only check for geometry.}

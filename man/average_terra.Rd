@@ -4,7 +4,7 @@
 \alias{average_terra}
 \title{In-Memory Time Series Averaging (Internal)}
 \usage{
-average_terra(x, index, output_names, output_dir, gdal_opt, overwrite)
+average_terra(x, index, output_names, output_dir, gdal_opt, overwrite, verbose)
 }
 \description{
 In-Memory Time Series Averaging (Internal)

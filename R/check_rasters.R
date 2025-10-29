@@ -11,7 +11,7 @@
 #'     all layers of all provided climate variables. Mismatched NAs can lead
 #'     to silent errors in calculations. This check can be time-consuming for
 #'     very large rasters.
-#'
+#' @param verbose Logical, If `TRUE`, prints messages.
 #' @param ... Named arguments providing character vectors of file paths for each
 #'   climate variable (e.g., `tmin_files = c(...)`, `prcp_files = c(...)`).
 #' @param check_nas Logical. If `TRUE` (the default), perform the potentially
@@ -24,14 +24,14 @@
 #' @export
 #' @importFrom terra rast compareGeom tapp lapp
 #' @importFrom purrr discard reduce
-check_rasters <- function(..., check_nas = TRUE) {
+check_rasters <- function(..., verbose = TRUE, check_nas = TRUE) {
   
   files_list <- list(...)
   if (length(files_list) == 0) {
     stop("No input files provided.")
   }
 
-  message("Creating SpatRaster objects for validation...")
+  if (verbose) message("Creating SpatRaster objects for validation...")
   raster_list <- lapply(files_list, terra::rast)
   
   report <- list(
@@ -48,7 +48,6 @@ check_rasters <- function(..., check_nas = TRUE) {
   }, error = function(e) {
     report$is_valid <<- FALSE
     report$geom_report <<- paste("FAILURE: Geometries are inconsistent.", e$message)
-    # Stop now, no point checking NAs if geometry differs
     return(report)
   })
 
@@ -56,7 +55,7 @@ check_rasters <- function(..., check_nas = TRUE) {
   
   # 2. NA Value Check (can be slow)
   if (check_nas) {
-    message("Performing NA consistency check (this may take a while)...")
+    if (verbose) message("Performing NA consistency check (this may take a while)...")
     
     # For each stack, create a single layer summary: 0=all NA, 1=some NA, 2=no NA
     na_summaries <- lapply(raster_list, function(r) {
@@ -87,6 +86,6 @@ check_rasters <- function(..., check_nas = TRUE) {
     }
   }
 
-  message("Validation complete.")
+  if (verbose) message("Validation complete.")
   return(report)
 }

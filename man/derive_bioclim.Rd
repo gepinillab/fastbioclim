@@ -20,6 +20,7 @@ derive_bioclim(
   tile_degrees = 5,
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
   overwrite = FALSE,
+  verbose = TRUE,
   ...
 )
 }
@@ -55,6 +56,8 @@ output GeoTIFF files. Controls compression, threading, etc.}
 
 \item{overwrite}{(Optional) Logical. If `FALSE` (the default), the function will
 stop immediately if any target output files already exist.}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
 
 \item{...}{Additional arguments, primarily for passing static index rasters. See
 the "Static Indices" section for details.}

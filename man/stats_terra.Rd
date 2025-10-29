@@ -24,6 +24,7 @@ stats_terra(
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
   overwrite = FALSE,
   output_dir = tempdir(),
+  verbose = TRUE,
   ...
 )
 }

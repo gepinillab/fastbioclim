@@ -1,13 +1,13 @@
 #' Tiled, Out-of-Core Time Series Averaging (Internal)
 #' @keywords internal
-average_fast <- function(paths, index, output_names, user_region, tile_degrees, output_dir) {
+average_fast <- function(paths, index, output_names, user_region, tile_degrees, output_dir, verbose) {
   
   # --- 1. Setup Environment ---
   qs_dir <- file.path(output_dir, paste0("avg_qs_", basename(tempfile(pattern = ""))))
   dir.create(qs_dir, recursive = TRUE)
   # --- 2. Define Processing Region and Replicate Full Geometry Logic ---
   # --- Check Geometry Consistency ---
-  message("Checking geometry of input rasters...")
+  if (verbose) message("Checking geometry of input rasters...")
   tryCatch({
     ref_rast <- terra::rast(paths[1])
     ref_crs <- terra::crs(ref_rast)
@@ -29,7 +29,7 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
   # --- 3. Define Processing Region ---
   base_map <- NULL
   if (!is.null(user_region)) {
-    message("Using user-provided region.")
+    if (verbose) message("Using user-provided region.")
     if (inherits(user_region, "SpatVector")) base_map <- sf::st_as_sf(user_region)
     else if (inherits(user_region, "sf") || inherits(user_region, "sfc")) base_map <- sf::st_as_sf(sf::st_geometry(user_region))
     else stop("'user_region' must be an sf object or a terra SpatVector.")
@@ -48,7 +48,7 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
       }
         
     } else {
-      message("No user_region provided. Using the full extent of input rasters.")
+      if (verbose) message("No user_region provided. Using the full extent of input rasters.")
       # Create an sf polygon from the raster extent obtained earlier
       base_map <- sf::st_as_sf(sf::st_as_sfc(sf::st_bbox(ref_ext), crs = ref_crs))
     }
@@ -154,7 +154,7 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
   rtt <- rtt[!sf::st_is_empty(rtt),]
   ntiles <- nrow(rtt)
   if (ntiles == 0) stop("No overlapping tiles found for the processing area.")
-  message("Rasters divided into ", ntiles, " tiles for processing.")
+  if (verbose) message(glue::glue("Rasters divided into {ntiles} tiles for processing."))
   
   # --- 4. Parallel Processing ---
   p <- progressr::progressor(steps = ntiles)
@@ -208,6 +208,6 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
   future.seed = TRUE, future.globals = export_vars,
   future.packages = c("terra", "exactextractr", "Rfast", "qs", "sf"))
   
-  message("Tiled computation finished. Assembly will be handled by write_layers.")
+  if (verbose) message("Tiled computation finished. Assembly will be handled by write_layers.")
   return(qs_dir)
 }

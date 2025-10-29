@@ -9,7 +9,8 @@ write_layers(
   output_dir,
   file_pattern = "bio",
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
-  overwrite = FALSE
+  overwrite = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ which provides good, lossless compression. To disable compression, use `NULL`.}
 with the same name will be overwritten. If `FALSE` (the default), the function
 will throw an error if it attempts to write to a file that already exists,
 which is a safety measure to prevent accidental data loss.}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
 }
 \value{
 None. Writes GeoTIFF files to `output_dir`.

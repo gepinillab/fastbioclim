@@ -13,7 +13,8 @@ calculate_average(
   method = c("auto", "tiled", "terra"),
   tile_degrees = 5,
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
-  overwrite = FALSE
+  overwrite = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ will be saved as GeoTIFF files.}
 \item{gdal_opt}{(Optional) GDAL creation options for the output GeoTIFFs.}
 
 \item{overwrite}{Logical. If `FALSE` (default), stops if output files exist.}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
 }
 \value{
 A `terra::SpatRaster` object pointing to the newly created files.

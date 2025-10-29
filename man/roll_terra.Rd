@@ -13,7 +13,8 @@ roll_terra(
   output_names_list,
   output_dir,
   gdal_opt,
-  overwrite
+  overwrite,
+  verbose
 )
 }
 \description{

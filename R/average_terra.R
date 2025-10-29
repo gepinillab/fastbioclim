@@ -1,14 +1,14 @@
 #' In-Memory Time Series Averaging (Internal)
 #' @keywords internal
-average_terra <- function(x, index, output_names, output_dir, gdal_opt, overwrite) {
-  message("Calculating averages using terra::tapp...")
+average_terra <- function(x, index, output_names, output_dir, gdal_opt, overwrite, verbose) {
+  if (verbose) message("Calculating averages using terra::tapp...")
   
   avg_rast <- terra::tapp(x, index = index, fun = "mean", na.rm = TRUE)
   names(avg_rast) <- output_names
   
   output_files <- file.path(output_dir, paste0(names(avg_rast), ".tif"))
   
-  message("Writing final GeoTIFFs...")
+  if (verbose) message("Writing final GeoTIFFs...")
   terra::writeRaster(
     avg_rast,
     filename = output_files,

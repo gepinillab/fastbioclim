@@ -13,6 +13,7 @@
 #' @param user_region An `sf` or `SpatVector` object for the area of interest.
 #' @param tile_degrees Numeric, size of processing tiles.
 #' @param output_dir Character, path for temporary files.
+#' @param verbose Logical, If `TRUE`, prints messages.
 #' @return Character string: Path to the temporary directory containing
 #'   intermediate `.qs2` files, to be used by an assembly function.
 #' @keywords internal
@@ -31,6 +32,7 @@ bioclim_fast <- function(
   user_region = NULL,
   tile_degrees = 5,
   output_dir = tempdir(),
+  verbose = TRUE,
   ...) {
     
     # --- 0. Input Validation, Dependency Mapping, Static Index Parsing ---
@@ -47,7 +49,7 @@ bioclim_fast <- function(
         if (index_name %in% valid_static_indices) {
           if(is.character(dot_args[[arg_name]]) && length(dot_args[[arg_name]]) == 1 && file.exists(dot_args[[arg_name]])) { 
             static_index_paths[[index_name]] <- dot_args[[arg_name]]
-            message("Using static index for: ", index_name)
+            if (verbose) message("Using static index for: ", index_name)
           } else { 
             warning("Static index path '", arg_name, "' invalid/not found. Ignoring.")
           }
@@ -180,7 +182,7 @@ bioclim_fast <- function(
     if (length(paths) == 0) stop("No relevant input data paths identified.")
     
     # --- Check Geometry Consistency ---
-    message("Checking geometry of input rasters...")
+    if (verbose) message("Checking geometry of input rasters...")
     tryCatch({
       ref_rast <- terra::rast(paths[1])
       ref_crs <- terra::crs(ref_rast)
@@ -208,7 +210,7 @@ bioclim_fast <- function(
     # --- 3. Define Processing Region ---
     base_map <- NULL
     if (!is.null(user_region)) {
-      message("Using user-provided region.")
+      if (verbose) message("Using user-provided region.")
       if (inherits(user_region, "SpatVector")) base_map <- sf::st_as_sf(user_region)
       else if (inherits(user_region, "sf") || inherits(user_region, "sfc")) base_map <- sf::st_as_sf(sf::st_geometry(user_region))
       else stop("'user_region' must be an sf object or a terra SpatVector.")
@@ -227,7 +229,7 @@ bioclim_fast <- function(
         }
         
       } else {
-        message("No user_region provided. Using the full extent of input rasters.")
+        if (verbose) message("No user_region provided. Using the full extent of input rasters.")
         # Create an sf polygon from the raster extent obtained earlier
         base_map <- sf::st_as_sf(sf::st_as_sfc(sf::st_bbox(ref_ext), crs = ref_crs))
       }
@@ -333,7 +335,7 @@ bioclim_fast <- function(
       rtt <- rtt[!sf::st_is_empty(rtt),]
       ntiles <- nrow(rtt)
       if (ntiles == 0) stop("No overlapping tiles found for the processing area.")
-      message("Rasters divided into ", ntiles, " tiles for processing.")
+      if (verbose) message(glue::glue("Rasters divided into {ntiles} tiles for processing."))
       
       
       # --- 5. Define Intermediate File Paths (.qs2) ---
@@ -347,7 +349,7 @@ bioclim_fast <- function(
       write_raw_vars <- identical(toupper(Sys.getenv("BIOCLIM_DEBUG_RAW_VARS")), "TRUE")
   
       if (write_raw_vars) {
-        message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_RAW_VARS is set to TRUE.")
+        if (verbose) message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_RAW_VARS is set to TRUE.")
       }
       if (write_raw_vars) {
         raw_paths_list <- list()
@@ -774,6 +776,6 @@ bioclim_fast <- function(
       future.globals = export_vars, 
       future.packages = c("sf", "terra", "exactextractr", "Rfast", "purrr", "qs"))
       
-      message("Tiled computation finished.")
+      if (verbose) message("Tiled computation finished.")
       return(bioclima_dir)
 }

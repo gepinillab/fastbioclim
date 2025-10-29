@@ -34,10 +34,11 @@ stats_fast <- function(variable_path,
   tile_degrees = 5,
   output_dir = tempdir(),
   write_raw_vars = FALSE,
+  verbose = TRUE,
   ...) {
 
   # --- 0. Input Validation, Dependency Mapping, Static Index Parsing ---
-  dot_args <- list(...) # Currently not used but good practice
+  dot_args <- list(...)
   static_index_paths <- list()
 
   # Validate core inputs
@@ -61,7 +62,7 @@ stats_fast <- function(variable_path,
       stop(paste("Invalid 'inter_stats' provided:", paste(invalid_inter_stats, collapse = ", ")))
     }
   } else {
-    inter_stats <- c() # Ensure it's an empty vector if NULL
+    inter_stats <- c()
   }
 
   if (length(c(stats, inter_stats)) == 0) stop("No statistics requested to calculate.")
@@ -81,7 +82,7 @@ stats_fast <- function(variable_path,
     if (!is.null(idx_path)) {
       if (is.character(idx_path) && length(idx_path) == 1 && file.exists(idx_path)) {
         static_index_paths[[idx_name]] <- idx_path
-        message("Using static index for: ", idx_name)
+        if (verbose) message("Using static index for: ", idx_name)
       } else {
         warning("Static index path for '", idx_name, "' (", idx_path,") is invalid or file not found. Ignoring.")
       }
@@ -89,7 +90,7 @@ stats_fast <- function(variable_path,
   }
 
   # Determine required inputs based on requested stats
-  req_variable_data <- TRUE # Always needed
+  req_variable_data <- TRUE
   req_inter_variable_data <- length(inter_stats) > 0 && !is.null(inter_variable_path)
   req_period_calculation_for_var <- any(c("max_period", "min_period") %in% stats) || 
                   (req_inter_variable_data && length(inter_stats) > 0) # inter stats need var periods
@@ -100,11 +101,10 @@ stats_fast <- function(variable_path,
   }
   if (!req_inter_variable_data && length(inter_stats) > 0) {
     warning("'inter_stats' requested, but 'inter_variable_path' not provided or invalid. Interactive stats will not be calculated.")
-    inter_stats <- c() # Clear inter_stats if no inter_variable_path
+    inter_stats <- c()
     req_period_calculation_for_inter_var <- FALSE
   }
   if (req_inter_variable_data && is.null(inter_variable_path)) {
-    # This case should be caught above, but as a safeguard
     warning("'inter_variable_path' is NULL but interactive stats might be implied. Disabling interactive stats.")
     inter_stats <- c()
     req_inter_variable_data <- FALSE
@@ -130,7 +130,6 @@ stats_fast <- function(variable_path,
   if (length(static_index_paths) > 0) {
     path_variables_map$static <- names(static_index_paths)
     static_paths_vec <- unlist(static_index_paths)
-    # Prefix static index names for clarity in merged raster stack
     names(static_paths_vec) <- paste0("idx_", names(static_index_paths))
     paths <- c(paths, static_paths_vec)
   }
@@ -138,10 +137,10 @@ stats_fast <- function(variable_path,
   if (length(paths) == 0) stop("No relevant input data paths identified.")
 
   # --- Check Geometry Consistency ---
-  message("Checking geometry of input rasters...")
-  ref_rast_geom_check <- NULL # Define outside tryCatch
+  if (verbose) message("Checking geometry of input rasters...")
+  ref_rast_geom_check <- NULL
   tryCatch({
-    ref_rast_geom_check <- terra::rast(paths[1]) # Load first raster for reference
+    ref_rast_geom_check <- terra::rast(paths[1])
     ref_crs_check <- terra::crs(ref_rast_geom_check)
     ref_ext_check <- terra::ext(ref_rast_geom_check)
     if (length(paths) > 1) {
@@ -157,8 +156,6 @@ stats_fast <- function(variable_path,
   }, error = function(e) {
     stop("Input rasters (including static indices) do not have the same geometry. ", e$message)
   })
-  # Use the already loaded ref_rast_geom_check for template info later to avoid reloading
-  # Store its CRS and Extent for use in region definition
   ref_crs <- terra::crs(ref_rast_geom_check) 
   ref_ext <- terra::ext(ref_rast_geom_check)
 
@@ -169,7 +166,7 @@ stats_fast <- function(variable_path,
   # --- 3. Define Processing Region & Template Geometry ---
   base_map <- NULL
   if (!is.null(user_region)) {
-    message("Using user-provided region.")
+    if (verbose) message("Using user-provided region.")
     if (inherits(user_region, "SpatVector")) base_map <- sf::st_as_sf(user_region)
     else if (inherits(user_region, "sf") || inherits(user_region, "sfc")) base_map <- sf::st_as_sf(sf::st_geometry(user_region))
     else stop("'user_region' must be an sf object or a terra SpatVector.")
@@ -186,20 +183,20 @@ stats_fast <- function(variable_path,
       stop("Provided user_region does not overlap with the extent of the input rasters.")
     }
   } else {
-    message("No user_region provided. Using the full extent of input rasters.")
+    if (verbose) message("No user_region provided. Using the full extent of input rasters.")
     base_map <- sf::st_as_sf(sf::st_as_sfc(sf::st_bbox(ref_ext), crs = ref_crs))
   }
 
   original_extent_vec <- as.vector(terra::ext(ref_rast_geom_check))
   original_dims_vec <- c(terra::nrow(ref_rast_geom_check), terra::ncol(ref_rast_geom_check))
   original_crs_txt <- terra::crs(ref_rast_geom_check, proj = TRUE)
-  original_res_vec <- terra::res(ref_rast_geom_check) # Store original resolution
+  original_res_vec <- terra::res(ref_rast_geom_check)
   original_ncol <- original_dims_vec[2]
 
   target_extent_vec <- original_extent_vec
   target_dims_vec <- original_dims_vec
   target_crs_txt <- original_crs_txt
-  target_res_vec <- original_res_vec # Initialize target_res with original
+  target_res_vec <- original_res_vec
   target_ncol <- original_ncol
 
 
@@ -208,7 +205,7 @@ stats_fast <- function(variable_path,
     tryCatch({
       # Crop using the already loaded ref_rast_geom_check
       target_template_rast <- terra::crop(ref_rast_geom_check, terra::vect(base_map), mask = TRUE)
-      if (terra::ncell(target_template_rast) > 0 && sum(terra::values(target_template_rast,na.rm=TRUE)) > 0 ) { # Check if not all NA
+      if (terra::ncell(target_template_rast) > 0 && sum(terra::values(target_template_rast,na.rm=TRUE)) > 0 ) {
         target_extent_vec <- as.vector(terra::ext(target_template_rast))
         target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
         target_res_vec <- terra::res(target_template_rast) # Get resolution of cropped raster
@@ -237,7 +234,7 @@ stats_fast <- function(variable_path,
     )
   )
 
-  translate_cell_fun <- NULL # Initialize to NULL
+  translate_cell_fun <- NULL
   if (!is.null(user_region)) {
     # Use original raster (ref_rast_geom_check) for offset calculation relative to its top-left
     # Target coordinates are the top-left of the *target extent*
@@ -276,22 +273,22 @@ stats_fast <- function(variable_path,
   }, error = function(e) {
     stop("Failed to save template geometry information: ", e$message)
   })
-  rm(ref_rast_geom_check) # Clean up the reference raster object
+  rm(ref_rast_geom_check)
 
   # --- 4. Create Spatial Tiles ---
-  sf::sf_use_s2(FALSE) # Recommended for st_intersection with planar data
+  sf::sf_use_s2(FALSE)
   grid_bbox <- sf::st_bbox(base_map)
   # Ensure tile_degrees is positive
   if(tile_degrees <= 0) stop("'tile_degrees' must be positive.")
   rtt_grid <- sf::st_make_grid(grid_bbox, cellsize = tile_degrees,
             what = "polygons", crs = sf::st_crs(base_map))
-  rtt <- sf::st_intersection(base_map, rtt_grid) # Intersect with the actual processing area
-  rtt <- sf::st_collection_extract(rtt, "POLYGON") # Ensure only polygons
-  rtt <- sf::st_as_sf(rtt) # Convert to sf object
-  rtt <- rtt[!sf::st_is_empty(rtt), ] # Remove empty geometries
+  rtt <- sf::st_intersection(base_map, rtt_grid)
+  rtt <- sf::st_collection_extract(rtt, "POLYGON")
+  rtt <- sf::st_as_sf(rtt)
+  rtt <- rtt[!sf::st_is_empty(rtt), ]
   ntiles <- nrow(rtt)
   if (ntiles == 0) stop("No overlapping tiles found for the processing area.")
-  message("Processing area divided into ", ntiles, " tiles.")
+  if (verbose) message("Processing area divided into ", ntiles, " tiles.")
 
   # --- 5. Define Intermediate File Paths (.qs2) ---
   all_stat_names_to_calc <- c()
@@ -316,7 +313,7 @@ stats_fast <- function(variable_path,
   # Enable the debug mode: Sys.setenv(BIOCLIM_DEBUG_RAW_VARS = "TRUE")
   write_raw_vars <- identical(toupper(Sys.getenv("BIOCLIM_DEBUG_RAW_VARS")), "TRUE")
   if (write_raw_vars) {
-    message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_RAW_VARS is set to TRUE.")
+    if (verbose) message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_RAW_VARS is set to TRUE.")
   }
   if (write_raw_vars) {
     raw_paths_list$variable <- file.path(stats_qs_dir, 
@@ -331,8 +328,6 @@ stats_fast <- function(variable_path,
   p <- progressr::progressor(steps = ntiles)
 
   # Variables to export to parallel workers
-  # Note: define_translate is a closure, so its environment (containing offsets, ncols) is captured.
-  # The specific function `translate_cell_fun` generated by it needs to be passed if user_region is active.
   export_vars <- c("paths", "path_variables_map", "rtt", "ntiles", "stats", "inter_stats",
                   "n_units", "period", "period_stats", "circular",
                   "prefix_variable", "suffix_inter_max", "suffix_inter_min",
@@ -347,8 +342,8 @@ stats_fast <- function(variable_path,
   future.apply::future_lapply(seq_len(ntiles), function(tile_idx) {
   p(message = glue::glue("Processing tile {tile_idx} of {ntiles}"))
 
-  tile_data_prepared <- list() # To store matrices like variable_matrix, inter_variable_matrix
-  static_indices_for_tile <- list() # To store extracted static index values
+  tile_data_prepared <- list()
+  static_indices_for_tile <- list()
 
   # Load all rasters for the current tile
   # `paths` contains all variable, inter_variable, and static_index paths
@@ -357,15 +352,13 @@ stats_fast <- function(variable_path,
     warning(glue::glue("Tile {tile_idx}: Failed to load raster stack. Skipping."))
     return(NULL)
   }
-  names(raster_stack_for_tile) <- names(paths) # Critical for exct_fun_combined
+  names(raster_stack_for_tile) <- names(paths)
 
   current_tile_geom <- sf::st_geometry(rtt[tile_idx, ])
 
   # Define extraction function for this specific set of variables
-  # This needs to be defined *inside* future_lapply or passed correctly with its environment
   exct_fun_combined_stats <- function(df, coverage_fractions) {
     # Determine a reference column from the primary variable to find non-NA cells
-    # Use the first layer of the primary variable
     ref_col_name_for_na <- path_variables_map$variable[1]
 
     # If df is NULL or ref_col_name_for_na doesn't exist, return NULL early
@@ -377,7 +370,7 @@ stats_fast <- function(variable_path,
     all_colnames_in_df <- names(df)
 
     # Extract cell IDs
-    cell_id_col_name <- "cell" # Default from exact_extract
+    cell_id_col_name <- "cell"
     if (! (cell_id_col_name %in% all_colnames_in_df) ) {
       warning("Tile ", tile_idx, ": 'cell' column not found in exact_extract output.")
       return(NULL)
@@ -386,7 +379,7 @@ stats_fast <- function(variable_path,
 
     # Translate cell IDs if a user_region was provided and cropping occurred
     cell_ids_final <- cell_ids_raw_extracted
-    row_indices_to_keep <- seq_along(nonaID) # Keep all rows by default
+    row_indices_to_keep <- seq_along(nonaID)
 
     if (!is.null(user_region) && !is.null(translate_cell_fun)) {
       cell_ids_translated <- translate_cell_fun(cell_ids_raw_extracted)
@@ -397,7 +390,7 @@ stats_fast <- function(variable_path,
         return(NULL)
       }
       cell_ids_final <- cell_ids_translated[valid_translation_mask]
-      row_indices_to_keep <- which(valid_translation_mask) # Indices relative to nonaID
+      row_indices_to_keep <- which(valid_translation_mask)
     }
 
     # --- Extract Primary Variable Data ---
@@ -410,7 +403,7 @@ stats_fast <- function(variable_path,
     }
     variable_df_subset <- df[nonaID[row_indices_to_keep], var_cols_present, drop = FALSE]
     variable_mat <- Rfast::data.frame.to_matrix(variable_df_subset)
-    colnames(variable_mat) <- var_cols_present # Preserve original raster layer names
+    colnames(variable_mat) <- var_cols_present
 
     # --- Extract Interactive Variable Data (if applicable) ---
     inter_variable_mat <- NULL
@@ -429,16 +422,12 @@ stats_fast <- function(variable_path,
     # --- Extract Static Index Data (if applicable) ---
     static_idx_values_list <- list()
     if (!is.null(path_variables_map$static) && length(path_variables_map$static) > 0) {
-      # Recall static paths were named "idx_originalname" when added to `paths`
-      # So, `all_colnames_in_df` will contain these `idx_*` names
-      # `path_variables_map$static` contains the original names ("max_unit", etc.)
       for (original_idx_name in path_variables_map$static) {
         # Construct the expected column name in df (e.g., "idx_max_unit")
         colname_in_df_for_static_idx <- paste0("idx_", original_idx_name)
         if (colname_in_df_for_static_idx %in% all_colnames_in_df) {
           static_idx_values_list[[original_idx_name]] <- df[[colname_in_df_for_static_idx]][nonaID[row_indices_to_keep]]
         } else {
-        # This case should ideally not happen if paths were set up correctly
           warning("Tile ", tile_idx, ": Expected static index column '", colname_in_df_for_static_idx, "' not found.")
         }
       }
@@ -456,8 +445,8 @@ stats_fast <- function(variable_path,
     exactextractr::exact_extract(
       raster_stack_for_tile, current_tile_geom,
       fun = exct_fun_combined_stats,
-      include_cell = TRUE, # Cell IDs are crucial
-      stack_apply = FALSE) # Process rasters together for exct_fun
+      include_cell = TRUE,
+      stack_apply = FALSE)
     }, error = function(e) {
       warning(glue::glue("Tile {tile_idx}: exact_extract failed: {e$message}"))
       NULL
@@ -535,7 +524,7 @@ stats_fast <- function(variable_path,
     # Check prerequisites for the current stat type for *this tile*
     can_calculate_stat <- TRUE
     if (is.null(tile_data_prepared$variable_matrix)) {
-      can_calculate_stat <- FALSE # Basic requirement
+      can_calculate_stat <- FALSE
     } else if (current_stat_type %in% c("max_period", "min_period") && 
         (is.null(tile_data_prepared$variable_period_summary))) {
     can_calculate_stat <- FALSE
@@ -546,7 +535,7 @@ stats_fast <- function(variable_path,
 
     if (!can_calculate_stat) {
       warning(glue::glue("Tile {tile_idx}: Skipping stat '{current_stat_type}' due to missing prerequisite data for this tile."))
-      next # Skip to the next statistic
+      next
     }
 
     # Calculate Value
@@ -588,13 +577,8 @@ stats_fast <- function(variable_path,
       output_stat_name_full <- paste0(prefix_variable, "_stdev")
     } else if (current_stat_type == "cv_cli") {
       # (stdev / (1 + mean)) * 100 ; if mean is 0, CV is 0 or NA depending on stdev.
-      # Let's make it 0 if mean is 0 to avoid NaN/Inf issues.
       means <- Rfast::rowmeans(tile_data_prepared$variable_matrix)
       stdevs <- Rfast::rowVars(tile_data_prepared$variable_matrix, std = TRUE)
-      # Add a small epsilon if mean is exactly zero but stdev is not, or handle as 0.
-      # The `1 + means` handles negative means okay if data can be negative.
-      # If means can be 0, `stdevs / (means + (means==0 & stdevs !=0) * 1e-9)` is one way.
-      # A simpler approach like bio15_fun:
       result_value <- ifelse( (1 + means) == 0, 0, (stdevs / (1 + means)) * 100)
       result_value[is.na(means) | is.na(stdevs)] <- NA # Ensure NAs propagate
       output_stat_name_full <- paste0(prefix_variable, "_cv")
@@ -669,7 +653,7 @@ stats_fast <- function(variable_path,
        raster_stack_for_tile, 
        current_tile_geom, 
        extracted_data_list_raw)
-    gc() # Garbage collect
+    gc()
     return(NULL) 
   }, 
   future.seed = TRUE,
@@ -677,6 +661,6 @@ stats_fast <- function(variable_path,
   future.packages = c("sf", "terra", "exactextractr", "Rfast", "purrr", "qs")
   )
 
-  message("Tiled computation finished.")
+  if (verbose) message("Tiled computation finished.")
   return(stats_qs_dir)
 }

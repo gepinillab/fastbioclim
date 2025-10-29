@@ -1,6 +1,6 @@
 #' In-Memory Rolling Time Series Averaging (Internal)
 #' @keywords internal
-roll_terra <- function(x, window_size, freq, step, fun, output_names_list, output_dir, gdal_opt, overwrite) {
+roll_terra <- function(x, window_size, freq, step, fun, output_names_list, output_dir, gdal_opt, overwrite, verbose) {
   
   total_cycles <- nlyr(x) / freq
   start_units <- seq(1, total_cycles - window_size + 1, by = step)
@@ -12,7 +12,7 @@ roll_terra <- function(x, window_size, freq, step, fun, output_names_list, outpu
     start_y <- start_units[i]
     end_y <- start_y + window_size - 1
     
-    message(glue::glue("Processing window: Cycle {start_y} to {end_y}"))
+    if (verbose) message(glue::glue("Processing window: Cycle {start_y} to {end_y}"))
     
     # Get layers for the current window
     start_layer_idx <- ((start_y - 1) * freq) + 1
@@ -36,7 +36,7 @@ roll_terra <- function(x, window_size, freq, step, fun, output_names_list, outpu
   
   output_files <- file.path(output_dir, paste0(names(final_stack), ".tif"))
   
-  message("Writing final GeoTIFFs...")
+  if (verbose) message("Writing final GeoTIFFs...")
   terra::writeRaster(
     final_stack,
     filename = output_files,

@@ -46,6 +46,7 @@
 #'   output GeoTIFF files.
 #' @param overwrite (Optional) Logical. If `FALSE` (the default), the function will
 #'   stop if output files already exist.
+#' @param verbose Logical, If `TRUE`, prints messages.
 #' @param ... Additional arguments, primarily for passing static index `SpatRaster`
 #'   objects. See the "Static Indices" section.
 #'
@@ -67,6 +68,7 @@ derive_statistics <- function(variable,
   tile_degrees = 5,
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
   overwrite = FALSE,
+  verbose = TRUE,
   ...) {
 
   # --- 1. Argument Capture and Initial Setup ---
@@ -115,21 +117,21 @@ derive_statistics <- function(variable,
   use_terra_workflow <- FALSE
   if (method == "terra") {
     use_terra_workflow <- TRUE
-    message("User forced 'terra' workflow.")
+    if (verbose) message("User forced 'terra' workflow.")
   } else if (method == "tiled") {
     use_terra_workflow <- FALSE
-    message("User forced 'tiled' workflow.")
+    if (verbose) message("User forced 'tiled' workflow.")
   } else { # "auto"
-    message("Using 'auto' method to select workflow...")
+    if (verbose) message("Using 'auto' method to select workflow...")
     if (is.null(user_region)) {
       check_terra_workflow <- terra::mem_info(full_raster_stack[[1]], 
                                               n = length(full_raster_stack) * terra::nlyr(full_raster_stack[[1]]),
                                               print = FALSE)
       use_terra_workflow <- check_terra_workflow["fits_mem"] == 1
       if (use_terra_workflow) {
-        message("Full rasters appear to fit in memory. Selecting 'terra' workflow.")
+        if (verbose) message("Full rasters appear to fit in memory. Selecting 'terra' workflow.")
       } else {
-        message("Full rasters are too large for memory. Selecting 'tiled' workflow.")
+        if (verbose) message("Full rasters are too large for memory. Selecting 'tiled' workflow.")
       }
     } else {
       template_rast <- full_raster_stack[[1]][[1]]
@@ -142,10 +144,10 @@ derive_statistics <- function(variable,
                                        print = FALSE)
       if (mem_needed_gb["fits_mem"] == 1) {
         use_terra_workflow <- TRUE
-        message("Estimated cropped region appears to fit in memory. Selecting 'terra' workflow.")
+        if (verbose) message("Estimated cropped region appears to fit in memory. Selecting 'terra' workflow.")
       } else {
         use_terra_workflow <- FALSE
-        message("Estimated cropped region is likely too large for memory. Selecting 'tiled' workflow.")
+        if (verbose) message("Estimated cropped region is likely too large for memory. Selecting 'tiled' workflow.")
       }
     }
   }
@@ -169,7 +171,7 @@ derive_statistics <- function(variable,
     call_args_terra <- c(
       list(stats = stats, inter_stats = inter_stats, prefix_variable = prefix_variable,
            period_length = period_length, period_stats = period_stats, circular = circular,
-           output_dir = output_dir, overwrite = overwrite, gdal_opt = gdal_opt,
+           output_dir = output_dir, overwrite = overwrite, gdal_opt = gdal_opt, verbose = verbose,
            suffix_inter_max = suffix_inter_max, suffix_inter_min = suffix_inter_min),
       final_rasters, other_args)
 
@@ -197,7 +199,7 @@ derive_statistics <- function(variable,
       list(n_units = n_units, stats = stats, inter_stats = inter_stats,
            prefix_variable = prefix_variable, period_length = period_length, period_stats = period_stats,
            circular = circular, user_region = user_region, tile_degrees = tile_degrees, output_dir = output_dir,
-           suffix_inter_max = suffix_inter_max, suffix_inter_min = suffix_inter_min),
+           verbose = verbose, suffix_inter_max = suffix_inter_max, suffix_inter_min = suffix_inter_min),
       input_paths, static_index_paths, other_args
     )
 
@@ -212,10 +214,11 @@ derive_statistics <- function(variable,
       output_dir = output_dir,
       file_pattern = prefix_variable,
       gdal_opt = gdal_opt, 
-      overwrite = overwrite
+      overwrite = overwrite,
+      verbose = verbose
     )
     bioclim_results <- terra::rast(created_files)
   }
-  message(paste("Processing complete. Final rasters are in:", normalizePath(output_dir)))
+  if (verbose) message(paste("Processing complete. Final rasters are in:", normalizePath(output_dir)))
   return(bioclim_results)
 }

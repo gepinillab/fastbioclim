@@ -2,7 +2,7 @@
 % Please edit documentation in R/roll_fast.R
 \name{roll_fast}
 \alias{roll_fast}
-\title{Tiled, Out-of-Core Rolling Time Series Averaging (Internal) - CORRECTED}
+\title{Tiled, Out-of-Core Rolling Time Series Averaging (Internal)}
 \usage{
 roll_fast(
   paths,
@@ -13,10 +13,11 @@ roll_fast(
   output_names_list,
   user_region,
   tile_degrees,
-  output_dir
+  output_dir,
+  verbose
 )
 }
 \description{
-Tiled, Out-of-Core Rolling Time Series Averaging (Internal) - CORRECTED
+Tiled, Out-of-Core Rolling Time Series Averaging (Internal)
 }
 \keyword{internal}

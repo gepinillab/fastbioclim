@@ -1,5 +1,10 @@
 fastbioclim 0.2.1
 =============
+- Delete unused functions (e.g., mismatch_NA)
+- Verbose added.
+
+fastbioclim 0.2.1
+=============
 - Small changes for making the package ready for CRAN.
 - Update example data in README file.
 
