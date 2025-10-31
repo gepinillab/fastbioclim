@@ -215,7 +215,7 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
     return(NULL)
   }, 
   future.seed = TRUE, future.globals = export_vars,
-  future.packages = c("terra", "exactextractr", "Rfast", "qs", "sf", "glue"))
+  future.packages = c("terra", "exactextractr", "Rfast", "qs2", "sf", "glue"))
   
   if (verbose) message("Tiled computation finished. Assembly will be handled by write_layers.")
   return(qs_dir)

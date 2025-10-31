@@ -24,7 +24,7 @@
 #' @return None. Writes GeoTIFF files to `output_dir`.
 #' @author Luis Osorio-Olvera, Gonzalo E. Pinilla-Buitrago
 #' @keywords internal
-#' @import terra purrr qs
+#' @import terra purrr qs2
 
 write_layers <- function(input_dir, 
                          output_dir,

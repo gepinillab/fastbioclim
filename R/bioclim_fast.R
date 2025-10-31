@@ -774,7 +774,7 @@ bioclim_fast <- function(
       }, 
       future.seed = TRUE, 
       future.globals = export_vars, 
-      future.packages = c("sf", "terra", "exactextractr", "Rfast", "purrr", "qs"))
+      future.packages = c("sf", "terra", "exactextractr", "Rfast", "purrr", "qs2"))
       
       if (verbose) message("Tiled computation finished.")
       return(bioclima_dir)

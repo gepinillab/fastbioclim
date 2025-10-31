@@ -658,7 +658,7 @@ stats_fast <- function(variable_path,
   }, 
   future.seed = TRUE,
   future.globals = structure(export_vars, names = export_vars),
-  future.packages = c("sf", "terra", "exactextractr", "Rfast", "purrr", "qs")
+  future.packages = c("sf", "terra", "exactextractr", "Rfast", "purrr", "qs2")
   )
 
   if (verbose) message("Tiled computation finished.")

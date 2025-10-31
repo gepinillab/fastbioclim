@@ -206,7 +206,7 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
     return(NULL)
   }, 
   future.seed = TRUE, future.globals = export_vars,
-  future.packages = c("terra", "exactextractr", "Rfast", "qs", "sf"))
+  future.packages = c("terra", "exactextractr", "Rfast", "qs2", "sf"))
   
   if (verbose) message("Tiled computation finished. Assembly will be handled by write_layers.")
   return(qs_dir)
