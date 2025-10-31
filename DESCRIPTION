@@ -37,4 +37,8 @@ Imports:
     Rfast,
     sf,
     terra (>= 1.7-0)
-
+Suggests: 
+    mockery,
+    testthat (>= 3.0.0),
+    withr
+Config/testthat/edition: 3
