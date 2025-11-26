@@ -1,3 +1,13 @@
+fastbioclim 0.3.0
+=============
+- Changing to qs2 instead of qs package
+- Update bionames
+- Fix name template
+- Fix progressbars in tutorials
+- verbose parameter
+- consistent warning messages
+- Unit tests implemented (with teh help of Gemini Pro 2.5)
+
 fastbioclim 0.2.1
 =============
 - Delete unused functions (e.g., mismatch_NA)
