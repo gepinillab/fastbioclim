@@ -1,0 +1,59 @@
+# Validate Climate Input Rasters
+
+Performs rigorous checks on a set of climate raster files to ensure they
+are suitable for bioclimatic variable calculation.
+
+## Usage
+
+``` r
+check_rasters(..., verbose = TRUE, check_nas = TRUE)
+```
+
+## Arguments
+
+- ...:
+
+  Named arguments providing character vectors of file paths for each
+  climate variable (e.g., \`tmin_files = c(...)\`, \`prcp_files =
+  c(...)\`).
+
+- verbose:
+
+  Logical, If \`TRUE\`, prints messages.
+
+- check_nas:
+
+  Logical. If \`TRUE\` (the default), perform the potentially slow check
+  for mismatched NA values. If \`FALSE\`, only check for geometry.
+
+## Value
+
+A list containing a summary of the validation:
+
+- \`is_valid\`:
+
+  A single logical value: \`TRUE\` if all checks pass, \`FALSE\`
+  otherwise.
+
+- \`geom_report\`:
+
+  A message detailing the result of the geometry check.
+
+- \`na_report\`:
+
+  A message detailing the result of the NA check.
+
+- \`mismatch_raster\`:
+
+  If \`check_nas=TRUE\` and mismatches are found, a \`SpatRaster\` where
+  non-zero values indicate pixels with inconsistent NAs.
+
+## Details
+
+This function checks for two main sources of error: 1. \*\*Geometric
+Inconsistency\*\*: Ensures all input rasters share the exact same
+coordinate reference system (CRS), extent, and resolution. 2. \*\*NA
+Mismatch\*\*: Checks if the pattern of NA values is consistent across
+all layers of all provided climate variables. Mismatched NAs can lead to
+silent errors in calculations. This check can be time-consuming for very
+large rasters.

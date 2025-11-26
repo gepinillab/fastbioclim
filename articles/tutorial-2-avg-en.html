@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,7 +123,7 @@ calculations in parallel for greater efficiency.</p>
 <code class="sourceCode R"><span><span class="co"># Load the packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gepinillab.github.io/fastbioclim/">fastbioclim</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## terra 1.8.60</span></span></code></pre>
+<pre><code><span><span class="co">## terra 1.8.80</span></span></code></pre>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://progressr.futureverse.org" class="external-link">progressr</a></span><span class="op">)</span></span>
 <span></span>
@@ -196,12 +196,12 @@ that repeats the sequence <code>1, 2, ..., 12</code> thirty times.</p>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Allow overwriting if the directory already exists</span></span>
 <span>  output_names <span class="op">=</span> <span class="st">"tmax_avg"</span> <span class="co"># Prefix for the output files</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Using 'auto' method to select workflow...</span></span>
-<span><span class="co">## Data appears to fit in memory. Selecting 'terra' workflow.</span></span>
-<span><span class="co">## Calculating averages using terra::tapp...</span></span>
-<span><span class="co">## Writing final GeoTIFFs...</span></span>
-<span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpEZEaca/tmax_belize_static_avg</span></span></code></pre>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<pre><code><span><span class="co">## Using 'auto' method to select workflow...</span></span></code></pre>
+<pre><code><span><span class="co">## Data appears to fit in memory. Selecting 'terra' workflow.</span></span></code></pre>
+<pre><code><span><span class="co">## Calculating averages using terra::tapp...</span></span></code></pre>
+<pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpjvqL7u/tmax_belize_static_avg</span></span></code></pre>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The result is a SpatRaster with 12 layers</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tmax_avg_static</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## class       : SpatRaster </span></span>
@@ -216,10 +216,10 @@ that repeats the sequence <code>1, 2, ..., 12</code> thirty times.</p>
 <span><span class="co">## names       : tmax_avg_01, tmax_avg_02, tmax_avg_03, tmax_avg_04, tmax_avg_05, tmax_avg_06, ... </span></span>
 <span><span class="co">## min values  :    210.1667,    223.0000,    241.6333,       254.8,    258.8667,    251.6000, ... </span></span>
 <span><span class="co">## max values  :    276.4000,    296.5667,    321.5667,       336.9,    339.0667,    320.0333, ...</span></span></code></pre>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># We can visualize the 12 monthly averages</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tmax_avg_static</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-2-avg-en_files/figure-html/static-average-1.png" width="700"></p>
+<p><img src="tutorial-2-avg-en_files/figure-html/static-average-1.png" class="r-plt" width="700"></p>
 <p>Done! <code>tmax_avg_static</code> now holds the 30-year climatology.
 The first layer is the average of all Januaries, the second of all
 Februaries, etc.</p>
@@ -245,7 +245,7 @@ cycle (e.g., 12 for months in a year).</li>
 <h3 id="example-1-20-year-window">Example 1: 20-Year Window<a class="anchor" aria-label="anchor" href="#example-1-20-year-window"></a>
 </h3>
 <p>Let’s calculate the monthly averages for rolling 20-year windows.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create an output directory for this analysis</span></span>
 <span><span class="va">output_path_rolling</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"tmax_belize_rolling_avg"</span><span class="op">)</span></span>
 <span></span>
@@ -257,31 +257,31 @@ cycle (e.g., 12 for months in a year).</li>
 <span>  output_prefix <span class="op">=</span> <span class="st">"tmax"</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Using 'auto' method to select workflow...</span></span>
-<span><span class="co">## A single window appears to fit in memory. Selecting 'terra' workflow.</span></span>
-<span><span class="co">## Processing window: Cycle 1 to 20</span></span>
-<span><span class="co">## Processing window: Cycle 2 to 21</span></span>
-<span><span class="co">## Processing window: Cycle 3 to 22</span></span>
-<span><span class="co">## Processing window: Cycle 4 to 23</span></span>
-<span><span class="co">## Processing window: Cycle 5 to 24</span></span>
-<span><span class="co">## Processing window: Cycle 6 to 25</span></span>
-<span><span class="co">## Processing window: Cycle 7 to 26</span></span>
-<span><span class="co">## Processing window: Cycle 8 to 27</span></span>
-<span><span class="co">## Processing window: Cycle 9 to 28</span></span>
-<span><span class="co">## Processing window: Cycle 10 to 29</span></span>
-<span><span class="co">## Processing window: Cycle 11 to 30</span></span>
-<span><span class="co">## Processing window: Cycle 12 to 31</span></span>
-<span><span class="co">## Processing window: Cycle 13 to 32</span></span>
-<span><span class="co">## Processing window: Cycle 14 to 33</span></span>
-<span><span class="co">## Processing window: Cycle 15 to 34</span></span>
-<span><span class="co">## Processing window: Cycle 16 to 35</span></span>
-<span><span class="co">## Processing window: Cycle 17 to 36</span></span>
-<span><span class="co">## Processing window: Cycle 18 to 37</span></span>
-<span><span class="co">## Processing window: Cycle 19 to 38</span></span>
-<span><span class="co">## Processing window: Cycle 20 to 39</span></span>
-<span><span class="co">## Writing final GeoTIFFs...</span></span>
-<span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpEZEaca/tmax_belize_rolling_avg</span></span></code></pre>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<pre><code><span><span class="co">## Using 'auto' method to select workflow...</span></span></code></pre>
+<pre><code><span><span class="co">## A single window appears to fit in memory. Selecting 'terra' workflow.</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 1 to 20</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 2 to 21</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 3 to 22</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 4 to 23</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 5 to 24</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 6 to 25</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 7 to 26</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 8 to 27</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 9 to 28</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 10 to 29</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 11 to 30</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 12 to 31</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 13 to 32</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 14 to 33</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 15 to 34</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 16 to 35</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 17 to 36</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 18 to 37</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 19 to 38</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 20 to 39</span></span></code></pre>
+<pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpjvqL7u/tmax_belize_rolling_avg</span></span></code></pre>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># How many layers have we created?</span></span>
 <span><span class="co"># (39 cycles - 20 window size + 1) * 12 units = 20 * 12 = 240 layers</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tmax_roll_avg</span><span class="op">)</span></span></code></pre></div>
@@ -297,7 +297,7 @@ cycle (e.g., 12 for months in a year).</li>
 <span><span class="co">## names       : tmax_~0_u01, tmax_~0_u02, tmax_~0_u03, tmax_~0_u04, tmax_~0_u05, tmax_~0_u06, ... </span></span>
 <span><span class="co">## min values  :       211.6,       223.8,      241.95,      255.55,       259.7,      251.75, ... </span></span>
 <span><span class="co">## max values  :       277.0,       296.0,      319.50,      334.80,       340.1,      319.60, ...</span></span></code></pre>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Let's check the names of the first 13 layers to understand the output</span></span>
 <span><span class="co"># We should see the 12 months for the first window (w1-20) and the first of the next</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tmax_roll_avg</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span><span class="op">]</span></span></code></pre></div>
@@ -314,7 +314,7 @@ cycle (e.g., 12 for months in a year).</li>
 <p>The function is highly flexible thanks to the
 <code>name_template</code> argument. We can define exactly how we want
 our output files to be named.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define a more descriptive name template</span></span>
 <span><span class="va">custom_template</span> <span class="op">&lt;-</span> <span class="st">"{prefix}_year_{start_window}-{end_window}_month_{idx_unit}"</span></span>
 <span></span>
@@ -330,31 +330,31 @@ our output files to be named.</p>
 <span>  name_template <span class="op">=</span> <span class="va">custom_template</span>, <span class="co"># Use our custom template</span></span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Using 'auto' method to select workflow...</span></span>
-<span><span class="co">## A single window appears to fit in memory. Selecting 'terra' workflow.</span></span>
-<span><span class="co">## Processing window: Cycle 1 to 20</span></span>
-<span><span class="co">## Processing window: Cycle 2 to 21</span></span>
-<span><span class="co">## Processing window: Cycle 3 to 22</span></span>
-<span><span class="co">## Processing window: Cycle 4 to 23</span></span>
-<span><span class="co">## Processing window: Cycle 5 to 24</span></span>
-<span><span class="co">## Processing window: Cycle 6 to 25</span></span>
-<span><span class="co">## Processing window: Cycle 7 to 26</span></span>
-<span><span class="co">## Processing window: Cycle 8 to 27</span></span>
-<span><span class="co">## Processing window: Cycle 9 to 28</span></span>
-<span><span class="co">## Processing window: Cycle 10 to 29</span></span>
-<span><span class="co">## Processing window: Cycle 11 to 30</span></span>
-<span><span class="co">## Processing window: Cycle 12 to 31</span></span>
-<span><span class="co">## Processing window: Cycle 13 to 32</span></span>
-<span><span class="co">## Processing window: Cycle 14 to 33</span></span>
-<span><span class="co">## Processing window: Cycle 15 to 34</span></span>
-<span><span class="co">## Processing window: Cycle 16 to 35</span></span>
-<span><span class="co">## Processing window: Cycle 17 to 36</span></span>
-<span><span class="co">## Processing window: Cycle 18 to 37</span></span>
-<span><span class="co">## Processing window: Cycle 19 to 38</span></span>
-<span><span class="co">## Processing window: Cycle 20 to 39</span></span>
-<span><span class="co">## Writing final GeoTIFFs...</span></span>
-<span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpEZEaca/tmax_belize_custom_names</span></span></code></pre>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<pre><code><span><span class="co">## Using 'auto' method to select workflow...</span></span></code></pre>
+<pre><code><span><span class="co">## A single window appears to fit in memory. Selecting 'terra' workflow.</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 1 to 20</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 2 to 21</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 3 to 22</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 4 to 23</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 5 to 24</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 6 to 25</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 7 to 26</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 8 to 27</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 9 to 28</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 10 to 29</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 11 to 30</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 12 to 31</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 13 to 32</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 14 to 33</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 15 to 34</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 16 to 35</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 17 to 36</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 18 to 37</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 19 to 38</span></span></code></pre>
+<pre><code><span><span class="co">## Processing window: Cycle 20 to 39</span></span></code></pre>
+<pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpjvqL7u/tmax_belize_custom_names</span></span></code></pre>
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Let's verify the new names</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tmax_roll_custom</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">##  [1] "tmax_year_01-20_month_01" "tmax_year_01-20_month_02"</span></span>
@@ -373,7 +373,7 @@ analysis is to see how the average of a specific month has changed
 across the different windows.</p>
 <p>Let’s extract and visualize all the averages for
 <strong>January</strong> (<code>_u01</code>).</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Select all layers corresponding to January (unit index 01)</span></span>
 <span><span class="co"># We use grep() to find the pattern "_u01" in the layer names</span></span>
 <span><span class="va">january_indices</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"_u01"</span>, <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tmax_roll_avg</span><span class="op">)</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -386,7 +386,7 @@ across the different windows.</p>
 <span></span>
 <span><span class="co"># Now we can visualize the change between the first and last rolling average for January</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">rolling_januaries</span><span class="op">[[</span><span class="fl">20</span><span class="op">]</span><span class="op">]</span> <span class="op">-</span> <span class="va">rolling_januaries</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-2-avg-en_files/figure-html/analyze-rolling-1.png" width="700"></p>
+<p><img src="tutorial-2-avg-en_files/figure-html/analyze-rolling-1.png" class="r-plt" width="700"></p>
 <p>This map shows how the average maximum temperature in January has
 changed over the last years, allowing us to identify warming or cooling
 trends. It’s important to note that the temperature layers used are
@@ -416,7 +416,7 @@ processing to handle large datasets.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

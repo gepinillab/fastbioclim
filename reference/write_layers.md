@@ -1,0 +1,66 @@
+# Export Bioclimatic Variables to GeoTIFF
+
+Assembles intermediate \`.qs2\` files into a full vector in memory,
+performs cell ID mapping if necessary, and writes final GeoTIFF rasters.
+
+## Usage
+
+``` r
+write_layers(
+  input_dir,
+  output_dir,
+  file_pattern = "bio",
+  gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
+  overwrite = FALSE,
+  verbose = TRUE
+)
+```
+
+## Arguments
+
+- input_dir:
+
+  Character string. Path to directory with intermediate \`.qs2\` files
+  and \`template_info.qs2\`
+
+- output_dir:
+
+  Character string. Path for the final GeoTIFF files.
+
+- file_pattern:
+
+  Character string. A prefix or base pattern to identify the groups of
+  \`.qs2\` files. For example, if files are "bio01_1.qs2",
+  "bio01_2.qs2", "bio02_1.qs2", etc., \`file_pattern\` would be "bio".
+  If files are "var_mean_1.qs2", "var_sum_1.qs2", etc., \`file_pattern\`
+  could be "var". The function will attempt to extract the full variable
+  name (e.g., "bio01", "var_mean") from the filenames. Default is "bio".
+
+- gdal_opt:
+
+  Character vector. GDAL creation options for the output GeoTIFF files.
+  These options control compression, threading, and other advanced
+  features. See the GDAL documentation for a full list of options for
+  the GeoTIFF driver. The default is \`c("COMPRESS=DEFLATE",
+  "PREDICTOR=3", "NUM_THREADS=ALL_CPUS")\`, which provides good,
+  lossless compression. To disable compression, use \`NULL\`.
+
+- overwrite:
+
+  Logical. If \`TRUE\`, any existing GeoTIFF files in the \`output_dir\`
+  with the same name will be overwritten. If \`FALSE\` (the default),
+  the function will throw an error if it attempts to write to a file
+  that already exists, which is a safety measure to prevent accidental
+  data loss.
+
+- verbose:
+
+  Logical, If \`TRUE\`, prints messages.
+
+## Value
+
+None. Writes GeoTIFF files to \`output_dir\`.
+
+## Author
+
+Luis Osorio-Olvera, Gonzalo E. Pinilla-Buitrago

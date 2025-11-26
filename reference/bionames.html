@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,45 +70,45 @@ Default is 1:35, which prints all variable names.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">bionames</span><span class="op">(</span><span class="op">)</span>           <span class="co"># Print all bioclimatic variable names</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio01: Annual Mean Temperature</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio01: Mean Temperature of Units</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio02: Mean Diurnal Range</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio03: Isothermality</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio04: Temperature Seasonality</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio05: Max Temperature of Warmest Period</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio06: Min Temperature of Coldest Period</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio07: Temperature Annual Range</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio05: Max Temperature of Warmest Unit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio06: Min Temperature of Coldest Unit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio07: Temperature Range of Units</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio08: Mean Temperature of Wettest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio09: Mean Temperature of Driest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio10: Mean Temperature of Warmest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio11: Mean Temperature of Coldest Period</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio12: Annual Precipitation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio13: Precipitation of Wettest Period</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio14: Precipitation of Driest Period</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio12: Precipitation Sum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio13: Precipitation of Wettest Unit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio14: Precipitation of Driest Unit</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio15: Precipitation Seasonality</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio16: Precipitation of Wettest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio17: Precipitation of Driest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio18: Precipitation of Warmest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio19: Precipitation of Coldest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio20: Annual Mean Radiation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio21: Highest Period Radiation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio22: Lowest Period Radiation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio21: Highest Radiation Unit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio22: Lowest Radiation Unit</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio23: Radiation Seasonality</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio24: Radiation of Wettest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio25: Radiation of Driest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio26: Radiation of Warmest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio27: Radiation of Coldest Period</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio28: Annual Mean Moisture Content</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio29: Highest Period Moisture Content</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio30: Lowest Period Moisture Content</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio28: Mean Moisture Content of Units</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio29: Highest Moisture Content Unit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio30: Lowest Moisture Content Unit</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio31: Moisture Content Seasonality</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio32: Mean Moisture Content of Most Moist Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio33: Mean Moisture Content of Least Moist Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio34: Mean Moisture Content of Warmest Period</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> bio35: Mean Moisture Content of Coldest Period</span>
 <span class="r-in"><span><span class="fu">bionames</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">12</span><span class="op">)</span><span class="op">)</span> <span class="co"># Print names for variables 1, 5, and 12</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio01: Annual Mean Temperature</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio05: Max Temperature of Warmest Period</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> bio12: Annual Precipitation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio01: Mean Temperature of Units</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio05: Max Temperature of Warmest Unit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bio12: Precipitation Sum</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -120,7 +120,7 @@ Default is 1:35, which prints all variable names.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
