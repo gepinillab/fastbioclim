@@ -2,6 +2,8 @@
 
 ## fastbioclim 0.3.0
 
+CRAN release: 2025-11-26
+
 - Changing to qs2 instead of qs package
 - Update bionames
 - Fix name template

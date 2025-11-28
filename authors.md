@@ -11,7 +11,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/gepinillab/fastbioclim/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/gepinillab/fastbioclim/blob/v0.3.0/DESCRIPTION)
 
 Pinilla-Buitrago G, Osorio-Olvera L (2025). *fastbioclim: Scalable and
 Efficient Derivation of Bioclimatic Variables*. R package version 0.3.0,

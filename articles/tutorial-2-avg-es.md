@@ -47,7 +47,7 @@ library(fastbioclim)
 library(terra)
 ```
 
-    ## terra 1.8.80
+    ## terra 1.8.86
 
 ``` r
 library(progressr)
@@ -136,7 +136,7 @@ tmax_avg_static <- calculate_average(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/Rtmp7fwNHh/tmax_belize_static_avg
+    ## Processing complete. Final rasters are in: /tmp/Rtmpr0eJ72/tmax_belize_static_avg
 
 ``` r
 # El resultado es un SpatRaster con 12 capas
@@ -247,7 +247,7 @@ tmax_roll_avg <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/Rtmp7fwNHh/tmax_belize_rolling_avg
+    ## Processing complete. Final rasters are in: /tmp/Rtmpr0eJ72/tmax_belize_rolling_avg
 
 ``` r
 # ¿Cuántas capas hemos creado?
@@ -352,7 +352,7 @@ tmax_roll_custom <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/Rtmp7fwNHh/tmax_belize_custom_names
+    ## Processing complete. Final rasters are in: /tmp/Rtmpr0eJ72/tmax_belize_custom_names
 
 ``` r
 # Verifiquemos los nuevos nombres
