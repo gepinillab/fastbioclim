@@ -19,7 +19,7 @@ In climatic and environmental data analysis, a fundamental task is to summarize 
 
 The `fastbioclim` package offers two powerful and efficient functions for this task:
 
-1.  `calculate_average()`: Calculates a **static climatological average**. It answers the question: *"What is the average maximum temperature for all Januaries in my time series?"*.
+1.  `calculate_average()`: Calculates a **long-term climatological average**. It answers the question: *"What is the average maximum temperature for all Januaries in my time series?"*.
 2.  `calculate_roll()`: Calculates a **rolling climatological average**. It answers the question: *"How has the average for January evolved across different time windows?"*.
 
 In this tutorial, we will explore how to use both functions with a sample dataset of monthly maximum temperature for Belize.
@@ -72,13 +72,13 @@ print(tmax_bel)
 
 As we can see, `tmax_bel` is a `SpatRaster` with 468 layers, perfect for our examples.
 
-## 3. Static Climatological Averages with `calculate_average()`
+## 3. Long-term Climatological Averages with `calculate_average()`
 
 This is the most common way to calculate a climatology. We want to obtain 12 rasters: one for the average of all Januaries, one for all Februaries, and so on.
 
 The key argument here is `index`. It is a numeric vector that tells the function how to group the layers. For our first example, we will use 30 years of monthly data. To do this, we create an index that repeats the sequence `1, 2, ..., 12` thirty times.
 
-```{r static-average, message=TRUE}
+```{r longterm-average, message=TRUE}
 # We will use the first 360 layers for our 30-year example
 tmax_subset <- tmax_bel[[1:360]]
 
@@ -86,26 +86,26 @@ tmax_subset <- tmax_bel[[1:360]]
 monthly_index <- rep(1:12, times = 30)
 
 # Create a temporary directory to save the results
-output_path_static <- file.path(tempdir(), "tmax_belize_static_avg")
+output_path_longterm <- file.path(tempdir(), "tmax_belize_longterm_avg")
 
 # Run the function
 # progressr will display a progress bar if the operation is lengthy
-tmax_avg_static <- calculate_average(
+tmax_avg_longterm <- calculate_average(
   x = tmax_subset,
   index = monthly_index,
-  output_dir = output_path_static,
+  output_dir = output_path_longterm,
   overwrite = TRUE, # Allow overwriting if the directory already exists
   output_names = "tmax_avg" # Prefix for the output files
 )
 
 # The result is a SpatRaster with 12 layers
-print(tmax_avg_static)
+print(tmax_avg_longterm)
 
 # We can visualize the 12 monthly averages
-plot(tmax_avg_static)
+plot(tmax_avg_longterm)
 ```
 
-Done! `tmax_avg_static` now holds the 30-year climatology. The first layer is the average of all Januaries, the second of all Februaries, etc.
+Done! `tmax_avg_longterm` now holds the 30-year climatology. The first layer is the average of all Januaries, the second of all Februaries, etc.
 
 ## 4. Rolling Climatological Averages with `calculate_roll()`
 
@@ -195,7 +195,7 @@ This map shows how the average maximum temperature in January has changed over t
 ## Conclusion
 
 The `fastbioclim` package greatly simplifies the calculation of temporal summaries for raster time series.
-*   Use `calculate_average()` for static climatologies over the entire study period.
+*   Use `calculate_average()` for long-term climatologies over the entire study period.
 *   Use `calculate_roll()` to analyze trends and changes across moving time windows.
 
 Both functions are optimized for efficiency and can leverage parallel processing to handle large datasets.
