@@ -79,7 +79,7 @@ output_dir_custom <- file.path(tempdir(), "wind_ecuador")
 custom_stats <- derive_statistics(
   variable = wind_rast,
   stats = c("mean", "max", "stdev"),
-  prefix_variable = "wind",
+  output_prefix = "wind",
   output_dir = output_dir_custom,
   overwrite = TRUE
 )

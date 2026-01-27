@@ -6,7 +6,7 @@
 #' @param variable_path Path to primary variable rasters.
 #' @param n_units Integer, number of layers per variable.
 #' @param stats Character vector of stats to compute.
-#' @param prefix_variable Character, prefix for output files.
+#' @param output_prefix Character, prefix for output files.
 #' @param ... Other arguments including inter_variable_path, period_length, circular,
 #'   static index paths, etc.
 #' @return Character string: Path to the temporary directory containing
@@ -27,7 +27,7 @@ stats_fast <- function(variable_path,
   min_period_path = NULL,
   max_interactive_path = NULL,
   min_interactive_path = NULL,
-  prefix_variable = "var",
+  output_prefix = "var",
   suffix_inter_max = "inter_high",
   suffix_inter_min = "inter_low",
   user_region = NULL,
@@ -292,16 +292,16 @@ stats_fast <- function(variable_path,
 
   # --- 5. Define Intermediate File Paths (.qs2) ---
   all_stat_names_to_calc <- c()
-  if ("mean" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_mean"))
-  if ("max" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_max"))
-  if ("min" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_min"))
-  if ("sum" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_sum"))
-  if ("stdev" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_stdev"))
-  if ("cv_cli" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_cv"))
-  if ("max_period" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_max_period"))
-  if ("min_period" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_min_period"))
-  if ("max_inter" %in% inter_stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_", suffix_inter_max))
-  if ("min_inter" %in% inter_stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(prefix_variable, "_", suffix_inter_min))
+  if ("mean" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(output_prefix, "_mean"))
+  if ("max" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(output_prefix, "_max"))
+  if ("min" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(output_prefix, "_min"))
+  if ("sum" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(output_prefix, "_sum"))
+  if ("stdev" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(output_prefix, "_stdev"))
+  if ("cv_cli" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(output_prefix, "_cv"))
+  if ("max_period" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(output_prefix, "_max_period"))
+  if ("min_period" %in% stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(output_prefix, "_min_period"))
+  if ("max_inter" %in% inter_stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(output_prefix, "_", suffix_inter_max))
+  if ("min_inter" %in% inter_stats) all_stat_names_to_calc <- c(all_stat_names_to_calc, paste0(output_prefix, "_", suffix_inter_min))
 
   stats_output_qs_paths <- list()
   for (stat_name_full in all_stat_names_to_calc) {
@@ -317,10 +317,10 @@ stats_fast <- function(variable_path,
   }
   if (write_raw_vars) {
     raw_paths_list$variable <- file.path(stats_qs_dir, 
-      paste0("raw_", prefix_variable, "_", seq_len(ntiles), ".qs2"))
+      paste0("raw_", output_prefix, "_", seq_len(ntiles), ".qs2"))
     if (req_inter_variable_data && !is.null(inter_variable_path)) {
       raw_paths_list$inter_variable <- file.path(stats_qs_dir, 
-        paste0("raw_intervar_", prefix_variable, "_", seq_len(ntiles), ".qs2"))
+        paste0("raw_intervar_", output_prefix, "_", seq_len(ntiles), ".qs2"))
     }
   }
 
@@ -330,7 +330,7 @@ stats_fast <- function(variable_path,
   # Variables to export to parallel workers
   export_vars <- c("paths", "path_variables_map", "rtt", "ntiles", "stats", "inter_stats",
                   "n_units", "period", "period_stats", "circular",
-                  "prefix_variable", "suffix_inter_max", "suffix_inter_min",
+                  "output_prefix", "suffix_inter_max", "suffix_inter_min",
                   "req_inter_variable_data", "req_period_calculation_for_var", "req_period_calculation_for_inter_var",
                   "check_evar", "compute_periods", "var_periods",
                   "stats_output_qs_paths", "write_raw_vars", "stats_qs_dir", "user_region"
@@ -541,7 +541,7 @@ stats_fast <- function(variable_path,
     # Calculate Value
     if (current_stat_type == "mean") {
       result_value <- Rfast::rowmeans(tile_data_prepared$variable_matrix)
-      output_stat_name_full <- paste0(prefix_variable, "_mean")
+      output_stat_name_full <- paste0(output_prefix, "_mean")
     } else if (current_stat_type == "max") {
       idx_vec <- static_indices_for_tile$max_unit
       if (!is.null(idx_vec)) {
@@ -555,7 +555,7 @@ stats_fast <- function(variable_path,
       } else {
         result_value <- Rfast::rowMaxs(tile_data_prepared$variable_matrix, value = TRUE)
       }
-      output_stat_name_full <- paste0(prefix_variable, "_max")
+      output_stat_name_full <- paste0(output_prefix, "_max")
     } else if (current_stat_type == "min") {
       idx_vec <- static_indices_for_tile$min_unit
       if (!is.null(idx_vec)) {
@@ -568,20 +568,20 @@ stats_fast <- function(variable_path,
       } else {
         result_value <- Rfast::rowMins(tile_data_prepared$variable_matrix, value = TRUE)
       }
-      output_stat_name_full <- paste0(prefix_variable, "_min")
+      output_stat_name_full <- paste0(output_prefix, "_min")
     } else if (current_stat_type == "sum") {
       result_value <- Rfast::rowsums(tile_data_prepared$variable_matrix)
-      output_stat_name_full <- paste0(prefix_variable, "_sum")
+      output_stat_name_full <- paste0(output_prefix, "_sum")
     } else if (current_stat_type == "stdev") {
       result_value <- Rfast::rowVars(tile_data_prepared$variable_matrix, std = TRUE)
-      output_stat_name_full <- paste0(prefix_variable, "_stdev")
+      output_stat_name_full <- paste0(output_prefix, "_stdev")
     } else if (current_stat_type == "cv_cli") {
       # (stdev / (1 + mean)) * 100 ; if mean is 0, CV is 0 or NA depending on stdev.
       means <- Rfast::rowmeans(tile_data_prepared$variable_matrix)
       stdevs <- Rfast::rowVars(tile_data_prepared$variable_matrix, std = TRUE)
       result_value <- ifelse( (1 + means) == 0, 0, (stdevs / (1 + means)) * 100)
       result_value[is.na(means) | is.na(stdevs)] <- NA # Ensure NAs propagate
-      output_stat_name_full <- paste0(prefix_variable, "_cv")
+      output_stat_name_full <- paste0(output_prefix, "_cv")
     } else if (current_stat_type == "max_period") {
       # Use the period summary of the primary variable
       # `variable_period_summary` has columns: period_1, period_2, ..., min_idx, max_idx
@@ -594,7 +594,7 @@ stats_fast <- function(variable_path,
       if (any(valid_idx_mask)) {
         result_value[valid_idx_mask] <- tile_data_prepared$variable_period_summary[cbind(which(valid_idx_mask), idx_vec[valid_idx_mask])]
       }
-      output_stat_name_full <- paste0(prefix_variable, "_max_period")
+      output_stat_name_full <- paste0(output_prefix, "_max_period")
     } else if (current_stat_type == "min_period") {
       num_actual_period_cols <- ncol(tile_data_prepared$variable_period_summary) - 2
       idx_vec <- static_indices_for_tile$min_period %||% tile_data_prepared$variable_period_summary[, "min_idx"]
@@ -605,7 +605,7 @@ stats_fast <- function(variable_path,
       if (any(valid_idx_mask)) {
       result_value[valid_idx_mask] <- tile_data_prepared$variable_period_summary[cbind(which(valid_idx_mask), idx_vec[valid_idx_mask])]
       }
-      output_stat_name_full <- paste0(prefix_variable, "_min_period")
+      output_stat_name_full <- paste0(output_prefix, "_min_period")
     } else if (current_stat_type == "max_inter") {
       # Value of *variable's* period, for the period where *inter_variable* is max
       num_actual_period_cols_var <- ncol(tile_data_prepared$variable_period_summary) - 2
@@ -619,7 +619,7 @@ stats_fast <- function(variable_path,
       if (any(valid_idx_mask)) {
         result_value[valid_idx_mask] <- tile_data_prepared$variable_period_summary[cbind(which(valid_idx_mask), idx_period_of_inter_max[valid_idx_mask])]
       }
-      output_stat_name_full <- paste0(prefix_variable, "_", suffix_inter_max)
+      output_stat_name_full <- paste0(output_prefix, "_", suffix_inter_max)
     } else if (current_stat_type == "min_inter") {
       num_actual_period_cols_var <- ncol(tile_data_prepared$variable_period_summary) - 2
       idx_period_of_inter_min <- static_indices_for_tile$min_interactive %||% tile_data_prepared$inter_variable_period_summary[, "min_idx"]
@@ -631,7 +631,7 @@ stats_fast <- function(variable_path,
       if (any(valid_idx_mask)) {
         result_value[valid_idx_mask] <- tile_data_prepared$variable_period_summary[cbind(which(valid_idx_mask), idx_period_of_inter_min[valid_idx_mask])]
       }
-      output_stat_name_full <- paste0(prefix_variable, "_", suffix_inter_min)
+      output_stat_name_full <- paste0(output_prefix, "_", suffix_inter_min)
     }
 
     # Save the calculated statistic if successful

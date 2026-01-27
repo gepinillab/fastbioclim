@@ -19,7 +19,7 @@ stats_fast(
   min_period_path = NULL,
   max_interactive_path = NULL,
   min_interactive_path = NULL,
-  prefix_variable = "var",
+  output_prefix = "var",
   suffix_inter_max = "inter_high",
   suffix_inter_min = "inter_low",
   user_region = NULL,
@@ -37,7 +37,7 @@ stats_fast(
 
 \item{stats}{Character vector of stats to compute.}
 
-\item{prefix_variable}{Character, prefix for output files.}
+\item{output_prefix}{Character, prefix for output files.}
 
 \item{...}{Other arguments including inter_variable_path, period_length, circular,
 static index paths, etc.}

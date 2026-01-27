@@ -18,7 +18,7 @@ stats_terra(
   min_period = NULL,
   max_interactive = NULL,
   min_interactive = NULL,
-  prefix_variable = "var",
+  output_prefix = "var",
   suffix_inter_max = "inter_high",
   suffix_inter_min = "inter_low",
   gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
@@ -33,7 +33,7 @@ stats_terra(
 
 \item{stats}{Character vector of stats to compute.}
 
-\item{prefix_variable}{Character, prefix for output layer names.}
+\item{output_prefix}{Character, prefix for output layer names.}
 
 \item{...}{Other arguments including inter_variable, period_length, circular,
 static index SpatRasters, etc.}

@@ -9,7 +9,7 @@ derive_statistics(
   stats = c("mean", "max", "min"),
   inter_variable = NULL,
   inter_stats = NULL,
-  prefix_variable = "var",
+  output_prefix = "var",
   suffix_inter_max = "inter_high",
   suffix_inter_min = "inter_low",
   output_dir = tempdir(),
@@ -37,8 +37,8 @@ variable. Supported: `"mean"`, `"max"`, `"min"`, `"sum"`, `"stdev"`, `"cv_cli"`,
 \item{inter_stats}{(Optional) A character vector of interactive statistics to compute.
 Requires `inter_variable`. Supported: `"max_inter"`, `"min_inter"`.}
 
-\item{prefix_variable}{A character string used as the prefix for all output file
-names (e.g., `prefix_variable = "wind"` results in "wind_mean.tif", "wind_max.tif").}
+\item{output_prefix}{A character string used as the prefix for all output file
+names (e.g., `output_prefix = "wind"` results in "wind_mean.tif", "wind_max.tif").}
 
 \item{suffix_inter_max}{Character. Suffix for the "max_inter" statistic name. Default: "inter_high".}
 
