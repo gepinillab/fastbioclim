@@ -214,6 +214,20 @@ derive_bioclim <- function(bios,
 
   full_raster_stack <- do.call(c, all_input_rasters)
 
+  # Check if input follows the standard 12-month framework
+  # We check the first non-null climate input to determine layer count
+  if (length(input_rasters) > 0) {
+    n_layers <- terra::nlyr(input_rasters[[1]])
+    
+    if (n_layers != 12) {
+      message(paste0(
+        "Input data has ", n_layers, " layers. The standard Bioclim framework is based on 12 monthly layers.\n",
+        "Calculated variables will represent the specific temporal unit of the input (e.g., weeks, days) ",
+        "rather than the strict standard (e.g., bio05: 'Warmest Week' vs 'Warmest Month')."
+      ), call. = FALSE)
+    }
+  }
+
   # --- 4. The Multi-Stage Decision Logic ---
   use_terra_workflow <- FALSE
   if (method == "terra") {
