@@ -191,7 +191,7 @@ names(eneros_moviles) <- paste0("Enero", 1:20)
 plot(eneros_moviles[[20]] - eneros_moviles[[1]])
 ```
 
-Este gráfico nos muestra cómo ha cambiado la temperatura máxima promedio de enero en lso últimos años, permitiéndonos identificar tendencias de calentamiento o enfriamiento. Es importante mencionar que las capas usadas de temperatura máxima están multiplicadas por 10. Por lo cual, existe partes con cambios de hast 0.8 grados centigrados.
+Este gráfico nos muestra cómo ha cambiado la temperatura máxima promedio de enero en lso últimos años, permitiéndonos identificar tendencias de calentamiento o enfriamiento. Es importante mencionar que las capas usadas de temperatura máxima están multiplicadas por 10. Por lo cual, existe partes con cambios de hast 0.6 grados centigrados.
 
 ## Conclusión
 

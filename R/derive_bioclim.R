@@ -173,19 +173,19 @@ derive_bioclim <- function(bios,
   if (!overwrite) {
     if (length(existing_files) > 0) {
       stop(
-        c("Output files already exist and `overwrite` is FALSE.",
-          "i" = "The following files would be overwritten:",
+        c("Output files already exist and `overwrite` is FALSE. ",
+          "i" = "The following files would be overwritten: ",
           "*" = paste(basename(existing_files), collapse = ", "),
-          "i" = "To proceed, set `overwrite = TRUE` or remove these files manually."))
+          "i" = "\nTo proceed, set `overwrite = TRUE` or remove these files manually."))
     }
   } else {
     if (length(existing_files) > 0) {
       warning(
-        c("Overwriting existing files in the output directory.",
-          "i" = "The following files will be replaced:",
+        c("Overwriting existing files in the output directory. ",
+          "i" = "The following files will be replaced: ",
           "*" = paste(basename(existing_files), collapse = ", "),
-          "!" = "CAUTION: If this run uses a different context (e.g., a new spatial extent or time period) than a previous run, you will be altering the source files for those results (whcih could be another R object already created).",
-          "i" = "To ensure data integrity, it is strongly recommended to use a new, empty `output_dir` for each distinct analysis (e.g., extent or period)."
+          "!" = "\nCAUTION: If this run uses a different context (e.g., a new spatial extent or time period) than a previous run, you will be altering the source files for those results (which could be another R object already created).",
+          "i" = "\nTo ensure data integrity, it is strongly recommended to use a new, empty `output_dir` for each distinct analysis (e.g., extent or period)."
         )
       )
     }
@@ -287,7 +287,7 @@ derive_bioclim <- function(bios,
   } else { # Tiled workflow
     if (any(unlist(sapply(all_input_rasters, terra::inMemory, simplify = FALSE)))) {
       stop(
-        c("The 'tiled' workflow requires all input SpatRasters (including static indices) to point to files on disk.",
+        c("The 'tiled' workflow requires all input SpatRasters (including static indices) to point to files on disk. ",
           "i" = "Please save any in-memory rasters to disk first or use `method = 'terra'` if they are small enough."))
     }
     if (verbose) message("Extracting file paths from SpatRasters for tiled workflow.")

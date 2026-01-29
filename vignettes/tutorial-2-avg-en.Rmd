@@ -190,7 +190,7 @@ names(rolling_januaries) <- paste0("January_window_", 1:20)
 plot(rolling_januaries[[20]] - rolling_januaries[[1]])
 ```
 
-This map shows how the average maximum temperature in January has changed over the last years, allowing us to identify warming or cooling trends. It's important to note that the temperature layers used are scaled by 10. Therefore, some areas show changes of up to 0.8 degrees Celsius.
+This map shows how the average maximum temperature in January has changed over the last years, allowing us to identify warming or cooling trends. It's important to note that the temperature layers used are scaled by 10. Therefore, some areas show changes of up to 0.6 degrees Celsius.
 
 ## Conclusion
 
