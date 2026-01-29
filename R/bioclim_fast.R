@@ -10,7 +10,9 @@
 #'   indices (e.g., `warmest_period_path`).
 #' @param period_length Integer, length of a calculation period.
 #' @param circular Logical, whether to wrap periods.
-#' @param user_region An `sf` or `SpatVector` object for the area of interest.
+#' @param user_region (Optional) An `sf` or `terra::SpatVector` object. If provided,
+#'   the input raster `x` is clipped and masked to this region before processing.
+#'   The output raster's extent is the same of the `user_region`.
 #' @param tile_degrees Numeric, size of processing tiles.
 #' @param output_dir Character, path for temporary files.
 #' @param verbose Logical, If `TRUE`, prints messages.

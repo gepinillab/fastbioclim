@@ -2,17 +2,17 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio23_terra}
 \alias{bio23_terra}
-\title{bio23_terra: Solar Radiation Seasonality (CV)}
+\title{bio23_terra: Radiation Seasonality (CV)}
 \usage{
 bio23_terra(srad)
 }
 \arguments{
-\item{srad}{Matrix containing solar radiation values for each unit.}
+\item{srad}{A `SpatRaster` object where each layer represents solar radiation for a temporal unit.}
 }
 \value{
-spatRaster with "bio23".
+A single-layer `SpatRaster` with the solar radiation seasonality, named "bio23".
 }
 \description{
-Calculates coefficient of variation in solar radiation across units.
+Calculates the Coefficient of Variation (CV) of solar radiation across all layers.
 }
 \keyword{internal}

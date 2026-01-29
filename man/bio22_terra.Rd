@@ -2,17 +2,19 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio22_terra}
 \alias{bio22_terra}
-\title{bio22_terra: Lowest Solar Radiation Unit}
+\title{bio22_terra: Lowest Radiation Unit}
 \usage{
 bio22_terra(srad, low_rad_unit = NULL)
 }
 \arguments{
-\item{srad}{spatRaster of solar radiation values for each unit.}
+\item{srad}{A `SpatRaster` object where each layer represents solar radiation for a temporal unit.}
+
+\item{low_rad_unit}{(Optional) A single-layer `SpatRaster` where cell values are integers indicating a static layer index (1-based). If `NULL`, the overall minimum across all layers is calculated.}
 }
 \value{
-spatRaster with "bio22".
+A single-layer `SpatRaster` with the minimum solar radiation, named "bio22".
 }
 \description{
-Identifies lowest solar radiation unit, potentially using a static index.
+Identifies the lowest solar radiation of the unit with the lowest value.
 }
 \keyword{internal}

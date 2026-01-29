@@ -7,14 +7,14 @@
 bio16_terra(wet, wettest_period)
 }
 \arguments{
-\item{wet}{spatRaster of precipitation period sums.}
+\item{wet}{A `SpatRaster` object where each layer is the precipitation sum for a rolling period.}
 
-\item{wettest_period}{Vector indicating the index (1-based) of the wettest period.}
+\item{wettest_period}{A single-layer `SpatRaster` where cell values are integers indicating the layer index (1-based) of the wettest period.}
 }
 \value{
-spatRaster with "bio16".
+A single-layer `SpatRaster` with the precipitation of the wettest period, named "bio16".
 }
 \description{
-Calculates precipitation sum of the period with the highest precipitation sum.
+Calculates the total precipitation of the specific rolling period identified as the wettest.
 }
 \keyword{internal}

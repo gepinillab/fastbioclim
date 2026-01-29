@@ -7,12 +7,12 @@
 bio12_terra(prcp)
 }
 \arguments{
-\item{prcp}{spatRaster of precipitation values for each unit.}
+\item{prcp}{A `SpatRaster` object where each layer represents precipitation for a temporal unit.}
 }
 \value{
-spatRaster with "bio12".
+A single-layer `SpatRaster` with the total precipitation, named "bio12".
 }
 \description{
-Calculates the sum of precipitation values across all units.
+Calculates the total precipitation (sum) across all temporal units (layers).
 }
 \keyword{internal}

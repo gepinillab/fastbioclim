@@ -7,18 +7,21 @@
 bio09_fast(tperiod, pperiod_min_idx, period_length, cell)
 }
 \arguments{
-\item{tperiod}{Matrix of temperature period sums.}
+\item{tperiod}{A numeric **matrix** of temperature values (means) for each rolling period. 
+**Rows** represent spatial units (cells). **Columns** represent the rolling periods.}
 
-\item{pperiod_min_idx}{Vector indicating the index (1-based) of the driest period.}
+\item{pperiod_min_idx}{An integer **vector** indicating the column index (1-based) of the driest period for each row. 
+Its length must be exactly equal to the number of rows in `tperiod`.}
 
-\item{period_length}{Integer. Number of units per period.}
+\item{period_length}{A single **integer** representing the number of units per period.}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tperiod`.}
 }
 \value{
-Matrix with "bio09", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio09" (mean temperature of driest period) and "cell".
 }
 \description{
-Calculates mean temperature of the period with the lowest precipitation sum.
+Calculates the mean temperature of the specific rolling period identified as the driest (lowest precipitation).
 }
 \keyword{internal}

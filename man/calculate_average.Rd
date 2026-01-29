@@ -31,7 +31,9 @@ like "avg_unit_1" are generated.}
 \item{output_dir}{The directory where the final averaged raster layers
 will be saved as GeoTIFF files.}
 
-\item{user_region}{(Optional) An `sf` or `terra::SpatVector` object for clipping.}
+\item{user_region}{(Optional) An `sf` or `terra::SpatVector` object. If provided,
+the input raster `x` is clipped and masked to this region before processing.
+The output raster's extent is the same of the `user_region`.}
 
 \item{method}{The processing method: "auto", "tiled", or "terra".}
 
@@ -44,10 +46,42 @@ will be saved as GeoTIFF files.}
 \item{verbose}{Logical, If `TRUE`, prints messages.}
 }
 \value{
-A `terra::SpatRaster` object pointing to the newly created files.
+A `terra::SpatRaster` object pointing to the newly created files, with the following characteristics:
+  \itemize{
+    \item **Number of layers:** The number of layers will be equal to the number of unique values in the `index` argument.
+    \item **Layer names:** Layer names are determined by the `output_names` argument. If `NULL`, they will be generated automatically (e.g., 'avg_unit_01', 'avg_unit_02', etc.).
+    \item **Extent:** If `user_region` is provided, the extent of the output raster will be clipped to match that region. Otherwise, the extent will be the same as the input raster `x`.
+  }
 }
 \description{
 Calculates temporal averages for a multi-layer SpatRaster.
 This function serves as a smart wrapper, automatically selecting between
 an in-memory (`terra`) or out-of-core (`tiled`) workflow based on data size.
+}
+\examples{
+\donttest{
+# The example raster "prcp.tif" is included in the package's `inst/extdata` directory.
+# Load example data from Lesotho (Montlhy time series from 2016-01 to 2020-12)
+raster_path <- system.file("extdata", "prcp.tif", package = "fastbioclim")
+# Load the SpatRaster from the file
+prcp_ts <- terra::rast(raster_path)
+# The data has 60 layers (5 years of monthly data), so we create an
+# index to group layers by month (1 to 12).
+monthly_index <- rep(1:12, times = 5)
+# Define a temporary directory for the output files
+output_dir <- file.path(tempdir(), "monthly_prcp_avg")
+# Run the calculate_average function
+monthly_avg <- calculate_average(
+  x = prcp_ts,
+  index = monthly_index,
+  output_names = "prcp_avg",
+  output_dir = output_dir,
+  overwrite = TRUE,
+  verbose = FALSE
+)
+# Print the resulting SpatRaster summary
+print(monthly_avg)
+# Clean up the created files
+unlink(output_dir, recursive = TRUE)
+}
 }

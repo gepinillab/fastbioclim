@@ -31,7 +31,9 @@ bioclim_fast(
 
 \item{circular}{Logical, whether to wrap periods.}
 
-\item{user_region}{An `sf` or `SpatVector` object for the area of interest.}
+\item{user_region}{(Optional) An `sf` or `terra::SpatVector` object. If provided,
+the input raster `x` is clipped and masked to this region before processing.
+The output raster's extent is the same of the `user_region`.}
 
 \item{tile_degrees}{Numeric, size of processing tiles.}
 

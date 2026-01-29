@@ -2,17 +2,17 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio20_terra}
 \alias{bio20_terra}
-\title{bio20_terra: Mean Solar Radiation of Units}
+\title{bio20_terra: Mean Radiation}
 \usage{
 bio20_terra(srad)
 }
 \arguments{
-\item{srad}{spatRaster of average solar radiation for each unit.}
+\item{srad}{A `SpatRaster` object where each layer represents solar radiation for a temporal unit.}
 }
 \value{
-spatRaster with "bio20".
+A single-layer `SpatRaster` with the mean solar radiation, named "bio20".
 }
 \description{
-Calculates mean solar radiation across all temporal units.
+Calculates mean solar radiation across all temporal units (layers).
 }
 \keyword{internal}

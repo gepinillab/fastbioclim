@@ -2,21 +2,24 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio27_fast}
 \alias{bio27_fast}
-\title{bio27_fast: Solar Radiation of Coldest Period}
+\title{bio27_fast: Radiation of Coldest Period}
 \usage{
 bio27_fast(speriod, tperiod_min_idx, cell)
 }
 \arguments{
-\item{speriod}{Matrix of solar radiation period means (output from `var_periods`).}
+\item{speriod}{A numeric **matrix** of solar radiation values (means) for each rolling period. 
+**Rows** represent spatial units (cells). **Columns** represent the rolling periods.}
 
-\item{tperiod_min_idx}{Vector indicating the index (1-based) of the coldest period.}
+\item{tperiod_min_idx}{An integer **vector** indicating the column index (1-based) of the coldest period for each row. 
+Its length must be exactly equal to the number of rows in `speriod`.}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.}
 }
 \value{
-Matrix with "bio27", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+  The columns are named "bio27" (mean solar radiation of coldest period) and "cell".
 }
 \description{
-Calculates solar radiation mean of the period with the lowest temperature mean.
+Calculates the mean solar radiation of the specific rolling period identified as the coldest (lowest temperature).
 }
 \keyword{internal}

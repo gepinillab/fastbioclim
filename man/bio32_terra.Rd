@@ -2,19 +2,19 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio32_terra}
 \alias{bio32_terra}
-\title{bio32_terra: Moisture of the Most Moist Period}
+\title{bio32_terra: Mean Moisture of Most Moist Period}
 \usage{
 bio32_terra(pmois, high_mois_period)
 }
 \arguments{
-\item{pmois}{spatRaster of moisture period means.}
+\item{pmois}{A `SpatRaster` object where each layer is the mean moisture for a rolling period.}
 
-\item{high_mois_period}{Vector indicating the index (1-based) of the most moist period.}
+\item{high_mois_period}{A single-layer `SpatRaster` where cell values are integers indicating the layer index (1-based) of the most moist period.}
 }
 \value{
-spatRaster with "bio32".
+A single-layer `SpatRaster` with the moisture of the most moist period, named "bio32".
 }
 \description{
-Calculates moisture mean of the most moist period.
+Calculates the mean moisture of the specific rolling period identified as the most moist.
 }
 \keyword{internal}

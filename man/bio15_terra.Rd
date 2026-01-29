@@ -7,15 +7,15 @@
 bio15_terra(prcp)
 }
 \arguments{
-\item{prcp}{Matrix containing precipitation values for each unit.}
+\item{prcp}{A `SpatRaster` object where each layer represents precipitation for a temporal unit.}
 }
 \value{
-spatRaster with "bio15".
+A single-layer `SpatRaster` with the precipitation seasonality, named "bio15".
 }
 \description{
-Calculates coefficient of variation in precipitation across units.
+Calculates the Coefficient of Variation (CV) of precipitation across all layers.
 }
 \note{
-The "1 +" is to avoid strange CVs for areas where mean rainfaill is < 1)
+The formula adds 1 to the mean to avoid division by zero in arid areas.
 }
 \keyword{internal}

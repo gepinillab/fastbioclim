@@ -7,14 +7,14 @@
 bio03_terra(bio02, bio07)
 }
 \arguments{
-\item{bio02}{spatRaster of bio02 values.}
+\item{bio02}{A single-layer `SpatRaster` of Mean Diurnal Range (Bio02).}
 
-\item{bio07}{spatRaster of bio07 values.}
+\item{bio07}{A single-layer `SpatRaster` of Temperature Range (Bio07).}
 }
 \value{
-spatRaster with "bio03".
+A single-layer `SpatRaster` with the calculated isothermality, named "bio03".
 }
 \description{
-Calculates (bio02 / bio07) * 100.
+Calculates Isothermality, defined as (bio02 / bio07) * 100.
 }
 \keyword{internal}

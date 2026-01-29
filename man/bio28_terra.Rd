@@ -2,17 +2,17 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio28_terra}
 \alias{bio28_terra}
-\title{bio28_terra: Mean Moisture of Units}
+\title{bio28_terra: Mean Moisture}
 \usage{
 bio28_terra(mois)
 }
 \arguments{
-\item{mois}{spatRaster of average moisture for each unit.}
+\item{mois}{A `SpatRaster` object where each layer represents moisture for a temporal unit.}
 }
 \value{
-spatRaster with "bio28".
+A single-layer `SpatRaster` with the mean moisture, named "bio28".
 }
 \description{
-Calculates mean moisture across all temporal units.
+Calculates mean moisture across all temporal units (layers).
 }
 \keyword{internal}

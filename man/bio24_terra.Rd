@@ -2,19 +2,19 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio24_terra}
 \alias{bio24_terra}
-\title{bio24_terra: Solar Radiation of Wettest Period}
+\title{bio24_terra: Radiation of Wettest Period}
 \usage{
 bio24_terra(prad, wettest_period)
 }
 \arguments{
-\item{prad}{spatRaster of solar radiation period means.}
+\item{prad}{A `SpatRaster` object where each layer is the mean solar radiation for a rolling period.}
 
-\item{wettest_period}{Vector indicating the index (1-based) of the wettest period.}
+\item{wettest_period}{A single-layer `SpatRaster` where cell values are integers indicating the layer index (1-based) of the wettest period.}
 }
 \value{
-spatRaster with "bio24".
+A single-layer `SpatRaster` with the solar radiation of the wettest period, named "bio24".
 }
 \description{
-Calculates solar radiation mean of the period with the highest precipitation sum.
+Calculates the mean solar radiation of the specific rolling period identified as the wettest.
 }
 \keyword{internal}

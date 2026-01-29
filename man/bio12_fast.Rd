@@ -7,14 +7,16 @@
 bio12_fast(prcp, cell)
 }
 \arguments{
-\item{prcp}{Matrix of precipitation values for each unit.}
+\item{prcp}{A numeric **matrix** of precipitation values. **Rows** represent spatial units (cells) 
+and **columns** represent temporal units (e.g., months).}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `prcp`.}
 }
 \value{
-Matrix with "bio12", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio12" (total precipitation) and "cell".
 }
 \description{
-Calculates the sum of precipitation values across all units.
+Calculates the total precipitation (sum) across all temporal units (e.g., 12 months).
 }
 \keyword{internal}

@@ -7,16 +7,42 @@
 bio05_fast(tmax, cell, index_vector = NULL)
 }
 \arguments{
-\item{tmax}{Matrix of maximum temperatures for each unit.}
+\item{tmax}{A numeric **matrix** of maximum temperatures. **Rows** represent spatial units (cells) 
+and **columns** represent temporal units (e.g., months).}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tmax`.}
 
-\item{index_vector}{Optional vector of unit indices (1-based). If provided, extracts Tmax for that unit. If NULL, finds overall max Tmax.}
+\item{index_vector}{(Optional) An integer **vector** of column indices (1-based). 
+If provided, its length must be exactly equal to the number of rows in `tmax`. 
+Values must be between 1 and `ncol(tmax)`. 
+This is typically used to extract the Tmax of the specific month identified as the warmest by another metric.}
 }
 \value{
-Matrix with "bio05", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio05" (the maximum temperature) and "cell".
 }
 \description{
-Identifies max temperature of the warmest unit, potentially using a static index.
+Identifies the maximum temperature of the warmest temporal unit. 
+  If `index_vector` is `NULL`, it calculates the row-wise maximum. 
+  If `index_vector` is provided, it extracts the value from the specific column index for each row.
+}
+\details{
+This function calculates bio05 following the standard definition used by WorldClim 
+  (Hijmans et al., 2005) and ANUCLIM 6.1 (Xu & Hutchinson, 2013), which is the single highest value from all 
+  maximum temperature layers (a "max of maxes"). It does not use mean 
+  temperature to first identify the warmest month.
+}
+\references{
+Hijmans, R.J., Cameron, S.E., Parra, J.L., Jones, P.G. and Jarvis, A. (2005). 
+Very high resolution interpolated climate surfaces for global land areas. 
+International Journal of Climatology, 25(15), 1965-1978.
+
+O'Donnell, M. S., & Ignizio, D. A. (2012). Bioclimatic predictors for 
+supporting ecological applications in the conterminous United States. 
+U.S. Geological Survey Data Series 691.
+
+Xu, T., & Hutchinson, M. F. (2013). New developments and applications in the 
+ANUCLIM spatial climatic and bioclimatic modelling package. Environmental 
+Modelling & Software, 40, 267-279.
 }
 \keyword{internal}

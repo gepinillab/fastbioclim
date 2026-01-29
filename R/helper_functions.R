@@ -20,11 +20,27 @@ cv_cli <- function(prcp) {
   return(cv)
 }
 
-#' Windows
+#' @title Create Moving Window Summaries of a SpatRaster
+#' @description
+#' This internal helper function calculates moving window summaries (periods)
+#' across the layers of a SpatRaster. It generates a new SpatRaster where each
+#' layer represents the sum of the layers from the original raster that fall
+#' within a specific window. The `circular` argument controls whether the
+#' windows "wrap around" from the end of the time series to the beginning.
+#' @param x A `terra::SpatRaster` object where each layer represents a temporal unit.
+#' @param period An integer specifying the size (number of layers) of the moving
+#'   window. For monthly data (`nlyr(x) = 12`), a `period` of 3 corresponds to
+#'   a quarter.
+#' @param circular A logical. If `TRUE`, the window wraps from the last layer to
+#'   the first. If `FALSE`, windows are only created where they fit completely
+#'   within the original sequence of layers.
 #'
-#' @param x spatRaster
-#' @param period Length of period. Default is three. If you are using months. It will be a quarter.
-#' @param circular logical Include first month/weeks?
+#' @return A `terra::SpatRaster` object where each layer is the pixel-wise
+#'   sum for a corresponding period.
+#'   \itemize{
+#'     \item If `circular = TRUE`, the output has the same number of layers as the input `x`.
+#'     \item If `circular = FALSE`, the output has `nlyr(x) - period + 1` layers.
+#'   }
 #' @keywords internal
 get_window <- function(x, period, circular)  {
   lng <- terra::nlyr(x)

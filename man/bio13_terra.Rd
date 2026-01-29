@@ -7,12 +7,14 @@
 bio13_terra(prcp, wettest_unit = NULL)
 }
 \arguments{
-\item{prcp}{spatRaster of precipitation values for each unit.}
+\item{prcp}{A `SpatRaster` object where each layer represents precipitation for a temporal unit.}
+
+\item{wettest_unit}{(Optional) A single-layer `SpatRaster` where cell values are integers indicating a static layer index (1-based) from which to extract the value. If `NULL` (the default), the overall maximum across all layers is calculated.}
 }
 \value{
-spatRaster with "bio13".
+A single-layer `SpatRaster` with the precipitation of the wettest unit, named "bio13".
 }
 \description{
-Identifies precipitation of the wettest unit, potentially using a static index.
+Identifies the precipitation of the wettest temporal unit (layer).
 }
 \keyword{internal}

@@ -7,12 +7,14 @@
 bio14_terra(prcp, driest_unit = NULL)
 }
 \arguments{
-\item{prcp}{spatRaster of precipitation values for each unit.}
+\item{prcp}{A `SpatRaster` object where each layer represents precipitation for a temporal unit.}
+
+\item{driest_unit}{(Optional) A single-layer `SpatRaster` where cell values are integers indicating a static layer index (1-based) from which to extract the value. If `NULL` (the default), the overall minimum across all layers is calculated.}
 }
 \value{
-spatRaster with "bio14".
+A single-layer `SpatRaster` with the precipitation of the driest unit, named "bio14".
 }
 \description{
-Identifies precipitation of the driest unit, potentially using a static index.
+Identifies the precipitation of the driest temporal unit (layer).
 }
 \keyword{internal}

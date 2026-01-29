@@ -2,19 +2,22 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio01_fast}
 \alias{bio01_fast}
-\title{bio01_fast: Mean Temperature of Units}
+\title{bio01_fast: Mean Temperature}
 \usage{
 bio01_fast(tavg, cell)
 }
 \arguments{
-\item{tavg}{Matrix of average temperatures for each unit.}
+\item{tavg}{A numeric **matrix** where **rows** represent spatial units (cells) 
+and **columns** represent temporal units (e.g., 12 months).}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A numeric or character **vector** of original cell IDs. 
+Its length must be exactly equal to the number of rows in `tavg`.}
 }
 \value{
-Matrix with columns: "bio01", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio01" (the calculated mean) and "cell" (the IDs).
 }
 \description{
-Calculates mean temperature across all temporal units.
+Calculates mean temperature across all temporal units (usually 12 months).
 }
 \keyword{internal}

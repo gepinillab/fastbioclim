@@ -7,16 +7,42 @@
 bio06_fast(tmin, cell, index_vector = NULL)
 }
 \arguments{
-\item{tmin}{Matrix of minimum temperatures for each unit.}
+\item{tmin}{A numeric **matrix** of minimum temperatures. **Rows** represent spatial units (cells) 
+and **columns** represent temporal units (e.g., months).}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tmin`.}
 
-\item{index_vector}{Optional vector of unit indices (1-based). If provided, extracts Tmin for that unit. If NULL, finds overall min Tmin.}
+\item{index_vector}{(Optional) An integer **vector** of column indices (1-based). 
+If provided, its length must be exactly equal to the number of rows in `tmin`. 
+Values must be between 1 and `ncol(tmin)`. 
+This is typically used to extract the Tmin of the specific month identified as the coldest by another metric.}
 }
 \value{
-Matrix with "bio06", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio06" (the minimum temperature) and "cell".
 }
 \description{
-Identifies min temperature of the coldest unit, potentially using a static index.
+Identifies the minimum temperature of the coldest temporal unit. 
+  If `index_vector` is `NULL`, it calculates the row-wise minimum. 
+  If `index_vector` is provided, it extracts the value from the specific column index for each row.
+}
+\details{
+This function calculates bio06 following the standard definition used by WorldClim 
+  (Hijmans et al., 2005) and ANUCLIM 6.1 (Xu & Hutchinson, 2013), which is the single lowest value from all 
+  minimum temperature layers (a "min of mins"). It does not use mean 
+  temperature to first identify the coldest month.
+}
+\references{
+Hijmans, R.J., Cameron, S.E., Parra, J.L., Jones, P.G. and Jarvis, A. (2005). 
+Very high resolution interpolated climate surfaces for global land areas. 
+International Journal of Climatology, 25(15), 1965-1978.
+
+O'Donnell, M. S., & Ignizio, D. A. (2012). Bioclimatic predictors for 
+supporting ecological applications in the conterminous United States. 
+U.S. Geological Survey Data Series 691.
+
+Xu, T., & Hutchinson, M. F. (2013). New developments and applications in the 
+ANUCLIM spatial climatic and bioclimatic modelling package. Environmental 
+Modelling & Software, 40, 267-279.
 }
 \keyword{internal}

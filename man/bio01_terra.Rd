@@ -2,17 +2,17 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio01_terra}
 \alias{bio01_terra}
-\title{bio01_terra: Mean Temperature of Units}
+\title{bio01_terra: Mean Temperature}
 \usage{
 bio01_terra(tavg)
 }
 \arguments{
-\item{tavg}{spatRaster of average temperatures for each unit.}
+\item{tavg}{A `SpatRaster` object where each layer represents average temperature for a temporal unit (e.g., 12 months).}
 }
 \value{
-spatRaster with "bio01".
+A single-layer `SpatRaster` with the calculated mean temperature, named "bio01".
 }
 \description{
-Calculates mean temperature across all temporal units.
+Calculates mean temperature across all temporal units (layers).
 }
 \keyword{internal}

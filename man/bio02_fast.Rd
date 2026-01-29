@@ -7,16 +7,19 @@
 bio02_fast(tmin, tmax, cell)
 }
 \arguments{
-\item{tmin}{Matrix of minimum temperatures for each unit.}
+\item{tmin}{A numeric **matrix** of minimum temperatures. **Rows** represent spatial units (cells) 
+and **columns** represent temporal units. Must have the exact same dimensions as `tmax`.}
 
-\item{tmax}{Matrix of maximum temperatures for each unit.}
+\item{tmax}{A numeric **matrix** of maximum temperatures. **Rows** represent spatial units (cells) 
+and **columns** represent temporal units. Must have the exact same dimensions as `tmin`.}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tmin` and `tmax`.}
 }
 \value{
-Matrix with "bio02", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+  The columns are named "bio02" (mean diurnal range) and "cell".
 }
 \description{
-Calculates the mean of (tmax - tmin) across all temporal units.
+Calculates the mean of the diurnal temperature ranges (tmax - tmin) across all temporal units.
 }
 \keyword{internal}

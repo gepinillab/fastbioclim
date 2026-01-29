@@ -2,21 +2,24 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio35_fast}
 \alias{bio35_fast}
-\title{bio35_fast: Moisture of Coldest Period}
+\title{bio35_fast: Mean Moisture of Coldest Period}
 \usage{
 bio35_fast(speriod, tperiod_min_idx, cell)
 }
 \arguments{
-\item{speriod}{Matrix of moisture period means (output from `var_periods`).}
+\item{speriod}{A numeric **matrix** of moisture values (means) for each rolling period. 
+**Rows** represent spatial units (cells). **Columns** represent the rolling periods.}
 
-\item{tperiod_min_idx}{Vector indicating the index (1-based) of the coldest period.}
+\item{tperiod_min_idx}{An integer **vector** indicating the column index (1-based) of the coldest period for each row. 
+Its length must be exactly equal to the number of rows in `speriod`.}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.}
 }
 \value{
-Matrix with "bio35", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+  The columns are named "bio35" (mean moisture of coldest period) and "cell".
 }
 \description{
-Calculates moisture mean of the period with the lowest temperature mean.
+Calculates the mean moisture of the specific rolling period identified as the coldest (lowest temperature).
 }
 \keyword{internal}

@@ -2,21 +2,24 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio25_fast}
 \alias{bio25_fast}
-\title{bio25_fast: Solar Radiation of Driest Period}
+\title{bio25_fast: Radiation of Driest Period}
 \usage{
 bio25_fast(speriod, pperiod_min_idx, cell)
 }
 \arguments{
-\item{speriod}{Matrix of solar radiation period means (output from `var_periods`).}
+\item{speriod}{A numeric **matrix** of solar radiation values (means) for each rolling period. 
+**Rows** represent spatial units (cells). **Columns** represent the rolling periods.}
 
-\item{pperiod_min_idx}{Vector indicating the index (1-based) of the driest period.}
+\item{pperiod_min_idx}{An integer **vector** indicating the column index (1-based) of the driest period for each row. 
+Its length must be exactly equal to the number of rows in `speriod`.}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.}
 }
 \value{
-Matrix with "bio25", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+  The columns are named "bio25" (mean solar radiation of driest period) and "cell".
 }
 \description{
-Calculates solar radiation mean of the period with the highest precipitation sum.
+Calculates the mean solar radiation of the specific rolling period identified as the driest (lowest precipitation).
 }
 \keyword{internal}
