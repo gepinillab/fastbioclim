@@ -3,6 +3,8 @@
 # Gonzalo E. Pinilla-Buitrago.
 # # tests/testthat/test-calculate_average.R
 
+# # tests/testthat/test-calculate_average.R
+
 # Create a temporary directory for all test outputs
 test_output_dir <- file.path(tempdir(), "test_calc_avg_mockery")
 dir.create(test_output_dir, showWarnings = FALSE, recursive = TRUE)
@@ -51,7 +53,7 @@ test_that("Terra (in-memory) workflow is correctly dispatched", {
   m_rast <- mock(rast()) 
   
   # We use stub() to replace BOTH functions for the duration of this test.
-  stub(calculate_average, "average_terra", m_avg_terra)
+  stub(calculate_average, "aggregate_terra", m_avg_terra)
   stub(calculate_average, "terra::rast", m_rast) # <-- THE FIX
 
   # Now, we run the function. It will complete without error.
@@ -89,15 +91,16 @@ test_that("Tiled (out-of-core) workflow is correctly dispatched", {
   m_rast <- mock(rast()) # Return a dummy SpatRaster
   
   # Stub all three functions
-  stub(calculate_average, "average_fast", m_avg_fast)
+  stub(calculate_average, "aggregate_fast", m_avg_fast)
   stub(calculate_average, "write_layers", m_write_layers)
-  stub(calculate_average, "terra::rast", m_rast) # <-- THE FIX
+  stub(calculate_average, "terra::rast", m_rast)
 
   calculate_average(
     x = file_backed_rast,
     index = season_index,
     method = "tiled",
-    verbose = FALSE
+    verbose = FALSE,
+    overwrite = TRUE
   )
   
   # Assert that the helpers were called in order
@@ -131,14 +134,15 @@ test_that("`auto` method correctly chooses workflow based on mocked mem_info", {
   m_mem_info_fits <- mock(c(fits_mem = 1))
   
   stub(calculate_average, "terra::mem_info", m_mem_info_fits)
-  stub(calculate_average, "average_terra", m_avg_terra)
-  stub(calculate_average, "average_fast", m_avg_fast) 
+  stub(calculate_average, "aggregate_terra", m_avg_terra)
+  stub(calculate_average, "aggregate_fast", m_avg_fast) 
 
   calculate_average(
     x = file_backed_rast,
     index = season_index,
     method = "auto",
-    verbose = FALSE
+    verbose = FALSE,
+    overwrite = TRUE
   )
   
   expect_called(m_mem_info_fits, 1)
@@ -158,8 +162,8 @@ test_that("`auto` method correctly chooses workflow based on mocked mem_info", {
   m_mem_info_too_big <- mock(c(fits_mem = 0))
   
   stub(calculate_average, "terra::mem_info", m_mem_info_too_big)
-  stub(calculate_average, "average_terra", m_avg_terra)
-  stub(calculate_average, "average_fast", m_avg_fast)
+  stub(calculate_average, "aggregate_terra", m_avg_terra)
+  stub(calculate_average, "aggregate_fast", m_avg_fast)
   stub(calculate_average, "write_layers", m_write_layers)
   stub(calculate_average, "terra::rast", m_rast)
 
@@ -167,7 +171,8 @@ test_that("`auto` method correctly chooses workflow based on mocked mem_info", {
     x = file_backed_rast,
     index = season_index,
     method = "auto",
-    verbose = FALSE
+    verbose = FALSE,
+    overwrite = TRUE
   )
   
   expect_called(m_mem_info_too_big, 1)
@@ -208,14 +213,15 @@ test_that("Clipping with `user_region` is passed to helpers", {
   # --- Terra method ---
   # Re-stub the terra helper for this specific call
   m_avg_terra <- mock("path.tif")
-  stub(calculate_average, "average_terra", m_avg_terra)
+  stub(calculate_average, "aggregate_terra", m_avg_terra)
   
   calculate_average(
     x = in_mem_rast,
     index = season_index,
     method = "terra",
     user_region = clipping_region,
-    verbose = FALSE
+    verbose = FALSE,
+    overwrite = TRUE
   )
   
   args <- mock_args(m_avg_terra)[[1]]
@@ -225,7 +231,7 @@ test_that("Clipping with `user_region` is passed to helpers", {
   # Re-stub the tiled helpers for this specific call
   m_avg_fast <- mock("temp.qs")
   m_write_layers <- mock("path.tif")
-  stub(calculate_average, "average_fast", m_avg_fast)
+  stub(calculate_average, "aggregate_fast", m_avg_fast)
   stub(calculate_average, "write_layers", m_write_layers)
 
   calculate_average(

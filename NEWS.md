@@ -1,3 +1,7 @@
+fastbioclim 0.4.1
+=============
+- Update testthat after aggregate_ instead of average_
+
 fastbioclim 0.4.0
 =============
 - New calculate_sum()
@@ -13,9 +17,9 @@ fastbioclim 0.3.0
 - Update bionames
 - Fix name template
 - Fix progressbars in tutorials
-- verbose parameter
-- consistent warning messages
-- Unit tests implemented (with teh help of Gemini Pro 2.5)
+- Verbose parameter
+- Consistent warning messages
+- Unit tests implemented (with the help of Gemini Pro 2.5)
 
 fastbioclim 0.2.1
 =============

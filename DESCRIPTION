@@ -1,7 +1,7 @@
 Package: fastbioclim
 Type: Package
 Title: Scalable and Flexible Derivation of Custom-Time Bioclimatic and Environmental Summary Variables
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: c(person("Gonzalo E.", "Pinilla-Buitrago", 
                     email = "gepinillab@gmail.com", 
                     role = c("aut", "cre"),
