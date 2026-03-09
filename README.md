@@ -1,3 +1,8 @@
+[![CRAN status](https://www.r-pkg.org/badges/version/fastbioclim)](https://CRAN.R-project.org/package=fastbioclim)
+[![downloads](https://cranlogs.r-pkg.org:443/badges/grand-total/fastbioclim?color=orange)](https://cranlogs.r-pkg.org:443/badges/grand-total/fastbioclim?color=orange)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![R-CMD-check.yaml](https://github.com/gepinillab/fastbioclim/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/gepinillab/fastbioclim/actions/workflows/R-CMD-check.yaml)
+
 # fastbioclim <a href="https://gepinillab.github.io/fastbioclim/"><img src="man/figures/logo.png" align="right" height="123" alt="fastbioclim website" /></a>
 
 `fastbioclim` is an R package for creating custom-time bioclimatic and derived environmental summary variables from supplied raster data. It is designed to overcome computational bottlenecks and methodological inflexibility by automatically switching between processing frameworks to handle large-scale extents on standard hardware.
