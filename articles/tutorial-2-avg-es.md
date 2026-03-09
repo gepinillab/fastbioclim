@@ -136,7 +136,7 @@ tmax_avg_longterm <- calculate_average(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpJf1B9X/tmax_belize_longterm_avg
+    ## Processing complete. Final rasters are in: /tmp/RtmpEm8XuY/tmax_belize_longterm_avg
 
 ``` r
 # El resultado es un SpatRaster con 12 capas
@@ -247,7 +247,7 @@ tmax_roll_avg <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpJf1B9X/tmax_belize_rolling_avg
+    ## Processing complete. Final rasters are in: /tmp/RtmpEm8XuY/tmax_belize_rolling_avg
 
 ``` r
 # ¿Cuántas capas hemos creado?
@@ -352,7 +352,7 @@ tmax_roll_custom <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpJf1B9X/tmax_belize_custom_names
+    ## Processing complete. Final rasters are in: /tmp/RtmpEm8XuY/tmax_belize_custom_names
 
 ``` r
 # Verifiquemos los nuevos nombres

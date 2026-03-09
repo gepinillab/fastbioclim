@@ -68,7 +68,7 @@ Pinilla-Buitrago</h4>
             
             <h4 data-toc-skip class="date">11-08-2025</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.4.1/vignettes/tutorial-2-avg-es.Rmd" class="external-link"><code>vignettes/tutorial-2-avg-es.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/vignettes/tutorial-2-avg-es.Rmd" class="external-link"><code>vignettes/tutorial-2-avg-es.Rmd</code></a></small>
       <div class="d-none name"><code>tutorial-2-avg-es.Rmd</code></div>
     </div>
 
@@ -202,7 +202,7 @@ repite la secuencia <code>1, 2, ..., 12</code> treinta veces.</p>
 <pre><code><span><span class="co">## Data appears to fit in memory. Selecting 'terra' workflow.</span></span></code></pre>
 <pre><code><span><span class="co">## Calculating aggregations ('mean') using terra::tapp...</span></span></code></pre>
 <pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
-<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpJf1B9X/tmax_belize_longterm_avg</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpEm8XuY/tmax_belize_longterm_avg</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># El resultado es un SpatRaster con 12 capas</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tmax_avg_longterm</span><span class="op">)</span></span></code></pre></div>
@@ -284,7 +284,7 @@ años.</p>
 <pre><code><span><span class="co">## Processing window: Cycle 19 to 38</span></span></code></pre>
 <pre><code><span><span class="co">## Processing window: Cycle 20 to 39</span></span></code></pre>
 <pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
-<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpJf1B9X/tmax_belize_rolling_avg</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpEm8XuY/tmax_belize_rolling_avg</span></span></code></pre>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ¿Cuántas capas hemos creado?</span></span>
 <span><span class="co"># (39 ciclos - 20 de ventana + 1) * 12 unidades = 20 * 12 = 240 capas</span></span>
@@ -357,7 +357,7 @@ que se llamen nuestros archivos de salida.</p>
 <pre><code><span><span class="co">## Processing window: Cycle 19 to 38</span></span></code></pre>
 <pre><code><span><span class="co">## Processing window: Cycle 20 to 39</span></span></code></pre>
 <pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
-<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpJf1B9X/tmax_belize_custom_names</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpEm8XuY/tmax_belize_custom_names</span></span></code></pre>
 <div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Verifiquemos los nuevos nombres</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tmax_roll_custom</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span><span class="op">]</span></span></code></pre></div>

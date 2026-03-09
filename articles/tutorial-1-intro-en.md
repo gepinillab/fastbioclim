@@ -62,7 +62,7 @@ remotes::install_github("gepinillab/fastbioclim")
 
     ## 
     ## ── R CMD build ─────────────────────────────────────────────────────────────────
-    ## * checking for file ‘/tmp/RtmpBJeO1b/remotes22697c459f5f/gepinillab-fastbioclim-6bc2d2a/DESCRIPTION’ ... OK
+    ## * checking for file ‘/tmp/RtmpeocgqU/remotes22842380867b/gepinillab-fastbioclim-aaccafa/DESCRIPTION’ ... OK
     ## * preparing ‘fastbioclim’:
     ## * checking DESCRIPTION meta-information ... OK
     ## * checking for LF line-endings in source and make files and shell scripts

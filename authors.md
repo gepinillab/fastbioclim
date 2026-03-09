@@ -11,7 +11,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/gepinillab/fastbioclim/blob/v0.4.1/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/gepinillab/fastbioclim/blob/main/DESCRIPTION)
 
 Pinilla-Buitrago G, Osorio-Olvera L (2026). *fastbioclim: Scalable and
 Flexible Derivation of Custom-Time Bioclimatic and Environmental Summary
