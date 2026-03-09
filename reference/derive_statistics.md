@@ -201,7 +201,7 @@ prcp_stats <- derive_statistics(
 #> Full rasters appear to fit in memory. Selecting 'terra' workflow.
 #> SpatRasters have same extent, number of rows and columns, projection, resolution, and origin
 #> Writing GeoTIFFs...
-#> Processing complete. Final rasters are in: /tmp/RtmpOdh5xU/prcp_stats
+#> Processing complete. Final rasters are in: /tmp/Rtmp7bZByb/prcp_stats
 # Print the resulting SpatRaster summary with the four requested layers
 print(prcp_stats)
 #> class       : SpatRaster 
