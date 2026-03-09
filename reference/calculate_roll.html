@@ -3,7 +3,7 @@
 This function is designed for time series where fundamental time **units** (e.g., months)
 are grouped into repeating **cycles** (e.g., years)."><meta property="og:description" content="Calculates temporal summaries for each time unit over a moving window of cycles.
 This function is designed for time series where fundamental time **units** (e.g., months)
-are grouped into repeating **cycles** (e.g., years)."></head><body>
+are grouped into repeating **cycles** (e.g., years)."><meta property="og:image" content="https://gepinillab.github.io/fastbioclim/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -11,7 +11,7 @@ are grouped into repeating **cycles** (e.g., years)."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,9 +42,8 @@ are grouped into repeating **cycles** (e.g., years)."></head><body>
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Calculate Rolling Temporal Averages for SpatRasters</h1>
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.3.0/R/calculate_roll.R" class="external-link"><code>R/calculate_roll.R</code></a></small>
+      <img src="../logo.png" class="logo" alt=""><h1>Calculate Rolling Temporal Averages for SpatRasters</h1>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/R/calculate_roll.R" class="external-link"><code>R/calculate_roll.R</code></a></small>
       <div class="d-none name"><code>calculate_roll.Rd</code></div>
     </div>
 
@@ -122,7 +121,9 @@ Available placeholders are:</p><ul><li><p>`{prefix}`: The value from `output_pre
 
 
 <dt id="arg-user-region">user_region<a class="anchor" aria-label="anchor" href="#arg-user-region"></a></dt>
-<dd><p>(Optional) An `sf` or `terra::SpatVector` for clipping.</p></dd>
+<dd><p>(Optional) An `sf` or `terra::SpatVector` object. If provided,
+the input raster `x` is clipped and masked to this region before processing.
+The output raster's extent is the same of the `user_region`.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -147,9 +148,60 @@ Available placeholders are:</p><ul><li><p>`{prefix}`: The value from `output_pre
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A `terra::SpatRaster` object pointing to the newly created files.</p>
-    </div>
+    <p>A `terra::SpatRaster` object pointing to the newly created files, with the following characteristics:</p><ul><li><p>**Number of layers:** The number of layers is determined by the number of rolling windows processed (controlled by `window_size` and `step`) multiplied by the cycle frequency (`freq`).</p></li>
+<li><p>**Layer names:** Layer names are constructed based on the `name_template` argument, incorporating the window range and unit index (e.g., 'output_w01-20_u01').</p></li>
+<li><p>**Extent:** If `user_region` is provided, the extent of the output raster will be clipped to match that region. Otherwise, the extent will be the same as the input raster `x`.</p></li>
+</ul></div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># The example raster "prcp.tif" is included in the package's `inst/extdata` directory.</span></span></span>
+<span class="r-in"><span><span class="co"># Load example data from Lesotho (Montlhy time series from 2016-01 to 2020-12)</span></span></span>
+<span class="r-in"><span><span class="va">raster_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"prcp.tif"</span>, package <span class="op">=</span> <span class="st">"fastbioclim"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Load the SpatRaster from the file</span></span></span>
+<span class="r-in"><span><span class="va">prcp_ts</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">raster_path</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># The data has 60 layers (5 years of monthly data).</span></span></span>
+<span class="r-in"><span><span class="co"># We want to calculate a 3-year rolling average on monthly data.</span></span></span>
+<span class="r-in"><span><span class="co"># Therefore, the window size is 3 (number of years) </span></span></span>
+<span class="r-in"><span><span class="co"># and the lenght of the cycle is 12 (number of months).</span></span></span>
+<span class="r-in"><span><span class="co"># We also want a moving window of one month, so the number of steps is 1.</span></span></span>
+<span class="r-in"><span><span class="va">n_years</span> <span class="op">&lt;-</span> <span class="fl">3</span></span></span>
+<span class="r-in"><span><span class="va">n_months</span> <span class="op">&lt;-</span> <span class="fl">12</span></span></span>
+<span class="r-in"><span><span class="va">n_steps</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="co"># Define a temporary directory for the output files</span></span></span>
+<span class="r-in"><span><span class="va">output_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"roll_prcp_avg"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Run the calculate_average function</span></span></span>
+<span class="r-in"><span><span class="va">roll_avg</span> <span class="op">&lt;-</span> <span class="fu">calculate_roll</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="va">prcp_ts</span>,</span></span>
+<span class="r-in"><span>  window_size <span class="op">=</span> <span class="va">n_years</span>,</span></span>
+<span class="r-in"><span>  freq <span class="op">=</span> <span class="va">n_months</span>,</span></span>
+<span class="r-in"><span>  step <span class="op">=</span> <span class="va">n_steps</span>,</span></span>
+<span class="r-in"><span>  fun <span class="op">=</span> <span class="st">"mean"</span>,</span></span>
+<span class="r-in"><span>  output_prefix <span class="op">=</span> <span class="st">"prcp_roll_avg"</span>,</span></span>
+<span class="r-in"><span>  output_dir <span class="op">=</span> <span class="va">output_dir</span>,</span></span>
+<span class="r-in"><span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Print the resulting SpatRaster summary of 36 layesr (n_year * n_months)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">roll_avg</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 49, 57, 36  (nrow, ncol, nlyr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 0.04166673, 0.04166674  (x, y)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sources     : prcp_roll_avg_w1-3_u01.tif  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               prcp_roll_avg_w1-3_u02.tif  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               prcp_roll_avg_w1-3_u03.tif  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               ... and 33 more sources</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       : prcp_~3_u01, prcp_~3_u02, prcp_~3_u03, prcp_~3_u04, prcp_~3_u05, prcp_~3_u06, ... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :        81.1,        63.0,    56.13334,    26.33333,    10.73333,         4.8, ... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :       194.5,       151.5,   155.56667,    71.26666,    46.73333,        20.1, ... </span>
+<span class="r-in"><span><span class="co"># Clean up the created files</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">output_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -1,6 +1,6 @@
-# bio20_terra: Mean Solar Radiation of Units
+# bio20_terra: Mean Radiation
 
-Calculates mean solar radiation across all temporal units.
+Calculates mean solar radiation across all temporal units (layers).
 
 ## Usage
 
@@ -12,8 +12,10 @@ bio20_terra(srad)
 
 - srad:
 
-  spatRaster of average solar radiation for each unit.
+  A \`SpatRaster\` object where each layer represents solar radiation
+  for a temporal unit.
 
 ## Value
 
-spatRaster with "bio20".
+A single-layer \`SpatRaster\` with the mean solar radiation, named
+"bio20".

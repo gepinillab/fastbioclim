@@ -1,6 +1,7 @@
-# bio31_terra: Moisture Seasonality (Standard Deviation)
+# bio31_terra: Moisture Seasonality (Std Dev \* 100)
 
-Calculates coefficient of variation in moisture across units.
+Calculates the standard deviation of moisture across all layers,
+multiplied by 100.
 
 ## Usage
 
@@ -12,8 +13,10 @@ bio31_terra(mois)
 
 - mois:
 
-  Matrix containing moisture values for each unit.
+  A \`SpatRaster\` object where each layer represents moisture for a
+  temporal unit.
 
 ## Value
 
-spatRaster with "bio31".
+A single-layer \`SpatRaster\` with the moisture seasonality, named
+"bio31".

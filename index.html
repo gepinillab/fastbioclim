@@ -5,14 +5,15 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Scalable and Efficient Derivation of Bioclimatic Variables • fastbioclim</title>
+<title>Scalable and Flexible Derivation of Custom-Time Bioclimatic and Environmental Summary Variables • fastbioclim</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Scalable and Efficient Derivation of Bioclimatic Variables">
-<meta name="description" content="Provides a high-performance framework for deriving bioclimatic and custom summary variables from large-scale climate raster data. The package features a dual-backend architecture that intelligently switches between fast in-memory processing for smaller datasets (via the terra package) and a memory-safe tiled approach for massive datasets that do not fit in RAM (via exactextractr and Rfast). The main functions, derive_bioclim() and derive_statistics(), offer a unified interface with advanced options for custom time periods and static indices, making it suitable for a wide range of ecological and environmental modeling applications. A software note is in preparation. In the meantime, you can visit the package website &lt;https://gepinillab.github.io/fastbioclim/&gt; to find tutorials in English and Spanish.">
-<meta property="og:description" content="Provides a high-performance framework for deriving bioclimatic and custom summary variables from large-scale climate raster data. The package features a dual-backend architecture that intelligently switches between fast in-memory processing for smaller datasets (via the terra package) and a memory-safe tiled approach for massive datasets that do not fit in RAM (via exactextractr and Rfast). The main functions, derive_bioclim() and derive_statistics(), offer a unified interface with advanced options for custom time periods and static indices, making it suitable for a wide range of ecological and environmental modeling applications. A software note is in preparation. In the meantime, you can visit the package website &lt;https://gepinillab.github.io/fastbioclim/&gt; to find tutorials in English and Spanish.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Scalable and Flexible Derivation of Custom-Time Bioclimatic and Environmental Summary Variables">
+<meta name="description" content="Provides an efficient tool for creating custom-time bioclimatic and derived environmental summary variables from user-supplied raster data for user-defined timeframes. The package overcomes computational bottlenecks by automatically switching between an in-memory framework using the terra package to maximize speed for smaller datasets, and an on-disk tiling framework for rasters that exceed available RAM, leveraging exactextractr and Rfast to process data in chunks. The core functions, derive_bioclim() and derive_statistics(), offer a unified interface with flexibility for custom time periods beyond standard quarters and the use of fixed temporal indices, facilitating the creation of temporally-matched environmental variables for ecological and biogeographical modeling. Visit the package website &lt;https://gepinillab.github.io/fastbioclim/&gt; to find tutorials in English and Spanish.">
+<meta property="og:description" content="Provides an efficient tool for creating custom-time bioclimatic and derived environmental summary variables from user-supplied raster data for user-defined timeframes. The package overcomes computational bottlenecks by automatically switching between an in-memory framework using the terra package to maximize speed for smaller datasets, and an on-disk tiling framework for rasters that exceed available RAM, leveraging exactextractr and Rfast to process data in chunks. The core functions, derive_bioclim() and derive_statistics(), offer a unified interface with flexibility for custom time periods beyond standard quarters and the use of fixed temporal indices, facilitating the creation of temporally-matched environmental variables for ecological and biogeographical modeling. Visit the package website &lt;https://gepinillab.github.io/fastbioclim/&gt; to find tutorials in English and Spanish.">
+<meta property="og:image" content="https://gepinillab.github.io/fastbioclim/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,38 +61,40 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="fastbioclim-scalable-derivation-of-climate-variables">
-<code>fastbioclim</code>: Scalable Derivation of Climate Variables<a class="anchor" aria-label="anchor" href="#fastbioclim-scalable-derivation-of-climate-variables"></a>
-</h1></div>
-<p><code>fastbioclim</code> is an R package for efficiently deriving standard bioclimatic and custom summary variables from large-scale climate raster data. It is designed to overcome the memory limitations of traditional approaches by intelligently switching between processing backends.</p>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="fastbioclim-">fastbioclim 
+<a class="anchor" aria-label="anchor" href="#fastbioclim-"></a>
+</h1>
+</div>
+<p><code>fastbioclim</code> is an R package for creating custom-time bioclimatic and derived environmental summary variables from supplied raster data. It is designed to overcome computational bottlenecks and methodological inflexibility by automatically switching between processing frameworks to handle large-scale extents on standard hardware.</p>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>Working with large climate datasets often presents a major challenge: the data is too large to fit into memory. <code>fastbioclim</code> solves this problem by providing a powerful and unified interface with a dual-backend architecture:</p>
+<p>Working with large climate datasets often presents a major challenge: the data is too large to fit into memory. <code>fastbioclim</code> addresses this gap by providing an efficient, unified interface that automatically switches between two frameworks:</p>
 <ol style="list-style-type: decimal">
 <li>
-<strong>In-Memory (<code>"terra"</code>)</strong>: For datasets that fit comfortably in RAM, <code>fastbioclim</code> uses the highly optimized <code>terra</code> package for maximum speed.</li>
+<strong>In-Memory (<code>"terra"</code>)</strong>: For smaller datasets, <code>fastbioclim</code> uses the <code>terra</code> package to maximize speed.</li>
 <li>
-<strong>In-Disk (<code>"tiled"</code>)</strong>: For datasets that exceed available RAM, it automatically switches to a memory-safe tiled workflow. This backend uses <code>exactextractr</code> and <code>Rfast</code> to process the data chunk by chunk, ensuring that even continent-scale analyses can run on a standard computer.</li>
+<strong>On-Disk Tiling (<code>"tiled"</code>)</strong>: For rasters that exceed available RAM, it automatically switches to an on-disk tiling framework. This approach leverages the high-performance <code>Rfast</code> and <code>exactextractr</code> packages to process data in chunks, ensuring scalability on standard personal computers without requiring the end-user to manage these decisions.</li>
 </ol>
-<p>The core of the package is a set of “smart” wrapper functions—<code><a href="reference/derive_bioclim.html">derive_bioclim()</a></code> and <code><a href="reference/derive_statistics.html">derive_statistics()</a></code>—that automatically select the best backend, providing a seamless experience for the user.</p>
+<p>The core of the package is a set of flexible functions—<code><a href="reference/derive_bioclim.html">derive_bioclim()</a></code> and <code><a href="reference/derive_statistics.html">derive_statistics()</a></code>—that automatically select the optimal processing framework, providing a seamless experience for generating temporally-matched environmental variables.</p>
 </div>
 <div class="section level2">
 <h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
 </h2>
 <ul>
 <li>
-<strong>Smart <code>auto</code> Method</strong>: Automatically detects data size and chooses the optimal processing workflow (in-memory vs. tiled).</li>
+<strong>Smart <code>auto</code> Method</strong>: Automatically manages memory by switching between the in-memory (“terra”) and on-disk (“tiled”) frameworks based on raster size and available RAM.</li>
 <li>
-<strong>Scalability</strong>: Robustly handles raster datasets of any size, from small study areas to global extents.</li>
+<strong>Scalability</strong>: Accelerates large-scale raster processing for variable creation, from smaller regional extents to global datasets.</li>
 <li>
-<strong>Comprehensive Bioclimatic Variables</strong>: Calculates the full set of 35 standard bioclimatic variables, including those based on temperature, precipitation, solar radiation, and moisture.</li>
+<strong>Extended Bioclimatic Variables</strong>: Calculates an extended set of 35 bioclimatic variables, incorporating standard indices as well as variables based on moisture and solar radiation (bio20–35).</li>
 <li>
-<strong>Custom Statistics</strong>: Provides a flexible <code><a href="reference/derive_statistics.html">derive_statistics()</a></code> function to compute custom summaries (mean, max, min, standard deviation, etc.) for any climate variable.</li>
+<strong>Derived Summary Statistics</strong>: Provides a flexible <code><a href="reference/derive_statistics.html">derive_statistics()</a></code> function to compute summary statistics (mean, max, min, standard deviation, etc.) for any other time series data available (e.g., wind speed, evapotranspiration, cloud cover).</li>
 <li>
-<strong>Flexible Time Periods</strong>: Easily define custom periods (e.g., weeks, semesters) instead of being limited to standard quarters.</li>
+<strong>Custom Timeframes</strong>: Easily define time periods beyond standard quarters, enabling the summarization of data from finer time units such as weeks or days.</li>
 <li>
-<strong>Advanced Control</strong>: Supports static index rasters for advanced time-series analysis and defining specific seasonal periods.</li>
+<strong>Advanced Control</strong>: Supports the use of a fixed temporal index (static indices) for single units or entire periods, which is critical for analyzing trends due to the temporal shifting of the indices.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -100,20 +103,21 @@
 <p>You can install the development version of <code>fastbioclim</code> from GitHub with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"gepinillab/fastbioclim"</span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"gepinillab/fastbioclim"</span><span class="op">)</span></span>
 <span><span class="co"># Install to get the package example data </span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"gepinillab/egdata.fastbioclim"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"gepinillab/egdata.fastbioclim"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>The package provides two primary, user-facing functions:</p>
+<p>The package provides two primary core functions for variable calculation:</p>
 <ul>
 <li>
-<strong><code><a href="reference/derive_bioclim.html">derive_bioclim()</a></code></strong>: For calculating the standard set of 19-35 bioclimatic variables.</li>
+<strong><code><a href="reference/derive_bioclim.html">derive_bioclim()</a></code></strong>: For calculating the standard and extended set of 35 bioclimatic variables.</li>
 <li>
-<strong><code><a href="reference/derive_statistics.html">derive_statistics()</a></code></strong>: For calculating custom summary statistics on any variable.</li>
+<strong><code><a href="reference/derive_statistics.html">derive_statistics()</a></code></strong>: For deriving summary statistics from any other environmental variable.</li>
 </ul>
+<p><em>Note: The package also includes aggregation functions like calculate_average(), calculate_roll(), and calculate_sum() to easily prepare your time-series data</em></p>
 <div class="section level3">
 <h3 id="example-a-quick-demonstration">Example: A Quick Demonstration<a class="anchor" aria-label="anchor" href="#example-a-quick-demonstration"></a>
 </h3>
@@ -131,7 +135,7 @@
 <span><span class="va">prcp_ecu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/ecuador/"</span>, package <span class="op">=</span> <span class="st">"egdata.fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"prcp"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># The function will automatically use the fast "terra" method for this small dataset</span></span>
+<span><span class="co"># The function will automatically use the fast in-memory "terra" method for this small dataset</span></span>
 <span><span class="va">output_dir_bioclim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"bioclim_ecuador"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">bioclim_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/derive_bioclim.html">derive_bioclim</a></span><span class="op">(</span></span>
@@ -145,7 +149,7 @@
 <span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bioclim_vars</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bio01"</span>, <span class="st">"bio12"</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 3. Derive custom summary statistics for a different variable (e.g., wind speed)</span></span>
+<code class="sourceCode R"><span><span class="co"># Derive environmental summary variables for a different factor (e.g., wind speed)</span></span>
 <span><span class="va">wind_rast</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/ecuador/"</span>, package <span class="op">=</span> <span class="st">"egdata.fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"wind"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">output_dir_custom</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"wind_ecuador"</span><span class="op">)</span></span>
@@ -153,7 +157,7 @@
 <span><span class="va">custom_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/derive_statistics.html">derive_statistics</a></span><span class="op">(</span></span>
 <span>  variable <span class="op">=</span> <span class="va">wind_rast</span>,</span>
 <span>  stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"max"</span>, <span class="st">"stdev"</span><span class="op">)</span>,</span>
-<span>  prefix_variable <span class="op">=</span> <span class="st">"wind"</span>,</span>
+<span>  output_prefix <span class="op">=</span> <span class="st">"wind"</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="va">output_dir_custom</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>

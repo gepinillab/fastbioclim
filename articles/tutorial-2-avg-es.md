@@ -47,7 +47,7 @@ library(fastbioclim)
 library(terra)
 ```
 
-    ## terra 1.8.86
+    ## terra 1.9.1
 
 ``` r
 library(progressr)
@@ -115,14 +115,14 @@ tmax_subset <- tmax_bel[[1:360]]
 index_mensual <- rep(1:12, times = 30)
 
 # Crear un directorio temporal para guardar los resultados
-output_path_static <- file.path(tempdir(), "tmax_belize_static_avg")
+output_path_longterm <- file.path(tempdir(), "tmax_belize_longterm_avg")
 
 # Ejecutar la función
 # progressr mostrará una barra de progreso si la operación es larga
-tmax_avg_static <- calculate_average(
+tmax_avg_longterm <- calculate_average(
   x = tmax_subset,
   index = index_mensual,
-  output_dir = output_path_static,
+  output_dir = output_path_longterm,
   overwrite = TRUE, # Permitir sobreescribir si el directorio ya existe
   output_names = "tmax_avg" # Prefijo para los archivos de salida
 )
@@ -132,15 +132,15 @@ tmax_avg_static <- calculate_average(
 
     ## Data appears to fit in memory. Selecting 'terra' workflow.
 
-    ## Calculating averages using terra::tapp...
+    ## Calculating aggregations ('mean') using terra::tapp...
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/Rtmpr0eJ72/tmax_belize_static_avg
+    ## Processing complete. Final rasters are in: /tmp/RtmpFngely/tmax_belize_longterm_avg
 
 ``` r
 # El resultado es un SpatRaster con 12 capas
-print(tmax_avg_static)
+print(tmax_avg_longterm)
 ```
 
     ## class       : SpatRaster 
@@ -158,12 +158,12 @@ print(tmax_avg_static)
 
 ``` r
 # Podemos visualizar los 12 promedios mensuales
-plot(tmax_avg_static)
+plot(tmax_avg_longterm)
 ```
 
-![](tutorial-2-avg-es_files/figure-html/static-average-1.png)
+![](tutorial-2-avg-es_files/figure-html/longterm-average-1.png)
 
-¡Listo! `tmax_avg_static` contiene la climatología de 30 años. La
+¡Listo! `tmax_avg_longterm` contiene la climatología de 30 años. La
 primera capa es el promedio de todos los eneros, la segunda de todos los
 febreros, etc.
 
@@ -247,7 +247,7 @@ tmax_roll_avg <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/Rtmpr0eJ72/tmax_belize_rolling_avg
+    ## Processing complete. Final rasters are in: /tmp/RtmpFngely/tmax_belize_rolling_avg
 
 ``` r
 # ¿Cuántas capas hemos creado?
@@ -352,7 +352,7 @@ tmax_roll_custom <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/Rtmpr0eJ72/tmax_belize_custom_names
+    ## Processing complete. Final rasters are in: /tmp/RtmpFngely/tmax_belize_custom_names
 
 ``` r
 # Verifiquemos los nuevos nombres
@@ -394,14 +394,14 @@ Este gráfico nos muestra cómo ha cambiado la temperatura máxima promedio
 de enero en lso últimos años, permitiéndonos identificar tendencias de
 calentamiento o enfriamiento. Es importante mencionar que las capas
 usadas de temperatura máxima están multiplicadas por 10. Por lo cual,
-existe partes con cambios de hast 0.8 grados centigrados.
+existe partes con cambios de hast 0.6 grados centigrados.
 
 ## Conclusión
 
 El paquete `fastbioclim` simplifica enormemente el cálculo de resúmenes
 temporales en series de tiempo de rásters. \* Usa
 [`calculate_average()`](https://gepinillab.github.io/fastbioclim/reference/calculate_average.md)
-para climatologías estáticas sobre todo el período de estudio. \* Usa
+para climatologías fija sobre todo el período de estudio. \* Usa
 [`calculate_roll()`](https://gepinillab.github.io/fastbioclim/reference/calculate_roll.md)
 para analizar tendencias y cambios a través de ventanas de tiempo
 móviles.

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,14 +62,13 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Cálculo de Promedios Temporales con `fastbioclim`</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Cálculo de Promedios Temporales con `fastbioclim`</h1>
                         <h4 data-toc-skip class="author">Gonzalo E.
 Pinilla-Buitrago</h4>
             
             <h4 data-toc-skip class="date">11-08-2025</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.3.0/vignettes/tutorial-2-avg-es.Rmd" class="external-link"><code>vignettes/tutorial-2-avg-es.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/vignettes/tutorial-2-avg-es.Rmd" class="external-link"><code>vignettes/tutorial-2-avg-es.Rmd</code></a></small>
       <div class="d-none name"><code>tutorial-2-avg-es.Rmd</code></div>
     </div>
 
@@ -124,7 +123,7 @@ cálculos en paralelo para mayor eficiencia.</p>
 <code class="sourceCode R"><span><span class="co"># Cargar los paquetes</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gepinillab.github.io/fastbioclim/">fastbioclim</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## terra 1.8.86</span></span></code></pre>
+<pre><code><span><span class="co">## terra 1.9.1</span></span></code></pre>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://progressr.futureverse.org" class="external-link">progressr</a></span><span class="op">)</span></span>
 <span></span>
@@ -188,25 +187,25 @@ repite la secuencia <code>1, 2, ..., 12</code> treinta veces.</p>
 <span><span class="va">index_mensual</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span>, times <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Crear un directorio temporal para guardar los resultados</span></span>
-<span><span class="va">output_path_static</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"tmax_belize_static_avg"</span><span class="op">)</span></span>
+<span><span class="va">output_path_longterm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"tmax_belize_longterm_avg"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Ejecutar la función</span></span>
 <span><span class="co"># progressr mostrará una barra de progreso si la operación es larga</span></span>
-<span><span class="va">tmax_avg_static</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_average.html">calculate_average</a></span><span class="op">(</span></span>
+<span><span class="va">tmax_avg_longterm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_average.html">calculate_average</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="va">tmax_subset</span>,</span>
 <span>  index <span class="op">=</span> <span class="va">index_mensual</span>,</span>
-<span>  output_dir <span class="op">=</span> <span class="va">output_path_static</span>,</span>
+<span>  output_dir <span class="op">=</span> <span class="va">output_path_longterm</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Permitir sobreescribir si el directorio ya existe</span></span>
 <span>  output_names <span class="op">=</span> <span class="st">"tmax_avg"</span> <span class="co"># Prefijo para los archivos de salida</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Using 'auto' method to select workflow...</span></span></code></pre>
 <pre><code><span><span class="co">## Data appears to fit in memory. Selecting 'terra' workflow.</span></span></code></pre>
-<pre><code><span><span class="co">## Calculating averages using terra::tapp...</span></span></code></pre>
+<pre><code><span><span class="co">## Calculating aggregations ('mean') using terra::tapp...</span></span></code></pre>
 <pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
-<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/Rtmpr0eJ72/tmax_belize_static_avg</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpFngely/tmax_belize_longterm_avg</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># El resultado es un SpatRaster con 12 capas</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tmax_avg_static</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tmax_avg_longterm</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## class       : SpatRaster </span></span>
 <span><span class="co">## size        : 314, 134, 12  (nrow, ncol, nlyr)</span></span>
 <span><span class="co">## resolution  : 0.008333333, 0.008333333  (x, y)</span></span>
@@ -221,9 +220,9 @@ repite la secuencia <code>1, 2, ..., 12</code> treinta veces.</p>
 <span><span class="co">## max values  :    276.4000,    296.5667,    321.5667,       336.9,    339.0667,    320.0333, ...</span></span></code></pre>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Podemos visualizar los 12 promedios mensuales</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tmax_avg_static</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-2-avg-es_files/figure-html/static-average-1.png" class="r-plt" width="700"></p>
-<p>¡Listo! <code>tmax_avg_static</code> contiene la climatología de 30
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tmax_avg_longterm</span><span class="op">)</span></span></code></pre></div>
+<p><img src="tutorial-2-avg-es_files/figure-html/longterm-average-1.png" class="r-plt" alt="" width="700"></p>
+<p>¡Listo! <code>tmax_avg_longterm</code> contiene la climatología de 30
 años. La primera capa es el promedio de todos los eneros, la segunda de
 todos los febreros, etc.</p>
 </div>
@@ -285,7 +284,7 @@ años.</p>
 <pre><code><span><span class="co">## Processing window: Cycle 19 to 38</span></span></code></pre>
 <pre><code><span><span class="co">## Processing window: Cycle 20 to 39</span></span></code></pre>
 <pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
-<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/Rtmpr0eJ72/tmax_belize_rolling_avg</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpFngely/tmax_belize_rolling_avg</span></span></code></pre>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ¿Cuántas capas hemos creado?</span></span>
 <span><span class="co"># (39 ciclos - 20 de ventana + 1) * 12 unidades = 20 * 12 = 240 capas</span></span>
@@ -358,7 +357,7 @@ que se llamen nuestros archivos de salida.</p>
 <pre><code><span><span class="co">## Processing window: Cycle 19 to 38</span></span></code></pre>
 <pre><code><span><span class="co">## Processing window: Cycle 20 to 39</span></span></code></pre>
 <pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
-<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/Rtmpr0eJ72/tmax_belize_custom_names</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpFngely/tmax_belize_custom_names</span></span></code></pre>
 <div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Verifiquemos los nuevos nombres</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tmax_roll_custom</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span><span class="op">]</span></span></code></pre></div>
@@ -389,12 +388,12 @@ específico a lo largo de las ventanas.</p>
 <span></span>
 <span><span class="co"># Ahora podemos visualizar el cambio entre el primer y último enero</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eneros_moviles</span><span class="op">[[</span><span class="fl">20</span><span class="op">]</span><span class="op">]</span> <span class="op">-</span> <span class="va">eneros_moviles</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-2-avg-es_files/figure-html/analyze-rolling-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-2-avg-es_files/figure-html/analyze-rolling-1.png" class="r-plt" alt="" width="700"></p>
 <p>Este gráfico nos muestra cómo ha cambiado la temperatura máxima
 promedio de enero en lso últimos años, permitiéndonos identificar
 tendencias de calentamiento o enfriamiento. Es importante mencionar que
 las capas usadas de temperatura máxima están multiplicadas por 10. Por
-lo cual, existe partes con cambios de hast 0.8 grados centigrados.</p>
+lo cual, existe partes con cambios de hast 0.6 grados centigrados.</p>
 </div>
 </div>
 <div class="section level2">
@@ -402,8 +401,8 @@ lo cual, existe partes con cambios de hast 0.8 grados centigrados.</p>
 </h2>
 <p>El paquete <code>fastbioclim</code> simplifica enormemente el cálculo
 de resúmenes temporales en series de tiempo de rásters. * Usa
-<code><a href="../reference/calculate_average.html">calculate_average()</a></code> para climatologías estáticas sobre todo
-el período de estudio. * Usa <code><a href="../reference/calculate_roll.html">calculate_roll()</a></code> para analizar
+<code><a href="../reference/calculate_average.html">calculate_average()</a></code> para climatologías fija sobre todo el
+período de estudio. * Usa <code><a href="../reference/calculate_roll.html">calculate_roll()</a></code> para analizar
 tendencias y cambios a través de ventanas de tiempo móviles.</p>
 <p>Ambas funciones están optimizadas para ser eficientes y pueden
 aprovechar el procesamiento en paralelo para manejar grandes volúmenes

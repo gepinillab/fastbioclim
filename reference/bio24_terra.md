@@ -1,7 +1,7 @@
-# bio24_terra: Solar Radiation of Wettest Period
+# bio24_terra: Radiation of Wettest Period
 
-Calculates solar radiation mean of the period with the highest
-precipitation sum.
+Calculates the mean solar radiation of the specific rolling period
+identified as the wettest.
 
 ## Usage
 
@@ -13,12 +13,15 @@ bio24_terra(prad, wettest_period)
 
 - prad:
 
-  spatRaster of solar radiation period means.
+  A \`SpatRaster\` object where each layer is the mean solar radiation
+  for a rolling period.
 
 - wettest_period:
 
-  Vector indicating the index (1-based) of the wettest period.
+  A single-layer \`SpatRaster\` where cell values are integers
+  indicating the layer index (1-based) of the wettest period.
 
 ## Value
 
-spatRaster with "bio24".
+A single-layer \`SpatRaster\` with the solar radiation of the wettest
+period, named "bio24".

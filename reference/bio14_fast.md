@@ -1,7 +1,9 @@
 # bio14_fast: Precipitation of Driest Unit
 
-Identifies precipitation of the driest unit, potentially using a static
-index.
+Identifies the precipitation of the driest temporal unit (e.g., month).
+If \`index_vector\` is \`NULL\`, it calculates the row-wise minimum. If
+\`index_vector\` is provided, it extracts the value from the specific
+column index for each row.
 
 ## Usage
 
@@ -13,17 +15,25 @@ bio14_fast(prcp, cell, index_vector = NULL)
 
 - prcp:
 
-  Matrix of precipitation values for each unit.
+  A numeric \*\*matrix\*\* of precipitation values. \*\*Rows\*\*
+  represent spatial units (cells) and \*\*columns\*\* represent temporal
+  units (e.g., months).
 
 - cell:
 
-  Vector of original cell IDs.
+  A vector of original cell IDs. Its length must be exactly equal to the
+  number of rows in \`prcp\`.
 
 - index_vector:
 
-  Optional vector of unit indices (1-based). If provided, extracts Prec
-  for that unit. If NULL, finds overall min Prec.
+  (Optional) An integer \*\*vector\*\* of column indices (1-based). If
+  provided, its length must be exactly equal to the number of rows in
+  \`prcp\`. Values must be between 1 and \`ncol(prcp)\`. This is
+  typically used to extract the precipitation of the specific month
+  identified as the driest by another metric.
 
 ## Value
 
-Matrix with "bio14", "cell".
+A \*\*matrix\*\* with dimensions \`c(N, 2)\`, where N is the number of
+input cells. The columns are named "bio14" (precipitation of driest
+unit) and "cell".

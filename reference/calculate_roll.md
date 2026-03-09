@@ -81,7 +81,10 @@ calculate_roll(
 
 - user_region:
 
-  (Optional) An \`sf\` or \`terra::SpatVector\` for clipping.
+  (Optional) An \`sf\` or \`terra::SpatVector\` object. If provided, the
+  input raster \`x\` is clipped and masked to this region before
+  processing. The output raster's extent is the same of the
+  \`user_region\`.
 
 - method:
 
@@ -105,4 +108,67 @@ calculate_roll(
 
 ## Value
 
-A \`terra::SpatRaster\` object pointing to the newly created files.
+A \`terra::SpatRaster\` object pointing to the newly created files, with
+the following characteristics:
+
+- \*\*Number of layers:\*\* The number of layers is determined by the
+  number of rolling windows processed (controlled by \`window_size\` and
+  \`step\`) multiplied by the cycle frequency (\`freq\`).
+
+- \*\*Layer names:\*\* Layer names are constructed based on the
+  \`name_template\` argument, incorporating the window range and unit
+  index (e.g., 'output_w01-20_u01').
+
+- \*\*Extent:\*\* If \`user_region\` is provided, the extent of the
+  output raster will be clipped to match that region. Otherwise, the
+  extent will be the same as the input raster \`x\`.
+
+## Examples
+
+``` r
+# \donttest{
+# The example raster "prcp.tif" is included in the package's `inst/extdata` directory.
+# Load example data from Lesotho (Montlhy time series from 2016-01 to 2020-12)
+raster_path <- system.file("extdata", "prcp.tif", package = "fastbioclim")
+# Load the SpatRaster from the file
+prcp_ts <- terra::rast(raster_path)
+# The data has 60 layers (5 years of monthly data).
+# We want to calculate a 3-year rolling average on monthly data.
+# Therefore, the window size is 3 (number of years) 
+# and the lenght of the cycle is 12 (number of months).
+# We also want a moving window of one month, so the number of steps is 1.
+n_years <- 3
+n_months <- 12
+n_steps <- 1
+# Define a temporary directory for the output files
+output_dir <- file.path(tempdir(), "roll_prcp_avg")
+# Run the calculate_average function
+roll_avg <- calculate_roll(
+  x = prcp_ts,
+  window_size = n_years,
+  freq = n_months,
+  step = n_steps,
+  fun = "mean",
+  output_prefix = "prcp_roll_avg",
+  output_dir = output_dir,
+  overwrite = TRUE,
+  verbose = FALSE
+)
+# Print the resulting SpatRaster summary of 36 layesr (n_year * n_months)
+print(roll_avg)
+#> class       : SpatRaster 
+#> size        : 49, 57, 36  (nrow, ncol, nlyr)
+#> resolution  : 0.04166673, 0.04166674  (x, y)
+#> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)
+#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs 
+#> sources     : prcp_roll_avg_w1-3_u01.tif  
+#>               prcp_roll_avg_w1-3_u02.tif  
+#>               prcp_roll_avg_w1-3_u03.tif  
+#>               ... and 33 more sources
+#> names       : prcp_~3_u01, prcp_~3_u02, prcp_~3_u03, prcp_~3_u04, prcp_~3_u05, prcp_~3_u06, ... 
+#> min values  :        81.1,        63.0,    56.13334,    26.33333,    10.73333,         4.8, ... 
+#> max values  :       194.5,       151.5,   155.56667,    71.26666,    46.73333,        20.1, ... 
+# Clean up the created files
+unlink(output_dir, recursive = TRUE)
+# }
+```

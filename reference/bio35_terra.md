@@ -1,6 +1,7 @@
-# bio35_terra: Moisture of Coldest Period
+# bio35_terra: Mean Moisture of Coldest Period
 
-Calculates moisture mean of the period with the lowest temperature mean.
+Calculates the mean moisture of the specific rolling period identified
+as the coldest.
 
 ## Usage
 
@@ -12,12 +13,15 @@ bio35_terra(pmois, coldest_period)
 
 - pmois:
 
-  spatRaster of moisture period means.
+  A \`SpatRaster\` object where each layer is the mean moisture for a
+  rolling period.
 
 - coldest_period:
 
-  Vector indicating the index (1-based) of the coldest period.
+  A single-layer \`SpatRaster\` where cell values are integers
+  indicating the layer index (1-based) of the coldest period.
 
 ## Value
 
-spatRaster with "bio35".
+A single-layer \`SpatRaster\` with the moisture of the coldest period,
+named "bio35".

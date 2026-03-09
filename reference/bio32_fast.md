@@ -1,6 +1,7 @@
-# bio32_fast: Moisture of the Most Moist Period
+# bio32_fast: Mean Moisture of Most Moist Period
 
-Calculates moisture mean of the most moist period.
+Calculates the mean moisture of the specific rolling period identified
+as the most moist (highest moisture).
 
 ## Usage
 
@@ -12,16 +13,23 @@ bio32_fast(speriod, speriod_max_idx, cell)
 
 - speriod:
 
-  Matrix of moisture period means (output from \`var_periods\`).
+  A numeric \*\*matrix\*\* of moisture values (means) for each rolling
+  period. \*\*Rows\*\* represent spatial units (cells). \*\*Columns\*\*
+  represent the rolling periods.
 
 - speriod_max_idx:
 
-  Vector indicating the index (1-based) of the most moist period.
+  An integer \*\*vector\*\* indicating the column index (1-based) of the
+  most moist period for each row. Its length must be exactly equal to
+  the number of rows in \`speriod\`.
 
 - cell:
 
-  Vector of original cell IDs.
+  A vector of original cell IDs. Its length must be exactly equal to the
+  number of rows in \`speriod\`.
 
 ## Value
 
-Matrix with "bio32", "cell".
+A \*\*matrix\*\* with dimensions \`c(N, 2)\`, where N is the number of
+input cells. The columns are named "bio32" (mean moisture of most moist
+period) and "cell".

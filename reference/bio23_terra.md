@@ -1,6 +1,7 @@
-# bio23_terra: Solar Radiation Seasonality (CV)
+# bio23_terra: Radiation Seasonality (CV)
 
-Calculates coefficient of variation in solar radiation across units.
+Calculates the Coefficient of Variation (CV) of solar radiation across
+all layers.
 
 ## Usage
 
@@ -12,8 +13,10 @@ bio23_terra(srad)
 
 - srad:
 
-  Matrix containing solar radiation values for each unit.
+  A \`SpatRaster\` object where each layer represents solar radiation
+  for a temporal unit.
 
 ## Value
 
-spatRaster with "bio23".
+A single-layer \`SpatRaster\` with the solar radiation seasonality,
+named "bio23".

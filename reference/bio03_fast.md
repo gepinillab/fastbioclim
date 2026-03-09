@@ -1,6 +1,7 @@
 # bio03_fast: Isothermality
 
-Calculates (bio02 / bio07) \* 100.
+Calculates Isothermality representing the ratio of mean diurnal range to
+temperature range: (bio02 / bio07) \* 100.
 
 ## Usage
 
@@ -12,16 +13,22 @@ bio03_fast(bio02V, bio07V, cell)
 
 - bio02V:
 
-  Vector or single-column matrix of bio02 values.
+  A numeric \*\*vector\*\* or \*\*single-column matrix\*\* of Bio02
+  values (Mean Diurnal Range). Length (or number of rows) must match
+  \`bio07V\` and \`cell\`.
 
 - bio07V:
 
-  Vector or single-column matrix of bio07 values.
+  A numeric \*\*vector\*\* or \*\*single-column matrix\*\* of Bio07
+  values (Temperature Range). Length (or number of rows) must match
+  \`bio02V\` and \`cell\`.
 
 - cell:
 
-  Vector of original cell IDs.
+  A vector of original cell IDs. Its length must be exactly equal to the
+  length/rows of \`bio02V\` and \`bio07V\`.
 
 ## Value
 
-Matrix with "bio03", "cell".
+A \*\*matrix\*\* with dimensions \`c(N, 2)\`, where N is the number of
+input cells. The columns are named "bio03" and "cell".

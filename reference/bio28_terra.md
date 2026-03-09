@@ -1,6 +1,6 @@
-# bio28_terra: Mean Moisture of Units
+# bio28_terra: Mean Moisture
 
-Calculates mean moisture across all temporal units.
+Calculates mean moisture across all temporal units (layers).
 
 ## Usage
 
@@ -12,8 +12,9 @@ bio28_terra(mois)
 
 - mois:
 
-  spatRaster of average moisture for each unit.
+  A \`SpatRaster\` object where each layer represents moisture for a
+  temporal unit.
 
 ## Value
 
-spatRaster with "bio28".
+A single-layer \`SpatRaster\` with the mean moisture, named "bio28".

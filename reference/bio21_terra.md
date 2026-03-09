@@ -1,7 +1,7 @@
-# bio21_terra: Highest Solar Radiation Unit
+# bio21_terra: Highest Moisture Unit
 
-Identifies highest solar radiation unit, potentially using a static
-index.
+Identifies the highest solar radiation of the unit with the highest
+value.
 
 ## Usage
 
@@ -13,8 +13,16 @@ bio21_terra(srad, high_rad_unit = NULL)
 
 - srad:
 
-  spatRaster of solar radiation values for each unit.
+  A \`SpatRaster\` object where each layer represents solar radiation
+  for a temporal unit.
+
+- high_rad_unit:
+
+  (Optional) A single-layer \`SpatRaster\` where cell values are
+  integers indicating a static layer index (1-based). If \`NULL\`, the
+  overall maximum across all layers is calculated.
 
 ## Value
 
-spatRaster with "bio21".
+A single-layer \`SpatRaster\` with the maximum solar radiation, named
+"bio21".

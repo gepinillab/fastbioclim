@@ -1,6 +1,8 @@
-# bio23_fast: Solar Radiation Seasonality (CV)
+# bio23_fast: Radiation Seasonality (CV)
 
-Calculates coefficient of variation in solar radiation across units.
+Calculates the Coefficient of Variation (CV) of solar radiation. The
+formula used is: \`(StandardDeviation / (Mean + 1)) \* 100\`. (The "+1"
+is added to the mean to avoid division by zero).
 
 ## Usage
 
@@ -12,16 +14,22 @@ bio23_fast(srad, n_units, cell)
 
 - srad:
 
-  Matrix containing solar radiation values for each unit.
+  A numeric \*\*matrix\*\* of solar radiation values. \*\*Rows\*\*
+  represent spatial units (cells) and \*\*columns\*\* represent temporal
+  units (e.g., 12 months).
 
 - n_units:
 
-  Integer. The total number of temporal units.
+  A single \*\*integer\*\* representing the number of temporal units
+  (e.g., 12).
 
 - cell:
 
-  Vector of original cell IDs.
+  A vector of original cell IDs. Its length must be exactly equal to the
+  number of rows in \`srad\`.
 
 ## Value
 
-Matrix with "bio23", "cell".
+A \*\*matrix\*\* with dimensions \`c(N, 2)\`, where N is the number of
+input cells. The columns are named "bio23" (Solar Radiation Seasonality)
+and "cell".

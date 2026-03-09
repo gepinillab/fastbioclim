@@ -1,6 +1,7 @@
 # bio04_fast: Temperature Seasonality (Std Dev \* 100)
 
-Calculates the standard deviation of average temperatures across units,
+Calculates Temperature Seasonality, defined as the standard deviation of
+average temperatures across all temporal units (e.g., 12 months),
 multiplied by 100.
 
 ## Usage
@@ -13,12 +14,16 @@ bio04_fast(tavg, cell)
 
 - tavg:
 
-  Matrix of average temperatures for each unit.
+  A numeric \*\*matrix\*\* of average temperatures. \*\*Rows\*\*
+  represent spatial units (cells) and \*\*columns\*\* represent temporal
+  units.
 
 - cell:
 
-  Vector of original cell IDs.
+  A vector of original cell IDs. Its length must be exactly equal to the
+  number of rows in \`tavg\`.
 
 ## Value
 
-Matrix with "bio04", "cell".
+A \*\*matrix\*\* with dimensions \`c(N, 2)\`, where N is the number of
+input cells. The columns are named "bio04" (seasonality) and "cell".

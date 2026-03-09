@@ -1,5 +1,18 @@
 # Changelog
 
+## fastbioclim 0.4.1
+
+- Update testthat after aggregate\_ instead of average\_
+
+## fastbioclim 0.4.0
+
+- New calculate_sum()
+- Improved documentation
+- Standarized parameters
+- Updated bionames()
+- Updated README and DESCRIPTION files
+- New Logo
+
 ## fastbioclim 0.3.0
 
 CRAN release: 2025-11-26
@@ -8,9 +21,9 @@ CRAN release: 2025-11-26
 - Update bionames
 - Fix name template
 - Fix progressbars in tutorials
-- verbose parameter
-- consistent warning messages
-- Unit tests implemented (with teh help of Gemini Pro 2.5)
+- Verbose parameter
+- Consistent warning messages
+- Unit tests implemented (with the help of Gemini Pro 2.5)
 
 ## fastbioclim 0.2.1
 

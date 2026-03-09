@@ -1,7 +1,7 @@
-# bio24_fast: Solar Radiation of Wettest Period
+# bio24_fast: Radiation of Wettest Period
 
-Calculates solar radiation mean of the period with the highest
-precipitation sum.
+Calculates the mean solar radiation of the specific rolling period
+identified as the wettest (highest precipitation).
 
 ## Usage
 
@@ -13,16 +13,23 @@ bio24_fast(speriod, pperiod_max_idx, cell)
 
 - speriod:
 
-  Matrix of solar radiation period means (output from \`var_periods\`).
+  A numeric \*\*matrix\*\* of solar radiation values (means) for each
+  rolling period. \*\*Rows\*\* represent spatial units (cells).
+  \*\*Columns\*\* represent the rolling periods.
 
 - pperiod_max_idx:
 
-  Vector indicating the index (1-based) of the wettest period.
+  An integer \*\*vector\*\* indicating the column index (1-based) of the
+  wettest period for each row. Its length must be exactly equal to the
+  number of rows in \`speriod\`.
 
 - cell:
 
-  Vector of original cell IDs.
+  A vector of original cell IDs. Its length must be exactly equal to the
+  number of rows in \`speriod\`.
 
 ## Value
 
-Matrix with "bio24", "cell".
+A \*\*matrix\*\* with dimensions \`c(N, 2)\`, where N is the number of
+input cells. The columns are named "bio24" (mean solar radiation of
+wettest period) and "cell".

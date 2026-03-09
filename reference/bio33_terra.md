@@ -1,6 +1,7 @@
-# bio33_terra: Moisture of the Least Moist Period
+# bio33_terra: Mean Moisture of Least Moist Period
 
-Calculates moisture mean of the least moist period.
+Calculates the mean moisture of the specific rolling period identified
+as the least moist.
 
 ## Usage
 
@@ -12,12 +13,15 @@ bio33_terra(pmois, low_mois_period)
 
 - pmois:
 
-  spatRaster of moisture period means.
+  A \`SpatRaster\` object where each layer is the mean moisture for a
+  rolling period.
 
 - low_mois_period:
 
-  Vector indicating the index (1-based) of the least moist period.
+  A single-layer \`SpatRaster\` where cell values are integers
+  indicating the layer index (1-based) of the least moist period.
 
 ## Value
 
-spatRaster with "bio33".
+A single-layer \`SpatRaster\` with the moisture of the least moist
+period, named "bio33".

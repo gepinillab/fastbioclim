@@ -1,7 +1,6 @@
-# bio22_terra: Lowest Solar Radiation Unit
+# bio22_terra: Lowest Radiation Unit
 
-Identifies lowest solar radiation unit, potentially using a static
-index.
+Identifies the lowest solar radiation of the unit with the lowest value.
 
 ## Usage
 
@@ -13,8 +12,16 @@ bio22_terra(srad, low_rad_unit = NULL)
 
 - srad:
 
-  spatRaster of solar radiation values for each unit.
+  A \`SpatRaster\` object where each layer represents solar radiation
+  for a temporal unit.
+
+- low_rad_unit:
+
+  (Optional) A single-layer \`SpatRaster\` where cell values are
+  integers indicating a static layer index (1-based). If \`NULL\`, the
+  overall minimum across all layers is calculated.
 
 ## Value
 
-spatRaster with "bio22".
+A single-layer \`SpatRaster\` with the minimum solar radiation, named
+"bio22".

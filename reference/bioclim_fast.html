@@ -3,7 +3,7 @@
 by processing them in tiles. It reads data from file paths using `exactextractr`
 and performs calculations with `Rfast`."><meta property="og:description" content="Internal function to calculate bioclimatic variables for very large datasets
 by processing them in tiles. It reads data from file paths using `exactextractr`
-and performs calculations with `Rfast`."></head><body>
+and performs calculations with `Rfast`."><meta property="og:image" content="https://gepinillab.github.io/fastbioclim/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -11,7 +11,7 @@ and performs calculations with `Rfast`."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,9 +42,8 @@ and performs calculations with `Rfast`."></head><body>
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Tiled, Out-of-Core Bioclimatic Variable Calculation</h1>
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.3.0/R/bioclim_fast.R" class="external-link"><code>R/bioclim_fast.R</code></a></small>
+      <img src="../logo.png" class="logo" alt=""><h1>Tiled, Out-of-Core Bioclimatic Variable Calculation</h1>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/R/bioclim_fast.R" class="external-link"><code>R/bioclim_fast.R</code></a></small>
       <div class="d-none name"><code>bioclim_fast.Rd</code></div>
     </div>
 
@@ -96,7 +95,9 @@ and performs calculations with `Rfast`.</p>
 
 
 <dt id="arg-user-region">user_region<a class="anchor" aria-label="anchor" href="#arg-user-region"></a></dt>
-<dd><p>An `sf` or `SpatVector` object for the area of interest.</p></dd>
+<dd><p>(Optional) An `sf` or `terra::SpatVector` object. If provided,
+the input raster `x` is clipped and masked to this region before processing.
+The output raster's extent is the same of the `user_region`.</p></dd>
 
 
 <dt id="arg-tile-degrees">tile_degrees<a class="anchor" aria-label="anchor" href="#arg-tile-degrees"></a></dt>

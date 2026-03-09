@@ -1,7 +1,7 @@
 # bio11_terra: Mean Temperature of Coldest Period
 
-Calculates mean temperature of the period with the lowest temperature
-sum.
+Calculates the mean temperature of the specific rolling period
+identified as the coldest.
 
 ## Usage
 
@@ -13,12 +13,15 @@ bio11_terra(tmp, coldest_period)
 
 - tmp:
 
-  spatRaster of temperature period sums.
+  A \`SpatRaster\` object where each layer represents the mean
+  temperature for a rolling period.
 
 - coldest_period:
 
-  Vector indicating the index (1-based) of the coldest period.
+  A single-layer \`SpatRaster\` where cell values are integers
+  indicating the layer index (1-based) of the coldest period.
 
 ## Value
 
-spatRaster with "bio11".
+A single-layer \`SpatRaster\` containing the mean temperature of the
+coldest period, named "bio11".

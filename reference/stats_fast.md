@@ -21,7 +21,7 @@ stats_fast(
   min_period_path = NULL,
   max_interactive_path = NULL,
   min_interactive_path = NULL,
-  prefix_variable = "var",
+  output_prefix = "var",
   suffix_inter_max = "inter_high",
   suffix_inter_min = "inter_low",
   user_region = NULL,
@@ -47,7 +47,7 @@ stats_fast(
 
   Character vector of stats to compute.
 
-- prefix_variable:
+- output_prefix:
 
   Character, prefix for output files.
 

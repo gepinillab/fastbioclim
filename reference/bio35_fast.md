@@ -1,6 +1,7 @@
-# bio35_fast: Moisture of Coldest Period
+# bio35_fast: Mean Moisture of Coldest Period
 
-Calculates moisture mean of the period with the lowest temperature mean.
+Calculates the mean moisture of the specific rolling period identified
+as the coldest (lowest temperature).
 
 ## Usage
 
@@ -12,16 +13,23 @@ bio35_fast(speriod, tperiod_min_idx, cell)
 
 - speriod:
 
-  Matrix of moisture period means (output from \`var_periods\`).
+  A numeric \*\*matrix\*\* of moisture values (means) for each rolling
+  period. \*\*Rows\*\* represent spatial units (cells). \*\*Columns\*\*
+  represent the rolling periods.
 
 - tperiod_min_idx:
 
-  Vector indicating the index (1-based) of the coldest period.
+  An integer \*\*vector\*\* indicating the column index (1-based) of the
+  coldest period for each row. Its length must be exactly equal to the
+  number of rows in \`speriod\`.
 
 - cell:
 
-  Vector of original cell IDs.
+  A vector of original cell IDs. Its length must be exactly equal to the
+  number of rows in \`speriod\`.
 
 ## Value
 
-Matrix with "bio35", "cell".
+A \*\*matrix\*\* with dimensions \`c(N, 2)\`, where N is the number of
+input cells. The columns are named "bio35" (mean moisture of coldest
+period) and "cell".

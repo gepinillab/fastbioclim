@@ -1,6 +1,6 @@
 # bio30_terra: Lowest Moisture Unit
 
-Identifies lowest moisture unit, potentially using a static index.
+Identifies the lowest moisture of the unit with the lowest value.
 
 ## Usage
 
@@ -12,8 +12,15 @@ bio30_terra(mois, low_mois_unit = NULL)
 
 - mois:
 
-  spatRaster of moisture values for each unit.
+  A \`SpatRaster\` object where each layer represents moisture for a
+  temporal unit.
+
+- low_mois_unit:
+
+  (Optional) A single-layer \`SpatRaster\` where cell values are
+  integers indicating a static layer index (1-based). If \`NULL\`, the
+  overall minimum across all layers is calculated.
 
 ## Value
 
-spatRaster with "bio30".
+A single-layer \`SpatRaster\` with the minimum moisture, named "bio30".

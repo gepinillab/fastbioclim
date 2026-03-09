@@ -1,7 +1,7 @@
-# bio27_terra: Solar Radiation of Coldest Period
+# bio27_terra: Radiation of Coldest Period
 
-Calculates solar radiation mean of the period with the lowest
-temperature mean.
+Calculates the mean solar radiation of the specific rolling period
+identified as the coldest.
 
 ## Usage
 
@@ -13,12 +13,15 @@ bio27_terra(prad, coldest_period)
 
 - prad:
 
-  spatRaster of solar radiation period means.
+  A \`SpatRaster\` object where each layer is the mean solar radiation
+  for a rolling period.
 
 - coldest_period:
 
-  Vector indicating the index (1-based) of the coldest period.
+  A single-layer \`SpatRaster\` where cell values are integers
+  indicating the layer index (1-based) of the coldest period.
 
 ## Value
 
-spatRaster with "bio27".
+A single-layer \`SpatRaster\` with the solar radiation of the coldest
+period, named "bio27".

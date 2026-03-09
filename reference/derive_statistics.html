@@ -5,7 +5,7 @@ serves as a smart wrapper that automatically selects the most efficient
 processing workflow (in-memory vs. tiled)."><meta property="og:description" content="Calculates a wide range of custom summary statistics for a primary climate
 variable, with options for interactions with a second variable. This function
 serves as a smart wrapper that automatically selects the most efficient
-processing workflow (in-memory vs. tiled)."></head><body>
+processing workflow (in-memory vs. tiled)."><meta property="og:image" content="https://gepinillab.github.io/fastbioclim/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -13,7 +13,7 @@ processing workflow (in-memory vs. tiled)."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,9 +44,8 @@ processing workflow (in-memory vs. tiled)."></head><body>
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Derive Custom Summary Statistics from Climate Variables</h1>
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.3.0/R/derive_statistics.R" class="external-link"><code>R/derive_statistics.R</code></a></small>
+      <img src="../logo.png" class="logo" alt=""><h1>Derive Custom Summary Statistics from Climate Variables</h1>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/R/derive_statistics.R" class="external-link"><code>R/derive_statistics.R</code></a></small>
       <div class="d-none name"><code>derive_statistics.Rd</code></div>
     </div>
 
@@ -64,7 +63,7 @@ processing workflow (in-memory vs. tiled).</p>
 <span>  stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"max"</span>, <span class="st">"min"</span><span class="op">)</span>,</span>
 <span>  inter_variable <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  inter_stats <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  prefix_variable <span class="op">=</span> <span class="st">"var"</span>,</span>
+<span>  output_prefix <span class="op">=</span> <span class="st">"var"</span>,</span>
 <span>  suffix_inter_max <span class="op">=</span> <span class="st">"inter_high"</span>,</span>
 <span>  suffix_inter_min <span class="op">=</span> <span class="st">"inter_low"</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -104,9 +103,9 @@ variable. Supported: `"mean"`, `"max"`, `"min"`, `"sum"`, `"stdev"`, `"cv_cli"`,
 Requires `inter_variable`. Supported: `"max_inter"`, `"min_inter"`.</p></dd>
 
 
-<dt id="arg-prefix-variable">prefix_variable<a class="anchor" aria-label="anchor" href="#arg-prefix-variable"></a></dt>
+<dt id="arg-output-prefix">output_prefix<a class="anchor" aria-label="anchor" href="#arg-output-prefix"></a></dt>
 <dd><p>A character string used as the prefix for all output file
-names (e.g., `prefix_variable = "wind"` results in "wind_mean.tif", "wind_max.tif").</p></dd>
+names (e.g., `output_prefix = "wind"` results in "wind_mean.tif", "wind_max.tif").</p></dd>
 
 
 <dt id="arg-suffix-inter-max">suffix_inter_max<a class="anchor" aria-label="anchor" href="#arg-suffix-inter-max"></a></dt>
@@ -122,7 +121,11 @@ names (e.g., `prefix_variable = "wind"` results in "wind_mean.tif", "wind_max.ti
 
 
 <dt id="arg-period-length">period_length<a class="anchor" aria-label="anchor" href="#arg-period-length"></a></dt>
-<dd><p>Integer. The number of temporal units defining a "period". Default: 3.</p></dd>
+<dd><p>Integer. The number of temporal units (e.g., months) that
+define a "period". This is used for all period-based statistics, such as
+`"max_period"` and interactive statistics like `"max_inter"`. The same period
+length is applied to both the primary `variable` and the `inter_variable`
+when calculating these statistics. Default: 3.</p></dd>
 
 
 <dt id="arg-period-stats">period_stats<a class="anchor" aria-label="anchor" href="#arg-period-stats"></a></dt>
@@ -135,8 +138,9 @@ data over each period. Default: "mean".</p></dd>
 
 
 <dt id="arg-user-region">user_region<a class="anchor" aria-label="anchor" href="#arg-user-region"></a></dt>
-<dd><p>(Optional) An `sf` or `terra::SpatVector` object defining the
-area of interest.</p></dd>
+<dd><p>(Optional) An `sf` or `terra::SpatVector` object. If provided,
+the input raster `x` is clipped and masked to this region before processing.
+The output raster's extent is the same of the `user_region`.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -168,8 +172,10 @@ objects. See the "Static Indices" section.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A `terra::SpatRaster` object pointing to the newly created summary rasters.</p>
-    </div>
+    <p>A `terra::SpatRaster` object pointing to the newly created summary rasters, with the following characteristics:</p><ul><li><p>**Number of layers:** The number of layers is equal to the total number of statistics requested in the `stats` and `inter_stats` arguments.</p></li>
+<li><p>**Layer names:** Layer names are constructed by combining the `output_prefix` with the name of each statistic (e.g., 'prefix_mean', 'prefix_max'). For interactive statistics, the names are 'prefix_suffix_inter_high' and 'prefix_suffix_inter_low', where the suffixes are controlled by the `suffix_inter_max` and `suffix_inter_min` arguments.</p></li>
+<li><p>**Extent:** If a `user_region` is provided, the extent of the output raster will be clipped to match that region. Otherwise, the extent will be the same as the input `variable` raster.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function provides a flexible alternative to `derive_bioclim()` for any
@@ -189,6 +195,61 @@ Supported indices: `max_unit`, `min_unit`, `max_period`, `min_period`,
 `max_interactive`, `min_interactive`.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># The example raster "prcp.tif" is included in the package's `inst/extdata` directory.</span></span></span>
+<span class="r-in"><span><span class="co"># Load example data from Lesotho (Montlhy time series from 2016-01 to 2020-12)</span></span></span>
+<span class="r-in"><span><span class="va">raster_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"prcp.tif"</span>, package <span class="op">=</span> <span class="st">"fastbioclim"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Load the SpatRaster from the file</span></span></span>
+<span class="r-in"><span><span class="va">prcp_ts</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">raster_path</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># The data has 60 layers (5 years of monthly data), so we create an</span></span></span>
+<span class="r-in"><span><span class="co"># index to group layers by month (1 to 12).</span></span></span>
+<span class="r-in"><span><span class="va">monthly_index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">12</span>, times <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Define a temporary directory for the output files</span></span></span>
+<span class="r-in"><span><span class="va">output_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"prcp_stats"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Run the calculate_average function</span></span></span>
+<span class="r-in"><span><span class="va">monthly_avg</span> <span class="op">&lt;-</span> <span class="fu"><a href="calculate_average.html">calculate_average</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="va">prcp_ts</span>,</span></span>
+<span class="r-in"><span>  index <span class="op">=</span> <span class="va">monthly_index</span>,</span></span>
+<span class="r-in"><span>  output_names <span class="op">=</span> <span class="st">"prcp_avg"</span>,</span></span>
+<span class="r-in"><span>  output_dir <span class="op">=</span> <span class="va">output_dir</span>,</span></span>
+<span class="r-in"><span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Once the monthly averaged is obtained, we can use it to derive statictics of precipitation</span></span></span>
+<span class="r-in"><span><span class="co"># Here we will obtain four summary statitics: mean, maximum, minimum, and standard deviation</span></span></span>
+<span class="r-in"><span><span class="va">prcp_stats</span> <span class="op">&lt;-</span> <span class="fu">derive_statistics</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  variable <span class="op">=</span> <span class="va">monthly_avg</span>,</span></span>
+<span class="r-in"><span>  stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"max"</span>, <span class="st">"min"</span>, <span class="st">"stdev"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  prefix_variable <span class="op">=</span> <span class="st">"prcp"</span>,</span></span>
+<span class="r-in"><span>  output_dir <span class="op">=</span> <span class="va">output_dir</span>,</span></span>
+<span class="r-in"><span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using 'auto' method to select workflow...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Full rasters appear to fit in memory. Selecting 'terra' workflow.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SpatRasters have same extent, number of rows and columns, projection, resolution, and origin</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Writing GeoTIFFs...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Processing complete. Final rasters are in: /tmp/RtmpOdh5xU/prcp_stats</span>
+<span class="r-in"><span><span class="co"># Print the resulting SpatRaster summary with the four requested layers</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">prcp_stats</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> size        : 49, 57, 4  (nrow, ncol, nlyr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 0.04166673, 0.04166674  (x, y)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sources     : var_mean.tif  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               var_max.tif  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               var_min.tif  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               var_stdev.tif  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       : var_mean, var_max, var_min, var_stdev </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 37.43666,   75.44,    3.24,  27.61666 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 82.51000,  183.60,   13.70,  63.43156 </span>
+<span class="r-in"><span><span class="co"># Clean up the created files</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">output_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

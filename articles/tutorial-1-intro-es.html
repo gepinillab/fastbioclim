@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,14 +62,13 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Tutorial</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Tutorial</h1>
                         <h4 data-toc-skip class="author">Gonzalo E.
 Pinilla-Buitrago</h4>
             
             <h4 data-toc-skip class="date">2025-06-17</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.3.0/vignettes/tutorial-1-intro-es.Rmd" class="external-link"><code>vignettes/tutorial-1-intro-es.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/vignettes/tutorial-1-intro-es.Rmd" class="external-link"><code>vignettes/tutorial-1-intro-es.Rmd</code></a></small>
       <div class="d-none name"><code>tutorial-1-intro-es.Rmd</code></div>
     </div>
 
@@ -193,7 +192,7 @@ solo en GitHub).</p>
 <span><span class="op">)</span></span>
 <span><span class="co"># Plot bio01 y bio12</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bioclim_ecu</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bio01"</span>, <span class="st">"bio12"</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
 <div class="section level4">
 <h4 id="usando-temperatura-promedio-como-input">Usando temperatura promedio como input<a class="anchor" aria-label="anchor" href="#usando-temperatura-promedio-como-input"></a>
 </h4>
@@ -218,7 +217,7 @@ el cálculo de variables bioclimáticas.</p>
 <span><span class="op">)</span></span>
 <span><span class="co"># Diferencia entre bio01s cuando se usa tavg</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bioclim_ecu_v2</span><span class="op">[[</span><span class="st">"bio01"</span><span class="op">]</span><span class="op">]</span> <span class="op">-</span> <span class="va">bioclim_ecu</span><span class="op">[[</span><span class="st">"bio01"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level4">
 <h4 id="seleccionar-un-grupo-de-variables">Seleccionar un grupo de variables<a class="anchor" aria-label="anchor" href="#seleccionar-un-grupo-de-variables"></a>
@@ -242,7 +241,7 @@ secos/húmedos.</p>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bios4_ecu</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level4">
 <h4 id="construir-resúmenes-con-otras-variables">Construir resúmenes con otras variables<a class="anchor" aria-label="anchor" href="#construir-res%C3%BAmenes-con-otras-variables"></a>
@@ -262,14 +261,14 @@ trimestrales, usaremos los trimestres más húmedos y secos.</p>
 <span>  stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"max"</span>, <span class="st">"min"</span>, <span class="st">"stdev"</span>, <span class="st">"max_period"</span>, <span class="st">"min_period"</span><span class="op">)</span>,</span>
 <span>  inter_variable <span class="op">=</span> <span class="va">prcp_ecu</span>,</span>
 <span>  inter_stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"max_inter"</span>, <span class="st">"min_inter"</span><span class="op">)</span>,</span>
-<span>  prefix_variable <span class="op">=</span> <span class="st">"wind"</span>,</span>
+<span>  output_prefix <span class="op">=</span> <span class="st">"wind"</span>,</span>
 <span>  suffix_inter_max <span class="op">=</span> <span class="st">"wettest"</span>,</span>
 <span>  suffix_inter_min <span class="op">=</span> <span class="st">"driest"</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="va">wind_dir_ecu</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ecu_stats</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
 <p>También se pueden construir subconjuntos de variables, en este caso
 vamos a construir variables de viento, pero solo basado en la
 interacción con la temperatura, las cuales corresponden a “Viento en el
@@ -280,14 +279,14 @@ trimestre más cálido” y “Viento en el trimestre más frío”.</p>
 <span>  stats <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  inter_variable <span class="op">=</span> <span class="va">tavg_ecu</span>,</span>
 <span>  inter_stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"max_inter"</span>, <span class="st">"min_inter"</span><span class="op">)</span>,</span>
-<span>  prefix_variable <span class="op">=</span> <span class="st">"wind"</span>,</span>
+<span>  output_prefix <span class="op">=</span> <span class="st">"wind"</span>,</span>
 <span>  suffix_inter_max <span class="op">=</span> <span class="st">"warmest"</span>,</span>
 <span>  suffix_inter_min <span class="op">=</span> <span class="st">"coldest"</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="va">wind_dir_ecu</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ecu_stats_v2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
 <div class="section level3">
@@ -391,7 +390,7 @@ dicha área.</p>
 <span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"bio10_mex"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bio10_mex</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="ejemplo-con-variable-estática">Ejemplo con variable estática<a class="anchor" aria-label="anchor" href="#ejemplo-con-variable-est%C3%A1tica"></a>
@@ -417,7 +416,7 @@ como referencia en la creación de la variable ‘bio10’.</p>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">warmest</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"warmest_static.tif"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">warmest</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"warmest_static.tif"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">warmest</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="700"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Obtener solo bio10</span></span>
 <span><span class="va">bio10_war</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_bioclim.html">derive_bioclim</a></span><span class="op">(</span></span>
@@ -431,7 +430,7 @@ como referencia en la creación de la variable ‘bio10’.</p>
 <span><span class="op">)</span></span>
 <span><span class="co"># Diferencias en bio10 de México</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bio10_mex</span> <span class="op">-</span> <span class="va">bio10_war</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-es_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

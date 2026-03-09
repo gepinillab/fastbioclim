@@ -1,6 +1,7 @@
-# bio20_fast: Mean Solar Radiation of Units
+# bio20_fast: Mean Radiation
 
-Calculates mean solar radiation across all temporal units.
+Calculates mean solar radiation across all temporal units (usually 12
+months).
 
 ## Usage
 
@@ -12,12 +13,17 @@ bio20_fast(srad, cell)
 
 - srad:
 
-  Matrix of average solar radiation for each unit.
+  A numeric \*\*matrix\*\* where \*\*rows\*\* represent spatial units
+  (cells) and \*\*columns\*\* represent temporal units (e.g., 12
+  months).
 
 - cell:
 
-  Vector of original cell IDs.
+  A numeric or character \*\*vector\*\* of original cell IDs. Its length
+  must be exactly equal to the number of rows in \`srad\`.
 
 ## Value
 
-Matrix with columns: "bio20", "cell".
+A \*\*matrix\*\* with dimensions \`c(N, 2)\`, where N is the number of
+input cells. The columns are named "bio20" (the calculated mean) and
+"cell" (the IDs).

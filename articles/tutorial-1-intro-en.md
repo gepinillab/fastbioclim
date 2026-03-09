@@ -60,22 +60,29 @@ install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
 ```
 
-    ## terra (1.8-80 -> 1.8-86) [CRAN]
-    ## sf    (1.0-22 -> 1.0-23) [CRAN]
+    ## RcppArmad... (NA -> 15.2.3-1) [CRAN]
 
     ## ── R CMD build ─────────────────────────────────────────────────────────────────
-    ## * checking for file ‘/tmp/Rtmp2rLw7N/remotes21295312c222/gepinillab-fastbioclim-9e41cd8/DESCRIPTION’ ... OK
+    ## * checking for file ‘/tmp/RtmpvHHKOC/remotes23aa408e7215/gepinillab-fastbioclim-6bc2d2a/DESCRIPTION’ ... OK
     ## * preparing ‘fastbioclim’:
     ## * checking DESCRIPTION meta-information ... OK
     ## * checking for LF line-endings in source and make files and shell scripts
     ## * checking for empty or unneeded directories
     ## Omitted ‘LazyData’ from DESCRIPTION
-    ## * building ‘fastbioclim_0.3.0.tar.gz’
+    ## * building ‘fastbioclim_0.4.1.tar.gz’
 
 ``` r
 # Install to get the package example data 
 remotes::install_github("gepinillab/egdata.fastbioclim")
 ```
+
+    ## ── R CMD build ─────────────────────────────────────────────────────────────────
+    ## * checking for file ‘/tmp/RtmpvHHKOC/remotes23aa4d2e48f7/gepinillab-egdata.fastbioclim-f40549e/DESCRIPTION’ ... OK
+    ## * preparing ‘egdata.fastbioclim’:
+    ## * checking DESCRIPTION meta-information ... OK
+    ## * checking for LF line-endings in source and make files and shell scripts
+    ## * checking for empty or unneeded directories
+    ## * building ‘egdata.fastbioclim_0.1.0.tar.gz’
 
 Install and load the necessary packages:
 
@@ -208,7 +215,7 @@ ecu_stats <- derive_statistics(
   stats = c("mean", "max", "min", "stdev", "max_period", "min_period"),
   inter_variable = prcp_ecu,
   inter_stats = c("max_inter", "min_inter"),
-  prefix_variable = "wind",
+  output_prefix = "wind",
   suffix_inter_max = "wettest",
   suffix_inter_min = "driest",
   overwrite = TRUE,
@@ -230,7 +237,7 @@ ecu_stats_v2 <- derive_statistics(
   stats = NULL,
   inter_variable = tavg_ecu,
   inter_stats = c("max_inter", "min_inter"),
-  prefix_variable = "wind",
+  output_prefix = "wind",
   suffix_inter_max = "warmest",
   suffix_inter_min = "coldest",
   overwrite = TRUE,

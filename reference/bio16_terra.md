@@ -1,7 +1,7 @@
 # bio16_terra: Precipitation of Wettest Period
 
-Calculates precipitation sum of the period with the highest
-precipitation sum.
+Calculates the total precipitation of the specific rolling period
+identified as the wettest.
 
 ## Usage
 
@@ -13,12 +13,15 @@ bio16_terra(wet, wettest_period)
 
 - wet:
 
-  spatRaster of precipitation period sums.
+  A \`SpatRaster\` object where each layer is the precipitation sum for
+  a rolling period.
 
 - wettest_period:
 
-  Vector indicating the index (1-based) of the wettest period.
+  A single-layer \`SpatRaster\` where cell values are integers
+  indicating the layer index (1-based) of the wettest period.
 
 ## Value
 
-spatRaster with "bio16".
+A single-layer \`SpatRaster\` with the precipitation of the wettest
+period, named "bio16".

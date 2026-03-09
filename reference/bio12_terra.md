@@ -1,6 +1,7 @@
 # bio12_terra: Total Precipitation
 
-Calculates the sum of precipitation values across all units.
+Calculates the total precipitation (sum) across all temporal units
+(layers).
 
 ## Usage
 
@@ -12,8 +13,10 @@ bio12_terra(prcp)
 
 - prcp:
 
-  spatRaster of precipitation values for each unit.
+  A \`SpatRaster\` object where each layer represents precipitation for
+  a temporal unit.
 
 ## Value
 
-spatRaster with "bio12".
+A single-layer \`SpatRaster\` with the total precipitation, named
+"bio12".

@@ -1,7 +1,7 @@
-# bio26_terra: Solar Radiation of Warmest Period
+# bio26_terra: Radiation of Warmest Period
 
-Calculates solar radiation mean of the period with the highest
-temperature mean.
+Calculates the mean solar radiation of the specific rolling period
+identified as the warmest.
 
 ## Usage
 
@@ -13,12 +13,15 @@ bio26_terra(prad, warmest_period)
 
 - prad:
 
-  spatRaster of solar radiation period means.
+  A \`SpatRaster\` object where each layer is the mean solar radiation
+  for a rolling period.
 
 - warmest_period:
 
-  Vector indicating the index (1-based) of the warmest period.
+  A single-layer \`SpatRaster\` where cell values are integers
+  indicating the layer index (1-based) of the warmest period.
 
 ## Value
 
-spatRaster with "bio26".
+A single-layer \`SpatRaster\` with the solar radiation of the warmest
+period, named "bio26".

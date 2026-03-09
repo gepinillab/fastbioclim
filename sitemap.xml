@@ -8,8 +8,8 @@
 <url><loc>https://gepinillab.github.io/fastbioclim/authors.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/index.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/news/index.html</loc></url>
-<url><loc>https://gepinillab.github.io/fastbioclim/reference/average_fast.html</loc></url>
-<url><loc>https://gepinillab.github.io/fastbioclim/reference/average_terra.html</loc></url>
+<url><loc>https://gepinillab.github.io/fastbioclim/reference/aggregate_fast.html</loc></url>
+<url><loc>https://gepinillab.github.io/fastbioclim/reference/aggregate_terra.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/bio01_fast.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/bio01_terra.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/bio02_fast.html</loc></url>
@@ -85,6 +85,7 @@
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/bionames.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/calculate_average.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/calculate_roll.html</loc></url>
+<url><loc>https://gepinillab.github.io/fastbioclim/reference/calculate_sum.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/check_evar.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/check_rasters.html</loc></url>
 <url><loc>https://gepinillab.github.io/fastbioclim/reference/compute_periods.html</loc></url>

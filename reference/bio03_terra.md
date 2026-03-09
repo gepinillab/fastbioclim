@@ -1,6 +1,6 @@
 # bio03_terra: Isothermality
 
-Calculates (bio02 / bio07) \* 100.
+Calculates Isothermality, defined as (bio02 / bio07) \* 100.
 
 ## Usage
 
@@ -12,12 +12,13 @@ bio03_terra(bio02, bio07)
 
 - bio02:
 
-  spatRaster of bio02 values.
+  A single-layer \`SpatRaster\` of Mean Diurnal Range (Bio02).
 
 - bio07:
 
-  spatRaster of bio07 values.
+  A single-layer \`SpatRaster\` of Temperature Range (Bio07).
 
 ## Value
 
-spatRaster with "bio03".
+A single-layer \`SpatRaster\` with the calculated isothermality, named
+"bio03".

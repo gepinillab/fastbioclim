@@ -46,7 +46,10 @@ bioclim_fast(
 
 - user_region:
 
-  An \`sf\` or \`SpatVector\` object for the area of interest.
+  (Optional) An \`sf\` or \`terra::SpatVector\` object. If provided, the
+  input raster \`x\` is clipped and masked to this region before
+  processing. The output raster's extent is the same of the
+  \`user_region\`.
 
 - tile_degrees:
 

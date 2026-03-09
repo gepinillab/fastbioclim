@@ -11,13 +11,12 @@ The `fastbioclim` package offers two powerful and efficient functions
 for this task:
 
 1.  [`calculate_average()`](https://gepinillab.github.io/fastbioclim/reference/calculate_average.md):
-    Calculates a **static climatological average**. It answers the
-    question: *“What is the average maximum temperature for all
-    Januaries in my time series?”*.
+    Calculates a **long-term average**. It answers the question: *“What
+    is the average maximum temperature for all Januaries in my time
+    series?”*.
 2.  [`calculate_roll()`](https://gepinillab.github.io/fastbioclim/reference/calculate_roll.md):
-    Calculates a **rolling climatological average**. It answers the
-    question: *“How has the average for January evolved across different
-    time windows?”*.
+    Calculates a **rolling average**. It answers the question: *“How has
+    the average for January evolved across different time windows?”*.
 
 In this tutorial, we will explore how to use both functions with a
 sample dataset of monthly maximum temperature for Belize.
@@ -47,7 +46,7 @@ library(fastbioclim)
 library(terra)
 ```
 
-    ## terra 1.8.86
+    ## terra 1.9.1
 
 ``` r
 library(progressr)
@@ -95,7 +94,7 @@ print(tmax_bel)
 As we can see, `tmax_bel` is a `SpatRaster` with 468 layers, perfect for
 our examples.
 
-## 3. Static Climatological Averages with `calculate_average()`
+## 3. Long-term Averages with `calculate_average()`
 
 This is the most common way to calculate a climatology. We want to
 obtain 12 rasters: one for the average of all Januaries, one for all
@@ -114,14 +113,14 @@ tmax_subset <- tmax_bel[[1:360]]
 monthly_index <- rep(1:12, times = 30)
 
 # Create a temporary directory to save the results
-output_path_static <- file.path(tempdir(), "tmax_belize_static_avg")
+output_path_longterm <- file.path(tempdir(), "tmax_belize_longterm_avg")
 
 # Run the function
 # progressr will display a progress bar if the operation is lengthy
-tmax_avg_static <- calculate_average(
+tmax_avg_longterm <- calculate_average(
   x = tmax_subset,
   index = monthly_index,
-  output_dir = output_path_static,
+  output_dir = output_path_longterm,
   overwrite = TRUE, # Allow overwriting if the directory already exists
   output_names = "tmax_avg" # Prefix for the output files
 )
@@ -131,15 +130,15 @@ tmax_avg_static <- calculate_average(
 
     ## Data appears to fit in memory. Selecting 'terra' workflow.
 
-    ## Calculating averages using terra::tapp...
+    ## Calculating aggregations ('mean') using terra::tapp...
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpV8swLD/tmax_belize_static_avg
+    ## Processing complete. Final rasters are in: /tmp/Rtmp9TFB5f/tmax_belize_longterm_avg
 
 ``` r
 # The result is a SpatRaster with 12 layers
-print(tmax_avg_static)
+print(tmax_avg_longterm)
 ```
 
     ## class       : SpatRaster 
@@ -157,16 +156,16 @@ print(tmax_avg_static)
 
 ``` r
 # We can visualize the 12 monthly averages
-plot(tmax_avg_static)
+plot(tmax_avg_longterm)
 ```
 
-![](tutorial-2-avg-en_files/figure-html/static-average-1.png)
+![](tutorial-2-avg-en_files/figure-html/longterm-average-1.png)
 
-Done! `tmax_avg_static` now holds the 30-year climatology. The first
+Done! `tmax_avg_longterm` now holds the 30-year climatology. The first
 layer is the average of all Januaries, the second of all Februaries,
 etc.
 
-## 4. Rolling Climatological Averages with `calculate_roll()`
+## 4. Rolling Averages with `calculate_roll()`
 
 What if we want to see if the climate is changing? Instead of a single
 average, we can calculate averages for sliding time windows. For
@@ -244,7 +243,7 @@ tmax_roll_avg <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpV8swLD/tmax_belize_rolling_avg
+    ## Processing complete. Final rasters are in: /tmp/Rtmp9TFB5f/tmax_belize_rolling_avg
 
 ``` r
 # How many layers have we created?
@@ -348,7 +347,7 @@ tmax_roll_custom <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpV8swLD/tmax_belize_custom_names
+    ## Processing complete. Final rasters are in: /tmp/Rtmp9TFB5f/tmax_belize_custom_names
 
 ``` r
 # Let's verify the new names
@@ -391,7 +390,7 @@ plot(rolling_januaries[[20]] - rolling_januaries[[1]])
 This map shows how the average maximum temperature in January has
 changed over the last years, allowing us to identify warming or cooling
 trends. It’s important to note that the temperature layers used are
-scaled by 10. Therefore, some areas show changes of up to 0.8 degrees
+scaled by 10. Therefore, some areas show changes of up to 0.6 degrees
 Celsius.
 
 ## Conclusion
@@ -399,7 +398,7 @@ Celsius.
 The `fastbioclim` package greatly simplifies the calculation of temporal
 summaries for raster time series. \* Use
 [`calculate_average()`](https://gepinillab.github.io/fastbioclim/reference/calculate_average.md)
-for static climatologies over the entire study period. \* Use
+for long-term climatologies over the entire study period. \* Use
 [`calculate_roll()`](https://gepinillab.github.io/fastbioclim/reference/calculate_roll.md)
 to analyze trends and changes across moving time windows.
 

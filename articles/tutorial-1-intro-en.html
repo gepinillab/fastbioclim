@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,14 +62,13 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Tutorial</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Tutorial</h1>
                         <h4 data-toc-skip class="author">Gonzalo E.
 Pinilla-Buitrago</h4>
             
             <h4 data-toc-skip class="date">2025-06-17</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.3.0/vignettes/tutorial-1-intro-en.Rmd" class="external-link"><code>vignettes/tutorial-1-intro-en.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/vignettes/tutorial-1-intro-en.Rmd" class="external-link"><code>vignettes/tutorial-1-intro-en.Rmd</code></a></small>
       <div class="d-none name"><code>tutorial-1-intro-en.Rmd</code></div>
     </div>
 
@@ -129,21 +128,27 @@ do so by running:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"gepinillab/fastbioclim"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## terra (1.8-80 -&gt; 1.8-86) [CRAN]</span></span>
-<span><span class="co">## sf    (1.0-22 -&gt; 1.0-23) [CRAN]</span></span></code></pre>
+<pre><code><span><span class="co">## RcppArmad... (NA -&gt; 15.2.3-1) [CRAN]</span></span></code></pre>
 <pre><code><span><span class="co">## <span style="color: #00BBBB;">──</span> <span style="color: #00BBBB;">R CMD build</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span></span>
-<span><span class="co">## * checking for file ‘/tmp/Rtmp2rLw7N/remotes21295312c222/gepinillab-fastbioclim-9e41cd8/DESCRIPTION’ ... OK</span></span>
+<span><span class="co">## * checking for file ‘/tmp/RtmpvHHKOC/remotes23aa408e7215/gepinillab-fastbioclim-6bc2d2a/DESCRIPTION’ ... OK</span></span>
 <span><span class="co">## * preparing ‘fastbioclim’:</span></span>
 <span><span class="co">## * checking DESCRIPTION meta-information ... OK</span></span>
 <span><span class="co">## * checking for LF line-endings in source and make files and shell scripts</span></span>
 <span><span class="co">## * checking for empty or unneeded directories</span></span>
 <span><span class="co">## Omitted ‘LazyData’ from DESCRIPTION</span></span>
-<span><span class="co">## * building ‘fastbioclim_0.3.0.tar.gz’</span></span></code></pre>
+<span><span class="co">## * building ‘fastbioclim_0.4.1.tar.gz’</span></span></code></pre>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install to get the package example data </span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"gepinillab/egdata.fastbioclim"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">──</span> <span style="color: #00BBBB;">R CMD build</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span></span>
+<span><span class="co">## * checking for file ‘/tmp/RtmpvHHKOC/remotes23aa4d2e48f7/gepinillab-egdata.fastbioclim-f40549e/DESCRIPTION’ ... OK</span></span>
+<span><span class="co">## * preparing ‘egdata.fastbioclim’:</span></span>
+<span><span class="co">## * checking DESCRIPTION meta-information ... OK</span></span>
+<span><span class="co">## * checking for LF line-endings in source and make files and shell scripts</span></span>
+<span><span class="co">## * checking for empty or unneeded directories</span></span>
+<span><span class="co">## * building ‘egdata.fastbioclim_0.1.0.tar.gz’</span></span></code></pre>
 <p>Install and load the necessary packages:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load libraries and install them if necessary</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://rspatial.org/" class="external-link">"terra"</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"terra"</span><span class="op">)</span> </span>
@@ -171,7 +176,7 @@ averages of temperature and precipitation over decades. For this
 example, we will use variables obtained and processed from CHELSA v2.1
 (Karger et al., 2017) for Ecuador, which are available within the data
 package (<code>egdata.fastbioclim</code> on GitHub only).</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get a list of rasters and create a SpatRaster for each variable</span></span>
 <span><span class="co"># Minimum temperature</span></span>
 <span><span class="va">tmin_ecu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/ecuador/"</span>, package <span class="op">=</span> <span class="st">"egdata.fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -197,14 +202,14 @@ package (<code>egdata.fastbioclim</code> on GitHub only).</p>
 <span><span class="op">)</span></span>
 <span><span class="co"># Plot bio01 and bio12</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bioclim_ecu</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bio01"</span>, <span class="st">"bio12"</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
 <div class="section level4">
 <h4 id="using-average-temperature-as-input">Using Average Temperature as Input<a class="anchor" aria-label="anchor" href="#using-average-temperature-as-input"></a>
 </h4>
 <p>The <code>fastbioclim</code> package also offers the option to use
 average temperature (defined with the <code>tavg</code> parameter) for
 calculating bioclimatic variables.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Average temperature</span></span>
 <span><span class="va">tavg_ecu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/ecuador/"</span>, package <span class="op">=</span> <span class="st">"egdata.fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"tavg"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -222,7 +227,7 @@ calculating bioclimatic variables.</p>
 <span><span class="op">)</span></span>
 <span><span class="co"># Difference between bio01s when tavg is used</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bioclim_ecu_v2</span><span class="op">[[</span><span class="st">"bio01"</span><span class="op">]</span><span class="op">]</span> <span class="op">-</span> <span class="va">bioclim_ecu</span><span class="op">[[</span><span class="st">"bio01"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level4">
 <h4 id="selecting-a-subset-of-variables">Selecting a Subset of Variables<a class="anchor" aria-label="anchor" href="#selecting-a-subset-of-variables"></a>
@@ -236,7 +241,7 @@ In the following example, only four variables will be obtained (bio05,
 bio06, bio13, and bio14). This example is somewhat faster, as it is not
 necessary to internally calculate the warmest/coldest or driest/wettest
 quarters.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bios4_ecu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_bioclim.html">derive_bioclim</a></span><span class="op">(</span></span>
 <span>  tmin <span class="op">=</span> <span class="va">tmin_ecu</span>, </span>
 <span>  tmax <span class="op">=</span> <span class="va">tmax_ecu</span>, </span>
@@ -245,7 +250,7 @@ quarters.</p>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bios4_ecu</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level4">
 <h4 id="building-summaries-with-other-variables">Building Summaries with Other Variables<a class="anchor" aria-label="anchor" href="#building-summaries-with-other-variables"></a>
@@ -255,7 +260,7 @@ option to obtain statistics similar to bioclimatic variables but with
 other variables. As an example, we will create summaries of average
 monthly wind variables. For the quarterly interactive variables, we will
 use the wettest and driest quarters.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wind_ecu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/ecuador/"</span>, package <span class="op">=</span> <span class="st">"egdata.fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"wind"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">wind_dir_ecu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"wind_ecuador"</span><span class="op">)</span></span>
@@ -265,32 +270,32 @@ use the wettest and driest quarters.</p>
 <span>  stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"max"</span>, <span class="st">"min"</span>, <span class="st">"stdev"</span>, <span class="st">"max_period"</span>, <span class="st">"min_period"</span><span class="op">)</span>,</span>
 <span>  inter_variable <span class="op">=</span> <span class="va">prcp_ecu</span>,</span>
 <span>  inter_stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"max_inter"</span>, <span class="st">"min_inter"</span><span class="op">)</span>,</span>
-<span>  prefix_variable <span class="op">=</span> <span class="st">"wind"</span>,</span>
+<span>  output_prefix <span class="op">=</span> <span class="st">"wind"</span>,</span>
 <span>  suffix_inter_max <span class="op">=</span> <span class="st">"wettest"</span>,</span>
 <span>  suffix_inter_min <span class="op">=</span> <span class="st">"driest"</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="va">wind_dir_ecu</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ecu_stats</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="700"></p>
 <p>Subsets of variables can also be constructed. In this case, we will
 create wind variables, but only based on the interaction with
 temperature, which correspond to “Wind in the warmest quarter” and “Wind
 in the coldest quarter”.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ecu_stats_v2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_statistics.html">derive_statistics</a></span><span class="op">(</span></span>
 <span>  variable <span class="op">=</span> <span class="va">wind_ecu</span>,</span>
 <span>  stats <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  inter_variable <span class="op">=</span> <span class="va">tavg_ecu</span>,</span>
 <span>  inter_stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"max_inter"</span>, <span class="st">"min_inter"</span><span class="op">)</span>,</span>
-<span>  prefix_variable <span class="op">=</span> <span class="st">"wind"</span>,</span>
+<span>  output_prefix <span class="op">=</span> <span class="st">"wind"</span>,</span>
 <span>  suffix_inter_max <span class="op">=</span> <span class="st">"warmest"</span>,</span>
 <span>  suffix_inter_min <span class="op">=</span> <span class="st">"coldest"</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="va">wind_dir_ecu</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ecu_stats_v2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
 <div class="section level3">
@@ -315,7 +320,7 @@ documentation of that package.</p>
 function <code><a href="https://progressr.futureverse.org/reference/handlers.html" class="external-link">progressr::handlers()</a></code> or
 <code><a href="https://progressr.futureverse.org/reference/with_progress.html" class="external-link">progressr::with_progress()</a></code>. For more information, consult
 the documentation of that package.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get a list of rasters and create a SpatRaster for each variable</span></span>
 <span><span class="co"># Average temperature</span></span>
 <span><span class="va">tavg_neo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/neotropics/"</span>, package <span class="op">=</span> <span class="st">"egdata.fastbioclim"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -380,7 +385,7 @@ the documentation of that package.</p>
 the option to provide an ‘sf’ object to delimit and mask an area of
 interest. The calculation of the bioclimatic variables will only be
 performed in this area.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get areas of interest</span></span>
 <span><span class="va">mex</span> <span class="op">&lt;-</span> <span class="fu">qs2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qs2/man/qs_read.html" class="external-link">qs_read</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/mex.qs2"</span>, package <span class="op">=</span> <span class="st">"egdata.fastbioclim"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co"># Get only bio10</span></span>
@@ -393,7 +398,7 @@ performed in this area.</p>
 <span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"bio10_mex"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bio10_mex</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="example-with-a-static-variable">Example with a Static Variable<a class="anchor" aria-label="anchor" href="#example-with-a-static-variable"></a>
@@ -410,7 +415,7 @@ we must create a SpatRaster that defines the period of interest. In
 period or the unit. In this case, that month corresponds to the number
 6. Therefore, we will create a raster filled with this number, to then
 be used as a reference in the creation of the ‘bio10’ variable.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a raster of 6s for the Neotropics</span></span>
 <span><span class="va">warmest</span> <span class="op">&lt;-</span> <span class="va">tavg_neo</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">warmest</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">warmest</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">6</span></span>
@@ -419,8 +424,8 @@ be used as a reference in the creation of the ‘bio10’ variable.</p>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">warmest</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"warmest_static.tif"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">warmest</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"warmest_static.tif"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">warmest</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" width="700"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get only bio10</span></span>
 <span><span class="va">bio10_war</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_bioclim.html">derive_bioclim</a></span><span class="op">(</span></span>
 <span>  bios <span class="op">=</span> <span class="fl">10</span>,</span>
@@ -433,7 +438,7 @@ be used as a reference in the creation of the ‘bio10’ variable.</p>
 <span><span class="op">)</span></span>
 <span><span class="co"># Differences in bio10 for Mexico</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">bio10_mex</span> <span class="op">-</span> <span class="va">bio10_war</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" width="700"></p>
+<p><img src="tutorial-1-intro-en_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

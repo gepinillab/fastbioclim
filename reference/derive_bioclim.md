@@ -98,11 +98,24 @@ derive_bioclim(
 
 ## Value
 
-An SpatRaster with 35 bioclimatic variables or a subset of them:
+A \`terra::SpatRaster\` object pointing to the newly created bioclimatic
+variable rasters, with the following characteristics:
+
+- \*\*Number of layers:\*\* The number of layers is equal to the number
+  of unique variables requested in the \`bios\` argument.
+
+- \*\*Layer names:\*\* Layer names are standardized (e.g., 'bio01',
+  'bio12') corresponding to the requested variable numbers.
+
+- \*\*Extent:\*\* If a \`user_region\` is provided, the extent of the
+  output raster will be clipped to match that region. Otherwise, the
+  extent will be the same as the input rasters.
+
+The returned object contains the following calculated variables:
 
 - bio01:
 
-  Mean Temperature of Units
+  Mean Temperature
 
 - bio02:
 
@@ -126,7 +139,7 @@ An SpatRaster with 35 bioclimatic variables or a subset of them:
 
 - bio07:
 
-  Temperature Range of Units
+  Temperature Range
 
 - bio08:
 
@@ -178,7 +191,7 @@ An SpatRaster with 35 bioclimatic variables or a subset of them:
 
 - bio20:
 
-  Mean Radiation of Units
+  Mean Radiation
 
 - bio21:
 
@@ -210,35 +223,35 @@ An SpatRaster with 35 bioclimatic variables or a subset of them:
 
 - bio28\*:
 
-  Mean Moisture Content Of Units
+  Mean Moisture
 
 - bio29\*:
 
-  Highest Moisture Content Unit
+  Highest Moisture Unit
 
 - bio30\*:
 
-  Lowest Moisture Content Unit
+  Lowest Moisture Unit
 
 - bio31\*:
 
-  Moisture Content Seasonality
+  Moisture Seasonality
 
 - bio32\*:
 
-  Mean Moisture Content of Most Moist Period
+  Mean Moisture of Most Moist Period
 
 - bio33\*:
 
-  Mean Moisture Content of Least Moist Period
+  Mean Moisture of Least Moist Period
 
 - bio34\*:
 
-  Mean Moisture Content of Warmest Period
+  Mean Moisture of Warmest Period
 
 - bio35\*:
 
-  Mean Moisture Content of Coldest Period
+  Mean Moisture of Coldest Period
 
 ## Details
 
@@ -295,24 +308,53 @@ supporting ecological applications in the conterminous United States.
 ANUCLIM 6.1 User Guide. Centre for Resource and Environmental Studies,
 The Australian National University.
 
-## See also
-
-\`validate_climate_inputs()\` to check data integrity before processing.
-
 ## Examples
 
 ``` r
-# This is a conceptual example, requires data setup
-if (FALSE) { # \dontrun{
-  # Assume tmin_rast, tmax_rast, prcp_rast are 12-layer SpatRasters
-  bioclim_vars <- derive_bioclim(
-    bios = 1:19,
-    tmin = tmin_rast,
-    tmax = tmax_rast,
-    prcp = prcp_rast,
-    output_dir = "./bioclim_output",
-    overwrite = TRUE
-  )
-  plot(bioclim_vars[[c("bio01", "bio12")]])
-} # }
+# \donttest{
+# The example raster "prcp.tif" is included in the package's `inst/extdata` directory.
+# Load example data from Lesotho (Montlhy time series from 2016-01 to 2020-12)
+raster_path <- system.file("extdata", "prcp.tif", package = "fastbioclim")
+# Load the SpatRaster from the file
+prcp_ts <- terra::rast(raster_path)
+# The data has 60 layers (5 years of monthly data), so we create an
+# index to group layers by month (1 to 12).
+monthly_index <- rep(1:12, times = 5)
+# Define a temporary directory for the output files
+output_dir <- file.path(tempdir(), "prcp_bios")
+# Run the calculate_average function
+monthly_avg <- calculate_average(
+  x = prcp_ts,
+  index = monthly_index,
+  output_names = "prcp_avg",
+  output_dir = output_dir,
+  overwrite = TRUE,
+  verbose = FALSE
+)
+# Once the monthly averaged is obtained, we can use it to obtain bioclimatic variables based
+# just in precipitation (bios 12, 13, 14, 15, 16, 17).
+prcp_bios <- derive_bioclim(
+  bios = 12:17,
+  prcp = monthly_avg,
+  output_dir = output_dir,
+  overwrite = TRUE,
+  verbose = FALSE
+)
+# Print the resulting SpatRaster summary with the four requested layers
+print(prcp_bios)
+#> class       : SpatRaster 
+#> size        : 49, 57, 6  (nrow, ncol, nlyr)
+#> resolution  : 0.04166673, 0.04166674  (x, y)
+#> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)
+#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs 
+#> sources     : bio12.tif  
+#>               bio13.tif  
+#>               bio14.tif  
+#>               ... and 3 more sources
+#> names       :  bio12,  bio13, bio14,    bio15, bio16, bio17 
+#> min values  : 449.24,  75.44,  3.24, 63.89158, 220.8, 12.82 
+#> max values  : 990.12, 183.60, 13.70, 81.78966, 504.6, 52.54 
+# Clean up the created files
+unlink(output_dir, recursive = TRUE)
+# }
 ```

@@ -1,7 +1,7 @@
 # bio09_terra: Mean Temperature of Driest Period
 
-Calculates mean temperature of the period with the lowest precipitation
-sum.
+Calculates the mean temperature of the specific rolling period
+identified as the driest.
 
 ## Usage
 
@@ -13,12 +13,15 @@ bio09_terra(tmp, driest_period)
 
 - tmp:
 
-  spatRaster of temperature period sums.
+  A \`SpatRaster\` object where each layer represents the mean
+  temperature for a rolling period.
 
 - driest_period:
 
-  Vector indicating the index (1-based) of the driest period.
+  A single-layer \`SpatRaster\` where cell values are integers
+  indicating the layer index (1-based) of the driest period.
 
 ## Value
 
-spatRaster with "bio09".
+A single-layer \`SpatRaster\` containing the mean temperature of the
+driest period, named "bio09".

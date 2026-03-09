@@ -1,6 +1,6 @@
-# bio01_terra: Mean Temperature of Units
+# bio01_terra: Mean Temperature
 
-Calculates mean temperature across all temporal units.
+Calculates mean temperature across all temporal units (layers).
 
 ## Usage
 
@@ -12,8 +12,10 @@ bio01_terra(tavg)
 
 - tavg:
 
-  spatRaster of average temperatures for each unit.
+  A \`SpatRaster\` object where each layer represents average
+  temperature for a temporal unit (e.g., 12 months).
 
 ## Value
 
-spatRaster with "bio01".
+A single-layer \`SpatRaster\` with the calculated mean temperature,
+named "bio01".

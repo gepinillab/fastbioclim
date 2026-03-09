@@ -1,7 +1,7 @@
-# bio34_terra: Moisture of Warmest Period
+# bio34_terra: Mean Moisture of Warmest Period
 
-Calculates moisture mean of the period with the highest temperature
-mean.
+Calculates the mean moisture of the specific rolling period identified
+as the warmest.
 
 ## Usage
 
@@ -13,12 +13,15 @@ bio34_terra(pmois, warmest_period)
 
 - pmois:
 
-  spatRaster of moisture period means.
+  A \`SpatRaster\` object where each layer is the mean moisture for a
+  rolling period.
 
 - warmest_period:
 
-  Vector indicating the index (1-based) of the warmest period.
+  A single-layer \`SpatRaster\` where cell values are integers
+  indicating the layer index (1-based) of the warmest period.
 
 ## Value
 
-spatRaster with "bio34".
+A single-layer \`SpatRaster\` with the moisture of the warmest period,
+named "bio34".

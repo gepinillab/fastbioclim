@@ -1,7 +1,7 @@
-# bio26_fast: Solar Radiation of Warmest Period
+# bio26_fast: Radiation of Warmest Period
 
-Calculates solar radiation mean of the period with the highest
-temperature mean.
+Calculates the mean solar radiation of the specific rolling period
+identified as the warmest (highest temperature).
 
 ## Usage
 
@@ -13,16 +13,23 @@ bio26_fast(speriod, tperiod_max_idx, cell)
 
 - speriod:
 
-  Matrix of solar radiation period means (output from \`var_periods\`).
+  A numeric \*\*matrix\*\* of solar radiation values (means) for each
+  rolling period. \*\*Rows\*\* represent spatial units (cells).
+  \*\*Columns\*\* represent the rolling periods.
 
 - tperiod_max_idx:
 
-  Vector indicating the index (1-based) of the warmest period.
+  An integer \*\*vector\*\* indicating the column index (1-based) of the
+  warmest period for each row. Its length must be exactly equal to the
+  number of rows in \`speriod\`.
 
 - cell:
 
-  Vector of original cell IDs.
+  A vector of original cell IDs. Its length must be exactly equal to the
+  number of rows in \`speriod\`.
 
 ## Value
 
-Matrix with "bio26", "cell".
+A \*\*matrix\*\* with dimensions \`c(N, 2)\`, where N is the number of
+input cells. The columns are named "bio26" (mean solar radiation of
+warmest period) and "cell".

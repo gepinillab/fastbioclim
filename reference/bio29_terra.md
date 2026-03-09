@@ -1,6 +1,6 @@
 # bio29_terra: Highest Moisture Unit
 
-Identifies highest moisture unit, potentially using a static index.
+Identifies the highest moisture of the unit with the highest value.
 
 ## Usage
 
@@ -12,8 +12,15 @@ bio29_terra(mois, high_mois_unit = NULL)
 
 - mois:
 
-  spatRaster of moisture values for each unit.
+  A \`SpatRaster\` object where each layer represents moisture for a
+  temporal unit.
+
+- high_mois_unit:
+
+  (Optional) A single-layer \`SpatRaster\` where cell values are
+  integers indicating a static layer index (1-based). If \`NULL\`, the
+  overall maximum across all layers is calculated.
 
 ## Value
 
-spatRaster with "bio29".
+A single-layer \`SpatRaster\` with the maximum moisture, named "bio29".

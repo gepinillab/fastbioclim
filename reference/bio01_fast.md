@@ -1,6 +1,7 @@
-# bio01_fast: Mean Temperature of Units
+# bio01_fast: Mean Temperature
 
-Calculates mean temperature across all temporal units.
+Calculates mean temperature across all temporal units (usually 12
+months).
 
 ## Usage
 
@@ -12,12 +13,17 @@ bio01_fast(tavg, cell)
 
 - tavg:
 
-  Matrix of average temperatures for each unit.
+  A numeric \*\*matrix\*\* where \*\*rows\*\* represent spatial units
+  (cells) and \*\*columns\*\* represent temporal units (e.g., 12
+  months).
 
 - cell:
 
-  Vector of original cell IDs.
+  A numeric or character \*\*vector\*\* of original cell IDs. Its length
+  must be exactly equal to the number of rows in \`tavg\`.
 
 ## Value
 
-Matrix with columns: "bio01", "cell".
+A \*\*matrix\*\* with dimensions \`c(N, 2)\`, where N is the number of
+input cells. The columns are named "bio01" (the calculated mean) and
+"cell" (the IDs).
