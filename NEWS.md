@@ -1,3 +1,12 @@
+fastbioclim 0.4.0
+=============
+- New calculate_sum()
+- Improved documentation
+- Standarized parameters
+- Updated bionames()
+- Updated README and DESCRIPTION files
+- New Logo
+
 fastbioclim 0.3.0
 =============
 - Changing to qs2 instead of qs package
