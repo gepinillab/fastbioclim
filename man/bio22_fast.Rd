@@ -2,21 +2,28 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio22_fast}
 \alias{bio22_fast}
-\title{bio22_fast: Lowest Solar Radiation Unit}
+\title{bio22_fast: Lowest Radiation Unit}
 \usage{
 bio22_fast(srad, cell, index_vector = NULL)
 }
 \arguments{
-\item{srad}{Matrix of solar radiation values for each unit.}
+\item{srad}{A numeric **matrix** of solar radiation values. **Rows** represent spatial units (cells) 
+and **columns** represent temporal units (e.g., months).}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `srad`.}
 
-\item{index_vector}{Optional vector of unit indices (1-based). If provided, extracts Srad for that unit. If NULL, finds overall max Srad.}
+\item{index_vector}{(Optional) An integer **vector** of column indices (1-based). 
+If provided, its length must be exactly equal to the number of rows in `srad`. 
+Values must be between 1 and `ncol(srad)`. 
+This is typically used to extract the solar radiation of a specific unit identified by another metric.}
 }
 \value{
-Matrix with "bio22", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio22" (the minimum solar radiation) and "cell".
 }
 \description{
-Identifies lowest solar radiation unit, potentially using a static index.
+Identifies the lowest solar radiation of the temporal unit with the lowest value. 
+  If `index_vector` is `NULL`, it calculates the row-wise minimum. 
+  If `index_vector` is provided, it extracts the value from the specific column index for each row.
 }
 \keyword{internal}

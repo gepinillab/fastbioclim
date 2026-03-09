@@ -61,15 +61,21 @@
 #' @param ... Additional arguments, primarily for passing static index rasters. See
 #'   the "Static Indices" section for details.
 #'
-#' @return An SpatRaster with 35 bioclimatic variables or a subset of them:
+#' @return A `terra::SpatRaster` object pointing to the newly created bioclimatic variable rasters, with the following characteristics:
+#'   \itemize{
+#'     \item **Number of layers:** The number of layers is equal to the number of unique variables requested in the `bios` argument.
+#'     \item **Layer names:** Layer names are standardized (e.g., 'bio01', 'bio12') corresponding to the requested variable numbers.
+#'     \item **Extent:** If a `user_region` is provided, the extent of the output raster will be clipped to match that region. Otherwise, the extent will be the same as the input rasters.
+#'   }
+#'   The returned object contains the following calculated variables:
 #' \describe{
-#'   \item{bio01}{Mean Temperature of Units}
+#'   \item{bio01}{Mean Temperature}
 #'   \item{bio02}{Mean Diurnal Range}
 #'   \item{bio03}{Isothermality}
 #'   \item{bio04}{Temperature Seasonality}
 #'   \item{bio05}{Max Temperature of Warmest Unit}
 #'   \item{bio06}{Min Temperature of Coldest Unit}
-#'   \item{bio07}{Temperature Range of Units}
+#'   \item{bio07}{Temperature Range}
 #'   \item{bio08}{Mean Temperature of Wettest Period}
 #'   \item{bio09}{Mean Temperature of Driest Period}
 #'   \item{bio10}{Mean Temperature of Warmest Period}
@@ -82,7 +88,7 @@
 #'   \item{bio17}{Precipitation of Driest Period}
 #'   \item{bio18}{Precipitation of Warmest Period}
 #'   \item{bio19}{Precipitation of Coldest Period}
-#'   \item{bio20}{Mean Radiation of Units}
+#'   \item{bio20}{Mean Radiation}
 #'   \item{bio21}{Highest Radiation Unit}
 #'   \item{bio22}{Lowest Radiation Unit}
 #'   \item{bio23}{Radiation Seasonality}
@@ -90,41 +96,59 @@
 #'   \item{bio25}{Radiation of Driest Period}
 #'   \item{bio26}{Radiation of Warmest Period}
 #'   \item{bio27}{Radiation of Coldest Period}
-#'   \item{bio28*}{Mean Moisture Content Of Units}
-#'   \item{bio29*}{Highest Moisture Content Unit}
-#'   \item{bio30*}{Lowest Moisture Content Unit}
-#'   \item{bio31*}{Moisture Content Seasonality}
-#'   \item{bio32*}{Mean Moisture Content of Most Moist Period}
-#'   \item{bio33*}{Mean Moisture Content of Least Moist Period}
-#'   \item{bio34*}{Mean Moisture Content of Warmest Period}
-#'   \item{bio35*}{Mean Moisture Content of Coldest Period}
+#'   \item{bio28*}{Mean Moisture}
+#'   \item{bio29*}{Highest Moisture Unit}
+#'   \item{bio30*}{Lowest Moisture Unit}
+#'   \item{bio31*}{Moisture Seasonality}
+#'   \item{bio32*}{Mean Moisture of Most Moist Period}
+#'   \item{bio33*}{Mean Moisture of Least Moist Period}
+#'   \item{bio34*}{Mean Moisture of Warmest Period}
+#'   \item{bio35*}{Mean Moisture of Coldest Period}
 #' }
 #' @note 
 #' *The original moisture variables proposed in the ANUCLIM manual are based 
 #' on the Moisture Index (MI). However, this function allows users to calculate 
 #' moisture-based bioclimatic variables using other units of moisture 
 #' as inputs, offering greater flexibility in input data usage.
-#' 
-#' @export
-#' @seealso `validate_climate_inputs()` to check data integrity before processing.
+#' @examples
+#' \donttest{
+#' # The example raster "prcp.tif" is included in the package's `inst/extdata` directory.
+#' # Load example data from Lesotho (Montlhy time series from 2016-01 to 2020-12)
+#' raster_path <- system.file("extdata", "prcp.tif", package = "fastbioclim")
+#' # Load the SpatRaster from the file
+#' prcp_ts <- terra::rast(raster_path)
+#' # The data has 60 layers (5 years of monthly data), so we create an
+#' # index to group layers by month (1 to 12).
+#' monthly_index <- rep(1:12, times = 5)
+#' # Define a temporary directory for the output files
+#' output_dir <- file.path(tempdir(), "prcp_bios")
+#' # Run the calculate_average function
+#' monthly_avg <- calculate_average(
+#'   x = prcp_ts,
+#'   index = monthly_index,
+#'   output_names = "prcp_avg",
+#'   output_dir = output_dir,
+#'   overwrite = TRUE,
+#'   verbose = FALSE
+#' )
+#' # Once the monthly averaged is obtained, we can use it to obtain bioclimatic variables based
+#' # just in precipitation (bios 12, 13, 14, 15, 16, 17).
+#' prcp_bios <- derive_bioclim(
+#'   bios = 12:17,
+#'   prcp = monthly_avg,
+#'   output_dir = output_dir,
+#'   overwrite = TRUE,
+#'   verbose = FALSE
+#' )
+#' # Print the resulting SpatRaster summary with the four requested layers
+#' print(prcp_bios)
+#' # Clean up the created files
+#' unlink(output_dir, recursive = TRUE)
+#' }
 #' @references
 #' O’Donnell, M. S., & Ignizio, D. A. (2012). Bioclimatic predictors for supporting ecological applications in the conterminous United States.
 #' ANUCLIM 6.1 User Guide. Centre for Resource and Environmental Studies, The Australian National University.
-#' @examples
-#' # This is a conceptual example, requires data setup
-#' \dontrun{
-#'   # Assume tmin_rast, tmax_rast, prcp_rast are 12-layer SpatRasters
-#'   bioclim_vars <- derive_bioclim(
-#'     bios = 1:19,
-#'     tmin = tmin_rast,
-#'     tmax = tmax_rast,
-#'     prcp = prcp_rast,
-#'     output_dir = "./bioclim_output",
-#'     overwrite = TRUE
-#'   )
-#'   plot(bioclim_vars[[c("bio01", "bio12")]])
-#' }
-#'
+#' @export
 derive_bioclim <- function(bios,
   tmin = NULL, tmax = NULL, prcp = NULL, tavg = NULL, srad = NULL, mois = NULL,
   output_dir = tempdir(),
@@ -149,19 +173,19 @@ derive_bioclim <- function(bios,
   if (!overwrite) {
     if (length(existing_files) > 0) {
       stop(
-        c("Output files already exist and `overwrite` is FALSE.",
-          "i" = "The following files would be overwritten:",
+        c("Output files already exist and `overwrite` is FALSE. ",
+          "i" = "The following files would be overwritten: ",
           "*" = paste(basename(existing_files), collapse = ", "),
-          "i" = "To proceed, set `overwrite = TRUE` or remove these files manually."))
+          "i" = "\nTo proceed, set `overwrite = TRUE` or remove these files manually."))
     }
   } else {
     if (length(existing_files) > 0) {
       warning(
-        c("Overwriting existing files in the output directory.",
-          "i" = "The following files will be replaced:",
+        c("Overwriting existing files in the output directory. ",
+          "i" = "The following files will be replaced: ",
           "*" = paste(basename(existing_files), collapse = ", "),
-          "!" = "CAUTION: If this run uses a different context (e.g., a new spatial extent or time period) than a previous run, you will be altering the source files for those results (whcih could be another R object already created).",
-          "i" = "To ensure data integrity, it is strongly recommended to use a new, empty `output_dir` for each distinct analysis (e.g., extent or period)."
+          "!" = "\nCAUTION: If this run uses a different context (e.g., a new spatial extent or time period) than a previous run, you will be altering the source files for those results (which could be another R object already created).",
+          "i" = "\nTo ensure data integrity, it is strongly recommended to use a new, empty `output_dir` for each distinct analysis (e.g., extent or period)."
         )
       )
     }
@@ -189,6 +213,20 @@ derive_bioclim <- function(bios,
   if (length(all_input_rasters) == 0) stop("No input SpatRaster objects were provided.")
 
   full_raster_stack <- do.call(c, all_input_rasters)
+
+  # Check if input follows the standard 12-month framework
+  # We check the first non-null climate input to determine layer count
+  if (length(input_rasters) > 0) {
+    n_layers <- terra::nlyr(input_rasters[[1]])
+    
+    if (n_layers != 12) {
+      message(paste0(
+        "Input data has ", n_layers, " layers. The standard Bioclim framework is based on 12 monthly layers.\n",
+        "Calculated variables will represent the specific temporal unit of the input (e.g., weeks, days) ",
+        "rather than the strict standard (e.g., bio05: 'Warmest Week' vs 'Warmest Month')."
+      ), call. = FALSE)
+    }
+  }
 
   # --- 4. The Multi-Stage Decision Logic ---
   use_terra_workflow <- FALSE
@@ -249,7 +287,7 @@ derive_bioclim <- function(bios,
   } else { # Tiled workflow
     if (any(unlist(sapply(all_input_rasters, terra::inMemory, simplify = FALSE)))) {
       stop(
-        c("The 'tiled' workflow requires all input SpatRasters (including static indices) to point to files on disk.",
+        c("The 'tiled' workflow requires all input SpatRasters (including static indices) to point to files on disk. ",
           "i" = "Please save any in-memory rasters to disk first or use `method = 'terra'` if they are small enough."))
     }
     if (verbose) message("Extracting file paths from SpatRasters for tiled workflow.")

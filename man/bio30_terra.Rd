@@ -7,12 +7,14 @@
 bio30_terra(mois, low_mois_unit = NULL)
 }
 \arguments{
-\item{mois}{spatRaster of moisture values for each unit.}
+\item{mois}{A `SpatRaster` object where each layer represents moisture for a temporal unit.}
+
+\item{low_mois_unit}{(Optional) A single-layer `SpatRaster` where cell values are integers indicating a static layer index (1-based). If `NULL`, the overall minimum across all layers is calculated.}
 }
 \value{
-spatRaster with "bio30".
+A single-layer `SpatRaster` with the minimum moisture, named "bio30".
 }
 \description{
-Identifies lowest moisture unit, potentially using a static index.
+Identifies the lowest moisture of the unit with the lowest value.
 }
 \keyword{internal}

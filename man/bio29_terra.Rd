@@ -7,12 +7,14 @@
 bio29_terra(mois, high_mois_unit = NULL)
 }
 \arguments{
-\item{mois}{spatRaster of moisture values for each unit.}
+\item{mois}{A `SpatRaster` object where each layer represents moisture for a temporal unit.}
+
+\item{high_mois_unit}{(Optional) A single-layer `SpatRaster` where cell values are integers indicating a static layer index (1-based). If `NULL`, the overall maximum across all layers is calculated.}
 }
 \value{
-spatRaster with "bio29".
+A single-layer `SpatRaster` with the maximum moisture, named "bio29".
 }
 \description{
-Identifies highest moisture unit, potentially using a static index.
+Identifies the highest moisture of the unit with the highest value.
 }
 \keyword{internal}

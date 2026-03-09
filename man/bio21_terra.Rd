@@ -2,17 +2,19 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio21_terra}
 \alias{bio21_terra}
-\title{bio21_terra: Highest Solar Radiation Unit}
+\title{bio21_terra: Highest Moisture Unit}
 \usage{
 bio21_terra(srad, high_rad_unit = NULL)
 }
 \arguments{
-\item{srad}{spatRaster of solar radiation values for each unit.}
+\item{srad}{A `SpatRaster` object where each layer represents solar radiation for a temporal unit.}
+
+\item{high_rad_unit}{(Optional) A single-layer `SpatRaster` where cell values are integers indicating a static layer index (1-based). If `NULL`, the overall maximum across all layers is calculated.}
 }
 \value{
-spatRaster with "bio21".
+A single-layer `SpatRaster` with the maximum solar radiation, named "bio21".
 }
 \description{
-Identifies highest solar radiation unit, potentially using a static index.
+Identifies the highest solar radiation of the unit with the highest value.
 }
 \keyword{internal}

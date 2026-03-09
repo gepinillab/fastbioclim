@@ -69,14 +69,14 @@ test_that("File `overwrite` logic correctly handles dynamic filenames", {
   # 1. Stops if a file exists and overwrite is FALSE
   expect_error(
     derive_statistics(variable = dummy_rasters$variable, stats = "mean",
-                    prefix_variable = prefix, output_dir = local_out_dir),
+                    output_prefix = prefix, output_dir = local_out_dir),
     regexp = "Potential output files already exist"
   )
   
   # 2. Does NOT stop if overwrite is TRUE (the function itself has no warning here)
   expect_no_error(
      derive_statistics(variable = dummy_rasters$variable, stats = "mean",
-                    prefix_variable = prefix, output_dir = local_out_dir,
+                    output_prefix = prefix, output_dir = local_out_dir,
                     overwrite = TRUE, verbose = FALSE)
   )
 })
@@ -140,14 +140,14 @@ test_that("Arguments are passed correctly to the chosen workflow", {
   
   derive_statistics(variable = dummy_rasters$variable, 
                     inter_variable = dummy_rasters$inter_variable,
-                    stats = c("mean", "max"), prefix_variable = "wind",
+                    stats = c("mean", "max"), output_prefix = "wind",
                     method = "terra", max_unit = static_rast, verbose = FALSE)
   
   expect_true("variable" %in% names(terra_args))
   expect_s4_class(terra_args$variable, "SpatRaster")
   expect_true("inter_variable" %in% names(terra_args))
   expect_true("max_unit" %in% names(terra_args))
-  expect_equal(terra_args$prefix_variable, "wind")
+  expect_equal(terra_args$output_prefix, "wind")
   
   # --- Test 2: Arguments passed to 'tiled' workflow ---
   tiled_args <- NULL
@@ -162,7 +162,7 @@ test_that("Arguments are passed correctly to the chosen workflow", {
   # This call will now succeed
   derive_statistics(variable = dummy_rasters$variable, 
                     inter_variable = dummy_rasters$inter_variable,
-                    stats = c("mean", "max"), prefix_variable = "wind",
+                    stats = c("mean", "max"), output_prefix = "wind",
                     method = "tiled", 
                     max_unit = rast(file.path(local_dir, "static.tif")), 
                     verbose = FALSE)

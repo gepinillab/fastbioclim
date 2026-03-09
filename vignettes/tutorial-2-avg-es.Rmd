@@ -79,7 +79,7 @@ Esta es la forma más común de calcular una climatología. Queremos obtener 12 
 
 El argumento clave aquí es `index`. Es un vector numérico que le dice a la función cómo agrupar las capas. Para el primer ejemplo, vamos a usar 30 años de datos mensuales. Para ello creamos un índice que repite la secuencia `1, 2, ..., 12` treinta veces.
 
-```{r static-average, message=TRUE}
+```{r longterm-average, message=TRUE}
 # Usaremos las primeras 360 capas para nuestro ejemplo de 30 años
 tmax_subset <- tmax_bel[[1:360]]
 
@@ -87,26 +87,26 @@ tmax_subset <- tmax_bel[[1:360]]
 index_mensual <- rep(1:12, times = 30)
 
 # Crear un directorio temporal para guardar los resultados
-output_path_static <- file.path(tempdir(), "tmax_belize_static_avg")
+output_path_longterm <- file.path(tempdir(), "tmax_belize_longterm_avg")
 
 # Ejecutar la función
 # progressr mostrará una barra de progreso si la operación es larga
-tmax_avg_static <- calculate_average(
+tmax_avg_longterm <- calculate_average(
   x = tmax_subset,
   index = index_mensual,
-  output_dir = output_path_static,
+  output_dir = output_path_longterm,
   overwrite = TRUE, # Permitir sobreescribir si el directorio ya existe
   output_names = "tmax_avg" # Prefijo para los archivos de salida
 )
 
 # El resultado es un SpatRaster con 12 capas
-print(tmax_avg_static)
+print(tmax_avg_longterm)
 
 # Podemos visualizar los 12 promedios mensuales
-plot(tmax_avg_static)
+plot(tmax_avg_longterm)
 ```
 
-¡Listo! `tmax_avg_static` contiene la climatología de 30 años. La primera capa es el promedio de todos los eneros, la segunda de todos los febreros, etc.
+¡Listo! `tmax_avg_longterm` contiene la climatología de 30 años. La primera capa es el promedio de todos los eneros, la segunda de todos los febreros, etc.
 
 ## 4. Promedios Climatológicos Móviles con `calculate_roll()`
 
@@ -191,12 +191,12 @@ names(eneros_moviles) <- paste0("Enero", 1:20)
 plot(eneros_moviles[[20]] - eneros_moviles[[1]])
 ```
 
-Este gráfico nos muestra cómo ha cambiado la temperatura máxima promedio de enero en lso últimos años, permitiéndonos identificar tendencias de calentamiento o enfriamiento. Es importante mencionar que las capas usadas de temperatura máxima están multiplicadas por 10. Por lo cual, existe partes con cambios de hast 0.8 grados centigrados.
+Este gráfico nos muestra cómo ha cambiado la temperatura máxima promedio de enero en lso últimos años, permitiéndonos identificar tendencias de calentamiento o enfriamiento. Es importante mencionar que las capas usadas de temperatura máxima están multiplicadas por 10. Por lo cual, existe partes con cambios de hast 0.6 grados centigrados.
 
 ## Conclusión
 
 El paquete `fastbioclim` simplifica enormemente el cálculo de resúmenes temporales en series de tiempo de rásters.
-*   Usa `calculate_average()` para climatologías estáticas sobre todo el período de estudio.
+*   Usa `calculate_average()` para climatologías fija sobre todo el período de estudio.
 *   Usa `calculate_roll()` para analizar tendencias y cambios a través de ventanas de tiempo móviles.
 
 Ambas funciones están optimizadas para ser eficientes y pueden aprovechar el procesamiento en paralelo para manejar grandes volúmenes de datos.

@@ -2,21 +2,24 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio24_fast}
 \alias{bio24_fast}
-\title{bio24_fast: Solar Radiation of Wettest Period}
+\title{bio24_fast: Radiation of Wettest Period}
 \usage{
 bio24_fast(speriod, pperiod_max_idx, cell)
 }
 \arguments{
-\item{speriod}{Matrix of solar radiation period means (output from `var_periods`).}
+\item{speriod}{A numeric **matrix** of solar radiation values (means) for each rolling period. 
+**Rows** represent spatial units (cells). **Columns** represent the rolling periods.}
 
-\item{pperiod_max_idx}{Vector indicating the index (1-based) of the wettest period.}
+\item{pperiod_max_idx}{An integer **vector** indicating the column index (1-based) of the wettest period for each row. 
+Its length must be exactly equal to the number of rows in `speriod`.}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.}
 }
 \value{
-Matrix with "bio24", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+  The columns are named "bio24" (mean solar radiation of wettest period) and "cell".
 }
 \description{
-Calculates solar radiation mean of the period with the highest precipitation sum.
+Calculates the mean solar radiation of the specific rolling period identified as the wettest (highest precipitation).
 }
 \keyword{internal}

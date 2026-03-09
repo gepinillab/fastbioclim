@@ -1,24 +1,24 @@
-# `fastbioclim`: Scalable Derivation of Climate Variables
+# fastbioclim <a href="https://gepinillab.github.io/fastbioclim/"><img src="man/figures/logo.png" align="right" height="123" alt="fastbioclim website" /></a>
 
-`fastbioclim` is an R package for efficiently deriving standard bioclimatic and custom summary variables from large-scale climate raster data. It is designed to overcome the memory limitations of traditional approaches by intelligently switching between processing backends.
+`fastbioclim` is an R package for creating custom-time bioclimatic and derived environmental summary variables from supplied raster data. It is designed to overcome computational bottlenecks and methodological inflexibility by automatically switching between processing frameworks to handle large-scale extents on standard hardware.
 
 ## Overview
 
-Working with large climate datasets often presents a major challenge: the data is too large to fit into memory. `fastbioclim` solves this problem by providing a powerful and unified interface with a dual-backend architecture:
+Working with large climate datasets often presents a major challenge: the data is too large to fit into memory. `fastbioclim` addresses this gap by providing an efficient, unified interface that automatically switches between two frameworks:
 
-1.  **In-Memory (`"terra"`)**: For datasets that fit comfortably in RAM, `fastbioclim` uses the highly optimized `terra` package for maximum speed.
-2.  **In-Disk (`"tiled"`)**: For datasets that exceed available RAM, it automatically switches to a memory-safe tiled workflow. This backend uses `exactextractr` and `Rfast` to process the data chunk by chunk, ensuring that even continent-scale analyses can run on a standard computer.
+1.  **In-Memory (`"terra"`)**: For smaller datasets, `fastbioclim` uses the `terra` package to maximize speed.
+2.  **On-Disk Tiling (`"tiled"`)**: For rasters that exceed available RAM, it automatically switches to an on-disk tiling framework. This approach leverages the high-performance `Rfast` and `exactextractr` packages to process data in chunks, ensuring scalability on standard personal computers without requiring the end-user to manage these decisions.
 
-The core of the package is a set of "smart" wrapper functions—`derive_bioclim()` and `derive_statistics()`—that automatically select the best backend, providing a seamless experience for the user.
+The core of the package is a set of flexible functions—`derive_bioclim()` and `derive_statistics()`—that automatically select the optimal processing framework, providing a seamless experience for generating temporally-matched environmental variables.
 
 ## Key Features
 
-*   **Smart `auto` Method**: Automatically detects data size and chooses the optimal processing workflow (in-memory vs. tiled).
-*   **Scalability**: Robustly handles raster datasets of any size, from small study areas to global extents.
-*   **Comprehensive Bioclimatic Variables**: Calculates the full set of 35 standard bioclimatic variables, including those based on temperature, precipitation, solar radiation, and moisture.
-*   **Custom Statistics**: Provides a flexible `derive_statistics()` function to compute custom summaries (mean, max, min, standard deviation, etc.) for any climate variable.
-*   **Flexible Time Periods**: Easily define custom periods (e.g., weeks, semesters) instead of being limited to standard quarters.
-*   **Advanced Control**: Supports static index rasters for advanced time-series analysis and defining specific seasonal periods.
+*   **Smart `auto` Method**: Automatically manages memory by switching between the in-memory ("terra") and on-disk ("tiled") frameworks based on raster size and available RAM.
+*   **Scalability**: Accelerates large-scale raster processing for variable creation, from smaller regional extents to global datasets.
+*   **Extended Bioclimatic Variables**: Calculates an extended set of 35 bioclimatic variables, incorporating standard indices as well as variables based on moisture and solar radiation (bio20–35).
+*   **Derived Summary Statistics**: Provides a flexible `derive_statistics()` function to compute summary statistics (mean, max, min, standard deviation, etc.) for any other time series data available (e.g., wind speed, evapotranspiration, cloud cover).
+*   **Custom Timeframes**: Easily define time periods beyond standard quarters, enabling the summarization of data from finer time units such as weeks or days.
+*   **Advanced Control**: Supports the use of a fixed temporal index (static indices) for single units or entire periods, which is critical for analyzing trends due to the temporal shifting of the indices.
 
 ## Installation
 
@@ -33,10 +33,12 @@ remotes::install_github("gepinillab/egdata.fastbioclim")
 
 ## Usage
 
-The package provides two primary, user-facing functions:
+The package provides two primary core functions for variable calculation:
 
-*   **`derive_bioclim()`**: For calculating the standard set of 19-35 bioclimatic variables.
-*   **`derive_statistics()`**: For calculating custom summary statistics on any variable.
+*   **`derive_bioclim()`**: For calculating the standard and extended set of 35 bioclimatic variables.
+*   **`derive_statistics()`**: For deriving summary statistics from any other environmental variable.
+
+*Note: The package also includes aggregation functions like calculate_average(), calculate_roll(), and calculate_sum() to easily prepare your time-series data*
 
 ### Example: A Quick Demonstration
 
@@ -55,7 +57,7 @@ tmax_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
 prcp_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("prcp", full.names = TRUE) |> rast()
 
-# The function will automatically use the fast "terra" method for this small dataset
+# The function will automatically use the fast in-memory "terra" method for this small dataset
 output_dir_bioclim <- file.path(tempdir(), "bioclim_ecuador")
 
 bioclim_vars <- derive_bioclim(
@@ -71,7 +73,7 @@ plot(bioclim_vars[[c("bio01", "bio12")]])
 ```
 
 ```r
-# 3. Derive custom summary statistics for a different variable (e.g., wind speed)
+# Derive environmental summary variables for a different factor (e.g., wind speed)
 wind_rast <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("wind", full.names = TRUE) |> rast()
 output_dir_custom <- file.path(tempdir(), "wind_ecuador")
@@ -79,7 +81,7 @@ output_dir_custom <- file.path(tempdir(), "wind_ecuador")
 custom_stats <- derive_statistics(
   variable = wind_rast,
   stats = c("mean", "max", "stdev"),
-  prefix_variable = "wind",
+  output_prefix = "wind",
   output_dir = output_dir_custom,
   overwrite = TRUE
 )

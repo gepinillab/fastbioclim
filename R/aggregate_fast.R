@@ -1,9 +1,9 @@
-#' Tiled, Out-of-Core Time Series Averaging (Internal)
+#' Tiled, Out-of-Core Time Series Aggregation (Internal)
 #' @keywords internal
-average_fast <- function(paths, index, output_names, user_region, tile_degrees, output_dir, verbose) {
+aggregate_fast <- function(paths, index, output_names, user_region, tile_degrees, output_dir, verbose, aggregation_type = "mean") {
   
   # --- 1. Setup Environment ---
-  qs_dir <- file.path(output_dir, paste0("avg_qs_", basename(tempfile(pattern = ""))))
+  qs_dir <- file.path(output_dir, paste0("agg_qs_", basename(tempfile(pattern = ""))))
   dir.create(qs_dir, recursive = TRUE)
   # --- 2. Define Processing Region and Replicate Full Geometry Logic ---
   # --- Check Geometry Consistency ---
@@ -161,7 +161,7 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
   unique_indices <- sort(unique(index))
   n_units_out <- length(unique_indices)
   export_vars <- c("paths", "path_variables", "rtt", "ntiles", "unique_indices", 
-                   "n_units_out", "output_names", "qs_dir", "translate_cell")
+                   "n_units_out", "output_names", "qs_dir", "translate_cell", "aggregation_type")
   future.apply::future_lapply(seq_len(ntiles), function(i) {
     p(message = glue::glue("Processing tile {i}/{ntiles}"))
     tile_geom <- sf::st_geometry(rtt[i, ])
@@ -189,16 +189,23 @@ average_fast <- function(paths, index, output_names, user_region, tile_degrees, 
     }
     value_cols <- names(df)[!names(df) %in% c("cell", "coverage_fraction")]
     pixel_matrix <- Rfast::data.frame.to_matrix(df[nonaID[noMap], value_cols, drop = FALSE])
-    # Calculate average for each output group and save it to a separate .qs2 file
+    # Calculate aggregate for each output group and save it to a separate .qs2 file
     for (j in 1:n_units_out) {
       current_idx_val <- unique_indices[j]
       current_output_name <- output_names[j]
       
-      cols_to_avg <- which(index == current_idx_val)
-      avg_values <- Rfast::rowmeans(pixel_matrix[, cols_to_avg, drop = FALSE])
+      cols_to_agg <- which(index == current_idx_val)
+      
+      if (aggregation_type == "mean") {
+        agg_values <- Rfast::rowmeans(pixel_matrix[, cols_to_agg, drop = FALSE])
+      } else if (aggregation_type == "sum") {
+        agg_values <- Rfast::rowsums(pixel_matrix[, cols_to_agg, drop = FALSE])
+      } else {
+        stop("Invalid 'aggregation_type'. Must be 'mean' or 'sum'.")
+      }
       
       # Create 2-column data frame that write_layers expects: value, cell
-      tile_result <- data.frame(value = avg_values, cell = cell_ids_source)
+      tile_result <- data.frame(value = agg_values, cell = cell_ids_source)
       # Filename format: [variable_name]_[tile_number].qs2
       qs_filename <- file.path(qs_dir, paste0(current_output_name, "_", i, ".qs2"))
       qs2::qs_save(tile_result, qs_filename)

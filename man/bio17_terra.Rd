@@ -7,14 +7,14 @@
 bio17_terra(wet, driest_period)
 }
 \arguments{
-\item{wet}{spatRaster of precipitation period sums.}
+\item{wet}{A `SpatRaster` object where each layer is the precipitation sum for a rolling period.}
 
-\item{driest_period}{Vector indicating the index (1-based) of the driest period.}
+\item{driest_period}{A single-layer `SpatRaster` where cell values are integers indicating the layer index (1-based) of the driest period.}
 }
 \value{
-spatRaster with "bio17".
+A single-layer `SpatRaster` with the precipitation of the driest period, named "bio17".
 }
 \description{
-Calculates precipitation sum of the period with the lowest precipitation sum.
+Calculates the total precipitation of the specific rolling period identified as the driest.
 }
 \keyword{internal}

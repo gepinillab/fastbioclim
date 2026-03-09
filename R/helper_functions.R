@@ -20,11 +20,27 @@ cv_cli <- function(prcp) {
   return(cv)
 }
 
-#' Windows
+#' @title Create Moving Window Summaries of a SpatRaster
+#' @description
+#' This internal helper function calculates moving window summaries (periods)
+#' across the layers of a SpatRaster. It generates a new SpatRaster where each
+#' layer represents the sum of the layers from the original raster that fall
+#' within a specific window. The `circular` argument controls whether the
+#' windows "wrap around" from the end of the time series to the beginning.
+#' @param x A `terra::SpatRaster` object where each layer represents a temporal unit.
+#' @param period An integer specifying the size (number of layers) of the moving
+#'   window. For monthly data (`nlyr(x) = 12`), a `period` of 3 corresponds to
+#'   a quarter.
+#' @param circular A logical. If `TRUE`, the window wraps from the last layer to
+#'   the first. If `FALSE`, windows are only created where they fit completely
+#'   within the original sequence of layers.
 #'
-#' @param x spatRaster
-#' @param period Length of period. Default is three. If you are using months. It will be a quarter.
-#' @param circular logical Include first month/weeks?
+#' @return A `terra::SpatRaster` object where each layer is the pixel-wise
+#'   sum for a corresponding period.
+#'   \itemize{
+#'     \item If `circular = TRUE`, the output has the same number of layers as the input `x`.
+#'     \item If `circular = FALSE`, the output has `nlyr(x) - period + 1` layers.
+#'   }
 #' @keywords internal
 get_window <- function(x, period, circular)  {
   lng <- terra::nlyr(x)
@@ -72,18 +88,18 @@ testGeom <- function(x, y) {
 bionames <- function(bios = 1:35) {
   # Bioclimatic variable names
   bioclim_vars <- c(
-    "bio01: Mean Temperature of Units",
+    "bio01: Mean Temperature",
     "bio02: Mean Diurnal Range",
     "bio03: Isothermality",
     "bio04: Temperature Seasonality",
     "bio05: Max Temperature of Warmest Unit",
     "bio06: Min Temperature of Coldest Unit",
-    "bio07: Temperature Range of Units",
+    "bio07: Temperature Range",
     "bio08: Mean Temperature of Wettest Period",
     "bio09: Mean Temperature of Driest Period",
     "bio10: Mean Temperature of Warmest Period",
     "bio11: Mean Temperature of Coldest Period",
-    "bio12: Precipitation Sum",
+    "bio12: Total Precipitation",
     "bio13: Precipitation of Wettest Unit",
     "bio14: Precipitation of Driest Unit",
     "bio15: Precipitation Seasonality",
@@ -91,7 +107,7 @@ bionames <- function(bios = 1:35) {
     "bio17: Precipitation of Driest Period",
     "bio18: Precipitation of Warmest Period",
     "bio19: Precipitation of Coldest Period",
-    "bio20: Annual Mean Radiation",
+    "bio20: Mean Radiation",
     "bio21: Highest Radiation Unit",
     "bio22: Lowest Radiation Unit",
     "bio23: Radiation Seasonality",
@@ -99,14 +115,14 @@ bionames <- function(bios = 1:35) {
     "bio25: Radiation of Driest Period",
     "bio26: Radiation of Warmest Period",
     "bio27: Radiation of Coldest Period",
-    "bio28: Mean Moisture Content of Units",
-    "bio29: Highest Moisture Content Unit",
-    "bio30: Lowest Moisture Content Unit",
-    "bio31: Moisture Content Seasonality",
-    "bio32: Mean Moisture Content of Most Moist Period",
-    "bio33: Mean Moisture Content of Least Moist Period",
-    "bio34: Mean Moisture Content of Warmest Period",
-    "bio35: Mean Moisture Content of Coldest Period"
+    "bio28: Mean Moisture",
+    "bio29: Highest Moisture Unit",
+    "bio30: Lowest Moisture Unit",
+    "bio31: Moisture Seasonality",
+    "bio32: Mean Moisture of Most Moist Period",
+    "bio33: Mean Moisture of Least Moist Period",
+    "bio34: Mean Moisture of Warmest Period",
+    "bio35: Mean Moisture of Coldest Period"
   )
   
   # Validate input

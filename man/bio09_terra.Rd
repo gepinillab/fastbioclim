@@ -7,14 +7,14 @@
 bio09_terra(tmp, driest_period)
 }
 \arguments{
-\item{tmp}{spatRaster of temperature period sums.}
+\item{tmp}{A `SpatRaster` object where each layer represents the mean temperature for a rolling period.}
 
-\item{driest_period}{Vector indicating the index (1-based) of the driest period.}
+\item{driest_period}{A single-layer `SpatRaster` where cell values are integers indicating the layer index (1-based) of the driest period.}
 }
 \value{
-spatRaster with "bio09".
+A single-layer `SpatRaster` containing the mean temperature of the driest period, named "bio09".
 }
 \description{
-Calculates mean temperature of the period with the lowest precipitation sum.
+Calculates the mean temperature of the specific rolling period identified as the driest.
 }
 \keyword{internal}

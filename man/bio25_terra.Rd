@@ -2,19 +2,19 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio25_terra}
 \alias{bio25_terra}
-\title{bio25_terra: Solar Radiation of Driest Period}
+\title{bio25_terra: Radiation of Driest Period}
 \usage{
 bio25_terra(prad, driest_period)
 }
 \arguments{
-\item{prad}{spatRaster of solar radiation period means.}
+\item{prad}{A `SpatRaster` object where each layer is the mean solar radiation for a rolling period.}
 
-\item{driest_period}{Vector indicating the index (1-based) of the driest period.}
+\item{driest_period}{A single-layer `SpatRaster` where cell values are integers indicating the layer index (1-based) of the driest period.}
 }
 \value{
-spatRaster with "bio25".
+A single-layer `SpatRaster` with the solar radiation of the driest period, named "bio25".
 }
 \description{
-Calculates solar radiation mean of the period with the highest precipitation sum.
+Calculates the mean solar radiation of the specific rolling period identified as the driest.
 }
 \keyword{internal}

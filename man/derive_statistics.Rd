@@ -9,7 +9,7 @@ derive_statistics(
   stats = c("mean", "max", "min"),
   inter_variable = NULL,
   inter_stats = NULL,
-  prefix_variable = "var",
+  output_prefix = "var",
   suffix_inter_max = "inter_high",
   suffix_inter_min = "inter_low",
   output_dir = tempdir(),
@@ -37,8 +37,8 @@ variable. Supported: `"mean"`, `"max"`, `"min"`, `"sum"`, `"stdev"`, `"cv_cli"`,
 \item{inter_stats}{(Optional) A character vector of interactive statistics to compute.
 Requires `inter_variable`. Supported: `"max_inter"`, `"min_inter"`.}
 
-\item{prefix_variable}{A character string used as the prefix for all output file
-names (e.g., `prefix_variable = "wind"` results in "wind_mean.tif", "wind_max.tif").}
+\item{output_prefix}{A character string used as the prefix for all output file
+names (e.g., `output_prefix = "wind"` results in "wind_mean.tif", "wind_max.tif").}
 
 \item{suffix_inter_max}{Character. Suffix for the "max_inter" statistic name. Default: "inter_high".}
 
@@ -46,15 +46,20 @@ names (e.g., `prefix_variable = "wind"` results in "wind_mean.tif", "wind_max.ti
 
 \item{output_dir}{The directory where the final summary rasters will be saved.}
 
-\item{period_length}{Integer. The number of temporal units defining a "period". Default: 3.}
+\item{period_length}{Integer. The number of temporal units (e.g., months) that
+define a "period". This is used for all period-based statistics, such as
+`"max_period"` and interactive statistics like `"max_inter"`. The same period
+length is applied to both the primary `variable` and the `inter_variable`
+when calculating these statistics. Default: 3.}
 
 \item{period_stats}{Character. The statistic ("mean" or "sum") to summarize
 data over each period. Default: "mean".}
 
 \item{circular}{Logical. If `TRUE` (the default), period calculations wrap around.}
 
-\item{user_region}{(Optional) An `sf` or `terra::SpatVector` object defining the
-area of interest.}
+\item{user_region}{(Optional) An `sf` or `terra::SpatVector` object. If provided,
+the input raster `x` is clipped and masked to this region before processing.
+The output raster's extent is the same of the `user_region`.}
 
 \item{method}{The processing method. See Details for more information.}
 
@@ -72,7 +77,12 @@ stop if output files already exist.}
 objects. See the "Static Indices" section.}
 }
 \value{
-A `terra::SpatRaster` object pointing to the newly created summary rasters.
+A `terra::SpatRaster` object pointing to the newly created summary rasters, with the following characteristics:
+  \itemize{
+    \item **Number of layers:** The number of layers is equal to the total number of statistics requested in the `stats` and `inter_stats` arguments.
+    \item **Layer names:** Layer names are constructed by combining the `output_prefix` with the name of each statistic (e.g., 'prefix_mean', 'prefix_max'). For interactive statistics, the names are 'prefix_suffix_inter_high' and 'prefix_suffix_inter_low', where the suffixes are controlled by the `suffix_inter_max` and `suffix_inter_min` arguments.
+    \item **Extent:** If a `user_region` is provided, the extent of the output raster will be clipped to match that region. Otherwise, the extent will be the same as the input `variable` raster.
+  }
 }
 \description{
 Calculates a wide range of custom summary statistics for a primary climate
@@ -99,3 +109,39 @@ Supported indices: `max_unit`, `min_unit`, `max_period`, `min_period`,
 `max_interactive`, `min_interactive`.
 }
 
+\examples{
+\donttest{
+# The example raster "prcp.tif" is included in the package's `inst/extdata` directory.
+# Load example data from Lesotho (Montlhy time series from 2016-01 to 2020-12)
+raster_path <- system.file("extdata", "prcp.tif", package = "fastbioclim")
+# Load the SpatRaster from the file
+prcp_ts <- terra::rast(raster_path)
+# The data has 60 layers (5 years of monthly data), so we create an
+# index to group layers by month (1 to 12).
+monthly_index <- rep(1:12, times = 5)
+# Define a temporary directory for the output files
+output_dir <- file.path(tempdir(), "prcp_stats")
+# Run the calculate_average function
+monthly_avg <- calculate_average(
+  x = prcp_ts,
+  index = monthly_index,
+  output_names = "prcp_avg",
+  output_dir = output_dir,
+  overwrite = TRUE,
+  verbose = FALSE
+)
+# Once the monthly averaged is obtained, we can use it to derive statictics of precipitation
+# Here we will obtain four summary statitics: mean, maximum, minimum, and standard deviation
+prcp_stats <- derive_statistics(
+  variable = monthly_avg,
+  stats = c("mean", "max", "min", "stdev"),
+  prefix_variable = "prcp",
+  output_dir = output_dir,
+  overwrite = TRUE
+)
+# Print the resulting SpatRaster summary with the four requested layers
+print(prcp_stats)
+# Clean up the created files
+unlink(output_dir, recursive = TRUE)
+}
+}

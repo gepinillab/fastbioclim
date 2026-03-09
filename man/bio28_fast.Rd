@@ -2,19 +2,22 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio28_fast}
 \alias{bio28_fast}
-\title{bio28_fast: Mean Moisture of Units}
+\title{bio28_fast: Mean Moisture}
 \usage{
 bio28_fast(mois, cell)
 }
 \arguments{
-\item{mois}{Matrix of average moisture for each unit.}
+\item{mois}{A numeric **matrix** where **rows** represent spatial units (cells) 
+and **columns** represent temporal units (e.g., 12 months).}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A numeric or character **vector** of original cell IDs. 
+Its length must be exactly equal to the number of rows in `mois`.}
 }
 \value{
-Matrix with columns: "bio28", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio28" (the calculated mean) and "cell" (the IDs).
 }
 \description{
-Calculates mean moisture across all temporal units.
+Calculates mean moisture across all temporal units (usually 12 months).
 }
 \keyword{internal}

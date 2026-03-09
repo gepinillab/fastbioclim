@@ -1,8 +1,11 @@
-#' @title bio01_fast: Mean Temperature of Units
-#' @description Calculates mean temperature across all temporal units.
-#' @param tavg Matrix of average temperatures for each unit.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with columns: "bio01", "cell".
+#' @title bio01_fast: Mean Temperature
+#' @description Calculates mean temperature across all temporal units (usually 12 months).
+#' @param tavg A numeric **matrix** where **rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., 12 months).
+#' @param cell A numeric or character **vector** of original cell IDs. 
+#'   Its length must be exactly equal to the number of rows in `tavg`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio01" (the calculated mean) and "cell" (the IDs).
 #' @keywords internal
 bio01_fast <- function(tavg, cell){
   bio01V <- Rfast::rowmeans(tavg)
@@ -11,11 +14,14 @@ bio01_fast <- function(tavg, cell){
 }
 
 #' @title bio02_fast: Mean Diurnal Range
-#' @description Calculates the mean of (tmax - tmin) across all temporal units.
-#' @param tmin Matrix of minimum temperatures for each unit.
-#' @param tmax Matrix of maximum temperatures for each unit.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio02", "cell".
+#' @description Calculates the mean of the diurnal temperature ranges (tmax - tmin) across all temporal units.
+#' @param tmin A numeric **matrix** of minimum temperatures. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units. Must have the exact same dimensions as `tmax`.
+#' @param tmax A numeric **matrix** of maximum temperatures. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units. Must have the exact same dimensions as `tmin`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tmin` and `tmax`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio02" (mean diurnal range) and "cell".
 #' @keywords internal
 bio02_fast <- function(tmin, tmax, cell){
   bio02V <- tmax - tmin
@@ -25,11 +31,14 @@ bio02_fast <- function(tmin, tmax, cell){
 }
 
 #' @title bio03_fast: Isothermality
-#' @description Calculates (bio02 / bio07) * 100.
-#' @param bio02V Vector or single-column matrix of bio02 values.
-#' @param bio07V Vector or single-column matrix of bio07 values.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio03", "cell".
+#' @description Calculates Isothermality representing the ratio of mean diurnal range to temperature range: (bio02 / bio07) * 100.
+#' @param bio02V A numeric **vector** or **single-column matrix** of Bio02 values (Mean Diurnal Range). 
+#'   Length (or number of rows) must match `bio07V` and `cell`.
+#' @param bio07V A numeric **vector** or **single-column matrix** of Bio07 values (Temperature Range). 
+#'   Length (or number of rows) must match `bio02V` and `cell`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the length/rows of `bio02V` and `bio07V`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio03" and "cell".
 #' @keywords internal
 bio03_fast <- function(bio02V, bio07V, cell){
   # Ensure inputs are treated as vectors if passed as matrices
@@ -42,10 +51,12 @@ bio03_fast <- function(bio02V, bio07V, cell){
 }
 
 #' @title bio04_fast: Temperature Seasonality (Std Dev * 100)
-#' @description Calculates the standard deviation of average temperatures across units, multiplied by 100.
-#' @param tavg Matrix of average temperatures for each unit.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio04", "cell".
+#' @description Calculates Temperature Seasonality, defined as the standard deviation of average temperatures across all temporal units (e.g., 12 months), multiplied by 100.
+#' @param tavg A numeric **matrix** of average temperatures. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tavg`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio04" (seasonality) and "cell".
 #' @keywords internal
 bio04_fast <- function(tavg, cell){
   # std=TRUE gives standard deviation
@@ -55,11 +66,34 @@ bio04_fast <- function(tavg, cell){
 }
 
 #' @title bio05_fast: Max Temperature of Warmest Unit
-#' @description Identifies max temperature of the warmest unit, potentially using a static index.
-#' @param tmax Matrix of maximum temperatures for each unit.
-#' @param cell Vector of original cell IDs.
-#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Tmax for that unit. If NULL, finds overall max Tmax.
-#' @return Matrix with "bio05", "cell".
+#' @description Identifies the maximum temperature of the warmest temporal unit. 
+#'   If `index_vector` is `NULL`, it calculates the row-wise maximum. 
+#'   If `index_vector` is provided, it extracts the value from the specific column index for each row.
+#' @details This function calculates bio05 following the standard definition used by WorldClim 
+#'   (Hijmans et al., 2005) and ANUCLIM 6.1 (Xu & Hutchinson, 2013), which is the single highest value from all 
+#'   maximum temperature layers (a "max of maxes"). It does not use mean 
+#'   temperature to first identify the warmest month.
+#' @param tmax A numeric **matrix** of maximum temperatures. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., months).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tmax`.
+#' @param index_vector (Optional) An integer **vector** of column indices (1-based). 
+#'   If provided, its length must be exactly equal to the number of rows in `tmax`. 
+#'   Values must be between 1 and `ncol(tmax)`. 
+#'   This is typically used to extract the Tmax of the specific month identified as the warmest by another metric.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio05" (the maximum temperature) and "cell".
+#' @references
+#' Hijmans, R.J., Cameron, S.E., Parra, J.L., Jones, P.G. and Jarvis, A. (2005). 
+#' Very high resolution interpolated climate surfaces for global land areas. 
+#' International Journal of Climatology, 25(15), 1965-1978.
+#'
+#' O'Donnell, M. S., & Ignizio, D. A. (2012). Bioclimatic predictors for 
+#' supporting ecological applications in the conterminous United States. 
+#' U.S. Geological Survey Data Series 691.
+#'
+#' Xu, T., & Hutchinson, M. F. (2013). New developments and applications in the 
+#' ANUCLIM spatial climatic and bioclimatic modelling package. Environmental 
+#' Modelling & Software, 40, 267-279.
 #' @keywords internal
 bio05_fast <- function(tmax, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
@@ -80,11 +114,34 @@ bio05_fast <- function(tmax, cell, index_vector = NULL) {
 }
 
 #' @title bio06_fast: Min Temperature of Coldest Unit
-#' @description Identifies min temperature of the coldest unit, potentially using a static index.
-#' @param tmin Matrix of minimum temperatures for each unit.
-#' @param cell Vector of original cell IDs.
-#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Tmin for that unit. If NULL, finds overall min Tmin.
-#' @return Matrix with "bio06", "cell".
+#' @description Identifies the minimum temperature of the coldest temporal unit. 
+#'   If `index_vector` is `NULL`, it calculates the row-wise minimum. 
+#'   If `index_vector` is provided, it extracts the value from the specific column index for each row.
+#' @details This function calculates bio06 following the standard definition used by WorldClim 
+#'   (Hijmans et al., 2005) and ANUCLIM 6.1 (Xu & Hutchinson, 2013), which is the single lowest value from all 
+#'   minimum temperature layers (a "min of mins"). It does not use mean 
+#'   temperature to first identify the coldest month.
+#' @param tmin A numeric **matrix** of minimum temperatures. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., months).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tmin`.
+#' @param index_vector (Optional) An integer **vector** of column indices (1-based). 
+#'   If provided, its length must be exactly equal to the number of rows in `tmin`. 
+#'   Values must be between 1 and `ncol(tmin)`. 
+#'   This is typically used to extract the Tmin of the specific month identified as the coldest by another metric.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio06" (the minimum temperature) and "cell".
+#' @references
+#' Hijmans, R.J., Cameron, S.E., Parra, J.L., Jones, P.G. and Jarvis, A. (2005). 
+#' Very high resolution interpolated climate surfaces for global land areas. 
+#' International Journal of Climatology, 25(15), 1965-1978.
+#'
+#' O'Donnell, M. S., & Ignizio, D. A. (2012). Bioclimatic predictors for 
+#' supporting ecological applications in the conterminous United States. 
+#' U.S. Geological Survey Data Series 691.
+#'
+#' Xu, T., & Hutchinson, M. F. (2013). New developments and applications in the 
+#' ANUCLIM spatial climatic and bioclimatic modelling package. Environmental 
+#' Modelling & Software, 40, 267-279.
 #' @keywords internal
 bio06_fast <- function(tmin, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
@@ -103,12 +160,15 @@ bio06_fast <- function(tmin, cell, index_vector = NULL) {
   return(bio06V)
 }
 
-#' @title bio07_fast: Temperature Annual Range (bio05 - bio06)
-#' @description Calculates the difference between bio05 and bio06.
-#' @param bio05V Vector or single-column matrix of bio05 values.
-#' @param bio06V Vector or single-column matrix of bio06 values.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio07", "cell".
+#' @title bio07_fast: Temperature Range (bio05 - bio06)
+#' @description Calculates the Temperature Range, defined as the difference between the Maximum Temperature of the Warmest Unit (bio05) and the Minimum Temperature of the Coldest Unit (bio06).
+#' @param bio05V A numeric **vector** or **single-column matrix** of Bio05 values. 
+#'   Length (or number of rows) must match `bio06V` and `cell`.
+#' @param bio06V A numeric **vector** or **single-column matrix** of Bio06 values. 
+#'   Length (or number of rows) must match `bio05V` and `cell`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the length/rows of `bio05V` and `bio06V`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio07" (annual range) and "cell".
 #' @keywords internal
 bio07_fast <- function(bio05V, bio06V, cell){
   bio05_vec <- if(is.matrix(bio05V)) bio05V[,1] else bio05V
@@ -119,12 +179,15 @@ bio07_fast <- function(bio05V, bio06V, cell){
 }
 
 #' @title bio08_fast: Mean Temperature of Wettest Period
-#' @description Calculates mean temperature of the period with the highest precipitation sum.
-#' @param tperiod Matrix of temperature period sums (output from `var_periods`).
-#' @param pperiod_max_idx Vector indicating the index (1-based) of the wettest period for each row.
-#' @param period_length Integer. Number of units per period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio08", "cell".
+#' @description Calculates the mean temperature of the specific rolling period identified as the wettest (highest precipitation).
+#' @param tperiod A numeric **matrix** of temperature values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods (typically 12). 
+#' @param pperiod_max_idx An integer **vector** indicating the column index (1-based) of the wettest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `tperiod`.
+#' @param period_length A single **integer** representing the number of units per period (e.g., 3 for months). 
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tperiod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio08" (mean temperature of wettest period) and "cell".
 #' @keywords internal
 bio08_fast <- function(tperiod, pperiod_max_idx, period_length, cell){
   num_period_cols <- ncol(tperiod) - 2 # Exclude min/max ID columns
@@ -139,12 +202,15 @@ bio08_fast <- function(tperiod, pperiod_max_idx, period_length, cell){
 }
 
 #' @title bio09_fast: Mean Temperature of Driest Period
-#' @description Calculates mean temperature of the period with the lowest precipitation sum.
-#' @param tperiod Matrix of temperature period sums.
-#' @param pperiod_min_idx Vector indicating the index (1-based) of the driest period.
-#' @param period_length Integer. Number of units per period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio09", "cell".
+#' @description Calculates the mean temperature of the specific rolling period identified as the driest (lowest precipitation).
+#' @param tperiod A numeric **matrix** of temperature values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods.
+#' @param pperiod_min_idx An integer **vector** indicating the column index (1-based) of the driest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `tperiod`.
+#' @param period_length A single **integer** representing the number of units per period. 
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tperiod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio09" (mean temperature of driest period) and "cell".
 #' @keywords internal
 bio09_fast <- function(tperiod, pperiod_min_idx, period_length, cell){
   num_period_cols <- ncol(tperiod) - 2
@@ -157,12 +223,15 @@ bio09_fast <- function(tperiod, pperiod_min_idx, period_length, cell){
 }
 
 #' @title bio10_fast: Mean Temperature of Warmest Period
-#' @description Calculates mean temperature of the period with the highest temperature sum.
-#' @param tperiod Matrix of temperature period sums.
-#' @param tperiod_max_idx Vector indicating the index (1-based) of the warmest period.
-#' @param period_length Integer. Number of units per period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio10", "cell".
+#' @description Calculates the mean temperature of the specific rolling period identified as the warmest (highest temperature).
+#' @param tperiod A numeric **matrix** of temperature values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods.
+#' @param tperiod_max_idx An integer **vector** indicating the column index (1-based) of the warmest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `tperiod`.
+#' @param period_length A single **integer** representing the number of units per period. 
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tperiod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio10" (mean temperature of warmest period) and "cell".
 #' @keywords internal
 bio10_fast <- function(tperiod, tperiod_max_idx, period_length, cell){
   num_period_cols <- ncol(tperiod) - 2
@@ -175,12 +244,15 @@ bio10_fast <- function(tperiod, tperiod_max_idx, period_length, cell){
 }
 
 #' @title bio11_fast: Mean Temperature of Coldest Period
-#' @description Calculates mean temperature of the period with the lowest temperature sum.
-#' @param tperiod Matrix of temperature period sums.
-#' @param tperiod_min_idx Vector indicating the index (1-based) of the coldest period.
-#' @param period_length Integer. Number of units per period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio11", "cell".
+#' @description Calculates the mean temperature of the specific rolling period identified as the coldest (lowest temperature).
+#' @param tperiod A numeric **matrix** of temperature values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods.
+#' @param tperiod_min_idx An integer **vector** indicating the column index (1-based) of the coldest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `tperiod`.
+#' @param period_length A single **integer** representing the number of units per period. 
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tperiod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio11" (mean temperature of coldest period) and "cell".
 #' @keywords internal
 bio11_fast <- function(tperiod, tperiod_min_idx, period_length, cell){
   num_period_cols <- ncol(tperiod) - 2
@@ -193,10 +265,13 @@ bio11_fast <- function(tperiod, tperiod_min_idx, period_length, cell){
 }
 
 #' @title bio12_fast: Total Precipitation
-#' @description Calculates the sum of precipitation values across all units.
-#' @param prcp Matrix of precipitation values for each unit.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio12", "cell".
+#' @description Calculates the total precipitation (sum) across all temporal units (e.g., 12 months).
+#' @param prcp A numeric **matrix** of precipitation values. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., months).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `prcp`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio12" (total precipitation) and "cell".
+#' 
 #' @keywords internal
 bio12_fast <- function(prcp, cell){
   bio12V <- Rfast::rowsums(prcp)
@@ -205,11 +280,18 @@ bio12_fast <- function(prcp, cell){
 }
 
 #' @title bio13_fast: Precipitation of Wettest Unit
-#' @description Identifies precipitation of the wettest unit, potentially using a static index.
-#' @param prcp Matrix of precipitation values for each unit.
-#' @param cell Vector of original cell IDs.
-#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Prec for that unit. If NULL, finds overall max Prec.
-#' @return Matrix with "bio13", "cell".
+#' @description Identifies the precipitation of the wettest temporal unit (e.g., month). 
+#'   If `index_vector` is `NULL`, it calculates the row-wise maximum. 
+#'   If `index_vector` is provided, it extracts the value from the specific column index for each row.
+#' @param prcp A numeric **matrix** of precipitation values. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., months).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `prcp`.
+#' @param index_vector (Optional) An integer **vector** of column indices (1-based). 
+#'   If provided, its length must be exactly equal to the number of rows in `prcp`. 
+#'   Values must be between 1 and `ncol(prcp)`. 
+#'   This is typically used to extract the precipitation of the specific month identified as the wettest by another metric.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio13" (precipitation of wettest unit) and "cell".
 #' @keywords internal
 bio13_fast <- function(prcp, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
@@ -229,11 +311,18 @@ bio13_fast <- function(prcp, cell, index_vector = NULL) {
 }
 
 #' @title bio14_fast: Precipitation of Driest Unit
-#' @description Identifies precipitation of the driest unit, potentially using a static index.
-#' @param prcp Matrix of precipitation values for each unit.
-#' @param cell Vector of original cell IDs.
-#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Prec for that unit. If NULL, finds overall min Prec.
-#' @return Matrix with "bio14", "cell".
+#' @description Identifies the precipitation of the driest temporal unit (e.g., month). 
+#'   If `index_vector` is `NULL`, it calculates the row-wise minimum. 
+#'   If `index_vector` is provided, it extracts the value from the specific column index for each row.
+#' @param prcp A numeric **matrix** of precipitation values. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., months).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `prcp`.
+#' @param index_vector (Optional) An integer **vector** of column indices (1-based). 
+#'   If provided, its length must be exactly equal to the number of rows in `prcp`. 
+#'   Values must be between 1 and `ncol(prcp)`. 
+#'   This is typically used to extract the precipitation of the specific month identified as the driest by another metric.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio14" (precipitation of driest unit) and "cell".
 #' @keywords internal
 bio14_fast <- function(prcp, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
@@ -253,12 +342,18 @@ bio14_fast <- function(prcp, cell, index_vector = NULL) {
 }
 
 #' @title bio15_fast: Precipitation Seasonality (CV)
-#' @description Calculates coefficient of variation in precipitation across units.
-#' @param prcp Matrix containing precipitation values for each unit.
-#' @param bio12V Precomputed total precipitation (BIO12 value).
-#' @param n_units Integer. The total number of temporal units.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio15", "cell".
+#' @description Calculates the Coefficient of Variation (CV) of precipitation. 
+#'   The formula used is: `(StandardDeviation / (Mean + 1)) * 100`. 
+#'   (The "+1" is added to the mean to avoid division by zero in completely arid areas).
+#' @param prcp A numeric **matrix** of precipitation values. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., 12 months).
+#' @param bio12V A numeric **vector** or **single-column matrix** of Total Annual Precipitation (Bio12). 
+#'   Its length (or number of rows) must be exactly equal to the number of rows in `prcp`.
+#' @param n_units A single **integer** representing the number of temporal units (e.g., 12). 
+#'   This is used to calculate the mean precipitation from the total `bio12V`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `prcp`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio15" (Precipitation Seasonality) and "cell".
 #' @keywords internal
 bio15_fast <- function(prcp, bio12V, n_units, cell) {
   bio12_vec <- if(is.matrix(bio12V)) bio12V[,1] else bio12V
@@ -272,11 +367,14 @@ bio15_fast <- function(prcp, bio12V, n_units, cell) {
 }
 
 #' @title bio16_fast: Precipitation of Wettest Period
-#' @description Calculates precipitation sum of the period with the highest precipitation sum.
-#' @param pperiod Matrix of precipitation period sums (output from `var_periods`).
-#' @param pperiod_max_idx Vector indicating the index (1-based) of the wettest period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio16", "cell".
+#' @description Calculates the total precipitation of the specific rolling period identified as the wettest (highest precipitation).
+#' @param pperiod A numeric **matrix** of precipitation sums for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param pperiod_max_idx An integer **vector** indicating the column index (1-based) of the wettest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `pperiod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `pperiod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio16" (precipitation of wettest period) and "cell".
 #' @keywords internal
 bio16_fast <- function(pperiod, pperiod_max_idx, cell){
   num_period_cols <- ncol(pperiod) - 2
@@ -290,11 +388,14 @@ bio16_fast <- function(pperiod, pperiod_max_idx, cell){
 }
 
 #' @title bio17_fast: Precipitation of Driest Period
-#' @description Calculates precipitation sum of the period with the lowest precipitation sum.
-#' @param pperiod Matrix of precipitation period sums.
-#' @param pperiod_min_idx Vector indicating the index (1-based) of the driest period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio17", "cell".
+#' @description Calculates the total precipitation of the specific rolling period identified as the driest (lowest precipitation).
+#' @param pperiod A numeric **matrix** of precipitation sums for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param pperiod_min_idx An integer **vector** indicating the column index (1-based) of the driest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `pperiod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `pperiod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio17" (precipitation of driest period) and "cell".
 #' @keywords internal
 bio17_fast <- function(pperiod, pperiod_min_idx, cell){
   num_period_cols <- ncol(pperiod) - 2
@@ -307,11 +408,14 @@ bio17_fast <- function(pperiod, pperiod_min_idx, cell){
 }
 
 #' @title bio18_fast: Precipitation of Warmest Period
-#' @description Calculates precipitation sum of the period with the highest temperature sum.
-#' @param pperiod Matrix of precipitation period sums.
-#' @param tperiod_max_idx Vector indicating the index (1-based) of the warmest period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio18", "cell".
+#' @description Calculates the total precipitation of the specific rolling period identified as the warmest (highest temperature).
+#' @param pperiod A numeric **matrix** of precipitation sums for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param tperiod_max_idx An integer **vector** indicating the column index (1-based) of the warmest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `pperiod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `pperiod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio18" (precipitation of warmest period) and "cell".
 #' @keywords internal
 bio18_fast <- function(pperiod, tperiod_max_idx, cell){
   num_period_cols <- ncol(pperiod) - 2
@@ -324,11 +428,14 @@ bio18_fast <- function(pperiod, tperiod_max_idx, cell){
 }
 
 #' @title bio19_fast: Precipitation of Coldest Period
-#' @description Calculates precipitation sum of the period with the lowest temperature sum.
-#' @param pperiod Matrix of precipitation period sums.
-#' @param tperiod_min_idx Vector indicating the index (1-based) of the coldest period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio19", "cell".
+#' @description Calculates the total precipitation of the specific rolling period identified as the coldest (lowest temperature).
+#' @param pperiod A numeric **matrix** of precipitation sums for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param tperiod_min_idx An integer **vector** indicating the column index (1-based) of the coldest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `pperiod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `pperiod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio19" (precipitation of coldest period) and "cell".
 #' @keywords internal
 bio19_fast <- function(pperiod, tperiod_min_idx, cell){
   num_period_cols <- ncol(pperiod) - 2
@@ -340,11 +447,14 @@ bio19_fast <- function(pperiod, tperiod_min_idx, cell){
   return(bio19V)
 }
 
-#' @title bio20_fast: Mean Solar Radiation of Units
-#' @description Calculates mean solar radiation across all temporal units.
-#' @param srad Matrix of average solar radiation for each unit.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with columns: "bio20", "cell".
+#' @title bio20_fast: Mean Radiation
+#' @description Calculates mean solar radiation across all temporal units (usually 12 months).
+#' @param srad A numeric **matrix** where **rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., 12 months).
+#' @param cell A numeric or character **vector** of original cell IDs. 
+#'   Its length must be exactly equal to the number of rows in `srad`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio20" (the calculated mean) and "cell" (the IDs).
 #' @keywords internal
 bio20_fast <- function(srad, cell) {
   bio20V <- Rfast::rowmeans(srad)
@@ -352,12 +462,19 @@ bio20_fast <- function(srad, cell) {
   return(bio20V)
 }
 
-#' @title bio21_fast: Highest Solar Radiation Unit
-#' @description Identifies highest solar radiation unit, potentially using a static index.
-#' @param srad Matrix of solar radiation values for each unit.
-#' @param cell Vector of original cell IDs.
-#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Srad for that unit. If NULL, finds overall max Srad.
-#' @return Matrix with "bio21", "cell".
+#' #' @title bio21_fast: Highest Radiation Unit
+#' @description Identifies the highest solar radiation of the temporal unit with the highest value. 
+#'   If `index_vector` is `NULL`, it calculates the row-wise maximum. 
+#'   If `index_vector` is provided, it extracts the value from the specific column index for each row.
+#' @param srad A numeric **matrix** of solar radiation values. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., months).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `srad`.
+#' @param index_vector (Optional) An integer **vector** of column indices (1-based). 
+#'   If provided, its length must be exactly equal to the number of rows in `srad`. 
+#'   Values must be between 1 and `ncol(srad)`. 
+#'   This is typically used to extract the solar radiation of a specific unit identified by another metric.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio21" (the maximum solar radiation) and "cell".
 #' @keywords internal
 bio21_fast <- function(srad, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
@@ -376,12 +493,19 @@ bio21_fast <- function(srad, cell, index_vector = NULL) {
   return(bio21V)
 }
 
-#' @title bio22_fast: Lowest Solar Radiation Unit
-#' @description Identifies lowest solar radiation unit, potentially using a static index.
-#' @param srad Matrix of solar radiation values for each unit.
-#' @param cell Vector of original cell IDs.
-#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts Srad for that unit. If NULL, finds overall max Srad.
-#' @return Matrix with "bio22", "cell".
+#' @title bio22_fast: Lowest Radiation Unit
+#' @description Identifies the lowest solar radiation of the temporal unit with the lowest value. 
+#'   If `index_vector` is `NULL`, it calculates the row-wise minimum. 
+#'   If `index_vector` is provided, it extracts the value from the specific column index for each row.
+#' @param srad A numeric **matrix** of solar radiation values. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., months).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `srad`.
+#' @param index_vector (Optional) An integer **vector** of column indices (1-based). 
+#'   If provided, its length must be exactly equal to the number of rows in `srad`. 
+#'   Values must be between 1 and `ncol(srad)`. 
+#'   This is typically used to extract the solar radiation of a specific unit identified by another metric.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio22" (the minimum solar radiation) and "cell".
 #' @keywords internal
 bio22_fast <- function(srad, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
@@ -400,12 +524,16 @@ bio22_fast <- function(srad, cell, index_vector = NULL) {
   return(bio22V)
 }
 
-#' @title bio23_fast: Solar Radiation Seasonality (CV)
-#' @description Calculates coefficient of variation in solar radiation across units.
-#' @param srad Matrix containing solar radiation values for each unit.
-#' @param n_units Integer. The total number of temporal units.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio23", "cell".
+#' @title bio23_fast: Radiation Seasonality (CV)
+#' @description Calculates the Coefficient of Variation (CV) of solar radiation. 
+#'   The formula used is: `(StandardDeviation / (Mean + 1)) * 100`. 
+#'   (The "+1" is added to the mean to avoid division by zero).
+#' @param srad A numeric **matrix** of solar radiation values. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., 12 months).
+#' @param n_units A single **integer** representing the number of temporal units (e.g., 12).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `srad`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio23" (Solar Radiation Seasonality) and "cell".
 #' @keywords internal
 bio23_fast <- function(srad, n_units, cell) {
   # Calculate mean solar radiation
@@ -417,12 +545,15 @@ bio23_fast <- function(srad, n_units, cell) {
   return(bio23V)
 }
 
-#' @title bio24_fast: Solar Radiation of Wettest Period
-#' @description Calculates solar radiation mean of the period with the highest precipitation sum.
-#' @param speriod Matrix of solar radiation period means (output from `var_periods`).
-#' @param pperiod_max_idx Vector indicating the index (1-based) of the wettest period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio24", "cell".
+#' @title bio24_fast: Radiation of Wettest Period
+#' @description Calculates the mean solar radiation of the specific rolling period identified as the wettest (highest precipitation).
+#' @param speriod A numeric **matrix** of solar radiation values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param pperiod_max_idx An integer **vector** indicating the column index (1-based) of the wettest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `speriod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio24" (mean solar radiation of wettest period) and "cell".
 #' @keywords internal
 bio24_fast <- function(speriod, pperiod_max_idx, cell) {
   num_period_cols <- ncol(speriod) - 2
@@ -435,12 +566,15 @@ bio24_fast <- function(speriod, pperiod_max_idx, cell) {
   return(bio24V)
 }
 
-#' @title bio25_fast: Solar Radiation of Driest Period
-#' @description Calculates solar radiation mean of the period with the highest precipitation sum.
-#' @param speriod Matrix of solar radiation period means (output from `var_periods`).
-#' @param pperiod_min_idx Vector indicating the index (1-based) of the driest period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio25", "cell".
+#' @title bio25_fast: Radiation of Driest Period
+#' @description Calculates the mean solar radiation of the specific rolling period identified as the driest (lowest precipitation).
+#' @param speriod A numeric **matrix** of solar radiation values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param pperiod_min_idx An integer **vector** indicating the column index (1-based) of the driest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `speriod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio25" (mean solar radiation of driest period) and "cell".
 #' @keywords internal
 bio25_fast <- function(speriod, pperiod_min_idx, cell) {
   num_period_cols <- ncol(speriod) - 2
@@ -453,12 +587,15 @@ bio25_fast <- function(speriod, pperiod_min_idx, cell) {
   return(bio25V)
 }
 
-#' @title bio26_fast: Solar Radiation of Warmest Period
-#' @description Calculates solar radiation mean of the period with the highest temperature mean.
-#' @param speriod Matrix of solar radiation period means (output from `var_periods`).
-#' @param tperiod_max_idx Vector indicating the index (1-based) of the warmest period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio26", "cell".
+#' @title bio26_fast: Radiation of Warmest Period
+#' @description Calculates the mean solar radiation of the specific rolling period identified as the warmest (highest temperature).
+#' @param speriod A numeric **matrix** of solar radiation values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param tperiod_max_idx An integer **vector** indicating the column index (1-based) of the warmest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `speriod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio26" (mean solar radiation of warmest period) and "cell".
 #' @keywords internal
 bio26_fast <- function(speriod, tperiod_max_idx, cell) {
   num_period_cols <- ncol(speriod) - 2
@@ -471,12 +608,15 @@ bio26_fast <- function(speriod, tperiod_max_idx, cell) {
   return(bio26V)
 }
 
-#' @title bio27_fast: Solar Radiation of Coldest Period
-#' @description Calculates solar radiation mean of the period with the lowest temperature mean.
-#' @param speriod Matrix of solar radiation period means (output from `var_periods`).
-#' @param tperiod_min_idx Vector indicating the index (1-based) of the coldest period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio27", "cell".
+#' @title bio27_fast: Radiation of Coldest Period
+#' @description Calculates the mean solar radiation of the specific rolling period identified as the coldest (lowest temperature).
+#' @param speriod A numeric **matrix** of solar radiation values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param tperiod_min_idx An integer **vector** indicating the column index (1-based) of the coldest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `speriod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio27" (mean solar radiation of coldest period) and "cell".
 #' @keywords internal
 bio27_fast <- function(speriod, tperiod_min_idx, cell) {
   num_period_cols <- ncol(speriod) - 2
@@ -489,11 +629,14 @@ bio27_fast <- function(speriod, tperiod_min_idx, cell) {
   return(bio27V)
 }
 
-#' @title bio28_fast: Mean Moisture of Units
-#' @description Calculates mean moisture across all temporal units.
-#' @param mois Matrix of average moisture for each unit.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with columns: "bio28", "cell".
+#' @title bio28_fast: Mean Moisture
+#' @description Calculates mean moisture across all temporal units (usually 12 months).
+#' @param mois A numeric **matrix** where **rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., 12 months).
+#' @param cell A numeric or character **vector** of original cell IDs. 
+#'   Its length must be exactly equal to the number of rows in `mois`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio28" (the calculated mean) and "cell" (the IDs).
 #' @keywords internal
 bio28_fast <- function(mois, cell) {
   bio28V <- Rfast::rowmeans(mois)
@@ -502,11 +645,18 @@ bio28_fast <- function(mois, cell) {
 }
 
 #' @title bio29_fast: Highest Moisture Unit
-#' @description Identifies highest moisture unit, potentially using a static index.
-#' @param mois Matrix of moisture values for each unit.
-#' @param cell Vector of original cell IDs.
-#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts mois for that unit. If NULL, finds overall max mois.
-#' @return Matrix with "bio29", "cell".
+#' @description Identifies the highest moisture of the temporal unit with the highest value. 
+#'   If `index_vector` is `NULL`, it calculates the row-wise maximum. 
+#'   If `index_vector` is provided, it extracts the value from the specific column index for each row.
+#' @param mois A numeric **matrix** of moisture values. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., months).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `mois`.
+#' @param index_vector (Optional) An integer **vector** of column indices (1-based). 
+#'   If provided, its length must be exactly equal to the number of rows in `mois`. 
+#'   Values must be between 1 and `ncol(mois)`. 
+#'   This is typically used to extract the moisture of a specific unit identified by another metric.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio29" (the maximum moisture) and "cell".
 #' @keywords internal
 bio29_fast <- function(mois, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
@@ -526,11 +676,18 @@ bio29_fast <- function(mois, cell, index_vector = NULL) {
 }
 
 #' @title bio30_fast: Lowest Moisture Unit
-#' @description Identifies lowest moisture unit, potentially using a static index.
-#' @param mois Matrix of moisture values for each unit.
-#' @param cell Vector of original cell IDs.
-#' @param index_vector Optional vector of unit indices (1-based). If provided, extracts mois for that unit. If NULL, finds overall max mois.
-#' @return Matrix with "bio30", "cell".
+#' @description Identifies the lowest moisture of the temporal unit with the lowest value. 
+#'   If `index_vector` is `NULL`, it calculates the row-wise minimum. 
+#'   If `index_vector` is provided, it extracts the value from the specific column index for each row.
+#' @param mois A numeric **matrix** of moisture values. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units (e.g., months).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `mois`.
+#' @param index_vector (Optional) An integer **vector** of column indices (1-based). 
+#'   If provided, its length must be exactly equal to the number of rows in `mois`. 
+#'   Values must be between 1 and `ncol(mois)`. 
+#'   This is typically used to extract the moisture of a specific unit identified by another metric.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio30" (the minimum moisture) and "cell".
 #' @keywords internal
 bio30_fast <- function(mois, cell, index_vector = NULL) {
   if (!is.null(index_vector)) {
@@ -549,12 +706,14 @@ bio30_fast <- function(mois, cell, index_vector = NULL) {
   return(bio30V)
 }
 
-#' @title bio31_fast: Moisture Seasonality (Standard Deviation)
-#' @description Calculates coefficient of variation in moisture across units.
-#' @param mois Matrix containing moisture values for each unit.
-#' @param n_units Integer. The total number of temporal units.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio31", "cell".
+#' @title bio31_fast: Moisture Seasonality (Std Dev * 100)
+#' @description Calculates Moisture Seasonality, defined as the standard deviation of moisture values across all temporal units (e.g., 12 months), multiplied by 100.
+#' @param mois A numeric **matrix** containing moisture values. **Rows** represent spatial units (cells) 
+#'   and **columns** represent temporal units.
+#' @param n_units A single **integer** representing the number of temporal units (e.g., 12).
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `mois`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+#'   The columns are named "bio31" (Moisture Seasonality) and "cell".
 #' @keywords internal
 bio31_fast <- function(mois, n_units, cell) {
   bio31V <- Rfast::rowVars(mois, std = TRUE) * 100
@@ -562,12 +721,15 @@ bio31_fast <- function(mois, n_units, cell) {
   return(bio31V)
 }
 
-#' @title bio32_fast: Moisture of the Most Moist Period
-#' @description Calculates moisture mean of the most moist period.
-#' @param speriod Matrix of moisture period means (output from `var_periods`).
-#' @param speriod_max_idx Vector indicating the index (1-based) of the most moist period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio32", "cell".
+#' @title bio32_fast: Mean Moisture of Most Moist Period
+#' @description Calculates the mean moisture of the specific rolling period identified as the most moist (highest moisture).
+#' @param speriod A numeric **matrix** of moisture values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param speriod_max_idx An integer **vector** indicating the column index (1-based) of the most moist period for each row. 
+#'   Its length must be exactly equal to the number of rows in `speriod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio32" (mean moisture of most moist period) and "cell".
 #' @keywords internal
 bio32_fast <- function(speriod, speriod_max_idx, cell) {
   num_period_cols <- ncol(speriod) - 2
@@ -580,12 +742,15 @@ bio32_fast <- function(speriod, speriod_max_idx, cell) {
   return(bio32V)
 }
 
-#' @title bio33_fast: Moisture of the Least Moist Period
-#' @description Calculates moisture mean of the least moist period.
-#' @param speriod Matrix of moisture period means (output from `var_periods`).
-#' @param speriod_min_idx Vector indicating the index (1-based) of the least moist period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio33", "cell".
+#' @title bio33_fast: Mean Moisture of Least Moist Period
+#' @description Calculates the mean moisture of the specific rolling period identified as the least moist (lowest moisture).
+#' @param speriod A numeric **matrix** of moisture values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param speriod_min_idx An integer **vector** indicating the column index (1-based) of the least moist period for each row. 
+#'   Its length must be exactly equal to the number of rows in `speriod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio33" (mean moisture of least moist period) and "cell".
 #' @keywords internal
 bio33_fast <- function(speriod, speriod_min_idx, cell) {
   num_period_cols <- ncol(speriod) - 2
@@ -598,12 +763,15 @@ bio33_fast <- function(speriod, speriod_min_idx, cell) {
   return(bio33V)
 }
 
-#' @title bio34_fast: Moisture of Warmest Period
-#' @description Calculates moisture mean of the period with the highest temperature mean.
-#' @param speriod Matrix of moisture period means (output from `var_periods`).
-#' @param tperiod_max_idx Vector indicating the index (1-based) of the warmest period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio34", "cell".
+#' @title bio34_fast: Mean Moisture of Warmest Period
+#' @description Calculates the mean moisture of the specific rolling period identified as the warmest (highest temperature).
+#' @param speriod A numeric **matrix** of moisture values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param tperiod_max_idx An integer **vector** indicating the column index (1-based) of the warmest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `speriod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio34" (mean moisture of warmest period) and "cell".
 #' @keywords internal
 bio34_fast <- function(speriod, tperiod_max_idx, cell) {
   num_period_cols <- ncol(speriod) - 2
@@ -616,12 +784,15 @@ bio34_fast <- function(speriod, tperiod_max_idx, cell) {
   return(bio34V)
 }
 
-#' @title bio35_fast: Moisture of Coldest Period
-#' @description Calculates moisture mean of the period with the lowest temperature mean.
-#' @param speriod Matrix of moisture period means (output from `var_periods`).
-#' @param tperiod_min_idx Vector indicating the index (1-based) of the coldest period.
-#' @param cell Vector of original cell IDs.
-#' @return Matrix with "bio35", "cell".
+#' @title bio35_fast: Mean Moisture of Coldest Period
+#' @description Calculates the mean moisture of the specific rolling period identified as the coldest (lowest temperature).
+#' @param speriod A numeric **matrix** of moisture values (means) for each rolling period. 
+#'   **Rows** represent spatial units (cells). **Columns** represent the rolling periods. 
+#' @param tperiod_min_idx An integer **vector** indicating the column index (1-based) of the coldest period for each row. 
+#'   Its length must be exactly equal to the number of rows in `speriod`.
+#' @param cell A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.
+#' @return A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+#'   The columns are named "bio35" (mean moisture of coldest period) and "cell".
 #' @keywords internal
 bio35_fast <- function(speriod, tperiod_min_idx, cell) {
   num_period_cols <- ncol(speriod) - 2

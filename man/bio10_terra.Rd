@@ -7,14 +7,14 @@
 bio10_terra(tmp, warmest_period)
 }
 \arguments{
-\item{tmp}{spatRaster of temperature period sums.}
+\item{tmp}{A `SpatRaster` object where each layer represents the mean temperature for a rolling period.}
 
-\item{warmest_period}{Vector indicating the index (1-based) of the warmest period.}
+\item{warmest_period}{A single-layer `SpatRaster` where cell values are integers indicating the layer index (1-based) of the warmest period.}
 }
 \value{
-spatRaster with "bio10".
+A single-layer `SpatRaster` containing the mean temperature of the warmest period, named "bio10".
 }
 \description{
-Calculates mean temperature of the period with the highest temperature sum.
+Calculates the mean temperature of the specific rolling period identified as the warmest.
 }
 \keyword{internal}

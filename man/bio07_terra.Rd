@@ -2,19 +2,19 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio07_terra}
 \alias{bio07_terra}
-\title{bio07_terra: Temperature Annual Range (bio05 - bio06)}
+\title{bio07_terra: Temperature Range (bio05 - bio06)}
 \usage{
 bio07_terra(bio05, bio06)
 }
 \arguments{
-\item{bio05}{spatRaster of bio05 values.}
+\item{bio05}{A single-layer `SpatRaster` of Bio05 values.}
 
-\item{bio06}{spatRaster of bio06 values.}
+\item{bio06}{A single-layer `SpatRaster` of Bio06 values.}
 }
 \value{
-spatRaster with "bio07".
+A single-layer `SpatRaster` with the temperature annual range, named "bio07".
 }
 \description{
-Calculates the difference between bio05 and bio06.
+Calculates the difference between the Maximum Temperature of the Warmest Unit (bio05) and the Minimum Temperature of the Coldest Unit (bio06).
 }
 \keyword{internal}

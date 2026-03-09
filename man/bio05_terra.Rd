@@ -7,12 +7,35 @@
 bio05_terra(tmax, warmest_unit = NULL)
 }
 \arguments{
-\item{tmax}{spatRaster of maximum temperatures for each unit.}
+\item{tmax}{A `SpatRaster` object of maximum temperatures, where each layer is a temporal unit.}
+
+\item{warmest_unit}{(Optional) A single-layer `SpatRaster` where cell values are integers indicating a 
+static layer index (1-based) from which to extract the value. If `NULL` (the default), the overall maximum across all 
+layers is calculated.}
 }
 \value{
-spatRaster with "bio05".
+A single-layer `SpatRaster` with the maximum temperature, named "bio05".
 }
 \description{
-Identifies max temperature of the warmest unit, potentially using a static index.
+Identifies the maximum temperature of the warmest temporal unit (layer).
+}
+\details{
+This function calculates bio05 following the standard definition used by WorldClim 
+  (Hijmans et al., 2005) and ANUCLIM 6.1 (Xu & Hutchinson, 2013), which is the single highest value from all 
+  maximum temperature layers (a "max of maxes"). It does not use mean 
+  temperature to first identify the warmest month.
+}
+\references{
+Hijmans, R.J., Cameron, S.E., Parra, J.L., Jones, P.G. and Jarvis, A. (2005). 
+Very high resolution interpolated climate surfaces for global land areas. 
+International Journal of Climatology, 25(15), 1965-1978.
+
+O'Donnell, M. S., & Ignizio, D. A. (2012). Bioclimatic predictors for 
+supporting ecological applications in the conterminous United States. 
+U.S. Geological Survey Data Series 691.
+
+Xu, T., & Hutchinson, M. F. (2013). New developments and applications in the 
+ANUCLIM spatial climatic and bioclimatic modelling package. Environmental 
+Modelling & Software, 40, 267-279.
 }
 \keyword{internal}

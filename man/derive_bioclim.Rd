@@ -63,15 +63,21 @@ stop immediately if any target output files already exist.}
 the "Static Indices" section for details.}
 }
 \value{
-An SpatRaster with 35 bioclimatic variables or a subset of them:
+A `terra::SpatRaster` object pointing to the newly created bioclimatic variable rasters, with the following characteristics:
+  \itemize{
+    \item **Number of layers:** The number of layers is equal to the number of unique variables requested in the `bios` argument.
+    \item **Layer names:** Layer names are standardized (e.g., 'bio01', 'bio12') corresponding to the requested variable numbers.
+    \item **Extent:** If a `user_region` is provided, the extent of the output raster will be clipped to match that region. Otherwise, the extent will be the same as the input rasters.
+  }
+  The returned object contains the following calculated variables:
 \describe{
-  \item{bio01}{Mean Temperature of Units}
+  \item{bio01}{Mean Temperature}
   \item{bio02}{Mean Diurnal Range}
   \item{bio03}{Isothermality}
   \item{bio04}{Temperature Seasonality}
   \item{bio05}{Max Temperature of Warmest Unit}
   \item{bio06}{Min Temperature of Coldest Unit}
-  \item{bio07}{Temperature Range of Units}
+  \item{bio07}{Temperature Range}
   \item{bio08}{Mean Temperature of Wettest Period}
   \item{bio09}{Mean Temperature of Driest Period}
   \item{bio10}{Mean Temperature of Warmest Period}
@@ -84,7 +90,7 @@ An SpatRaster with 35 bioclimatic variables or a subset of them:
   \item{bio17}{Precipitation of Driest Period}
   \item{bio18}{Precipitation of Warmest Period}
   \item{bio19}{Precipitation of Coldest Period}
-  \item{bio20}{Mean Radiation of Units}
+  \item{bio20}{Mean Radiation}
   \item{bio21}{Highest Radiation Unit}
   \item{bio22}{Lowest Radiation Unit}
   \item{bio23}{Radiation Seasonality}
@@ -92,14 +98,14 @@ An SpatRaster with 35 bioclimatic variables or a subset of them:
   \item{bio25}{Radiation of Driest Period}
   \item{bio26}{Radiation of Warmest Period}
   \item{bio27}{Radiation of Coldest Period}
-  \item{bio28*}{Mean Moisture Content Of Units}
-  \item{bio29*}{Highest Moisture Content Unit}
-  \item{bio30*}{Lowest Moisture Content Unit}
-  \item{bio31*}{Moisture Content Seasonality}
-  \item{bio32*}{Mean Moisture Content of Most Moist Period}
-  \item{bio33*}{Mean Moisture Content of Least Moist Period}
-  \item{bio34*}{Mean Moisture Content of Warmest Period}
-  \item{bio35*}{Mean Moisture Content of Coldest Period}
+  \item{bio28*}{Mean Moisture}
+  \item{bio29*}{Highest Moisture Unit}
+  \item{bio30*}{Lowest Moisture Unit}
+  \item{bio31*}{Moisture Seasonality}
+  \item{bio32*}{Mean Moisture of Most Moist Period}
+  \item{bio33*}{Mean Moisture of Least Moist Period}
+  \item{bio34*}{Mean Moisture of Warmest Period}
+  \item{bio35*}{Mean Moisture of Coldest Period}
 }
 }
 \description{
@@ -147,25 +153,42 @@ include:
 }
 
 \examples{
-# This is a conceptual example, requires data setup
-\dontrun{
-  # Assume tmin_rast, tmax_rast, prcp_rast are 12-layer SpatRasters
-  bioclim_vars <- derive_bioclim(
-    bios = 1:19,
-    tmin = tmin_rast,
-    tmax = tmax_rast,
-    prcp = prcp_rast,
-    output_dir = "./bioclim_output",
-    overwrite = TRUE
-  )
-  plot(bioclim_vars[[c("bio01", "bio12")]])
+\donttest{
+# The example raster "prcp.tif" is included in the package's `inst/extdata` directory.
+# Load example data from Lesotho (Montlhy time series from 2016-01 to 2020-12)
+raster_path <- system.file("extdata", "prcp.tif", package = "fastbioclim")
+# Load the SpatRaster from the file
+prcp_ts <- terra::rast(raster_path)
+# The data has 60 layers (5 years of monthly data), so we create an
+# index to group layers by month (1 to 12).
+monthly_index <- rep(1:12, times = 5)
+# Define a temporary directory for the output files
+output_dir <- file.path(tempdir(), "prcp_bios")
+# Run the calculate_average function
+monthly_avg <- calculate_average(
+  x = prcp_ts,
+  index = monthly_index,
+  output_names = "prcp_avg",
+  output_dir = output_dir,
+  overwrite = TRUE,
+  verbose = FALSE
+)
+# Once the monthly averaged is obtained, we can use it to obtain bioclimatic variables based
+# just in precipitation (bios 12, 13, 14, 15, 16, 17).
+prcp_bios <- derive_bioclim(
+  bios = 12:17,
+  prcp = monthly_avg,
+  output_dir = output_dir,
+  overwrite = TRUE,
+  verbose = FALSE
+)
+# Print the resulting SpatRaster summary with the four requested layers
+print(prcp_bios)
+# Clean up the created files
+unlink(output_dir, recursive = TRUE)
 }
-
 }
 \references{
 O’Donnell, M. S., & Ignizio, D. A. (2012). Bioclimatic predictors for supporting ecological applications in the conterminous United States.
 ANUCLIM 6.1 User Guide. Centre for Resource and Environmental Studies, The Australian National University.
-}
-\seealso{
-`validate_climate_inputs()` to check data integrity before processing.
 }

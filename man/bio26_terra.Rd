@@ -2,19 +2,19 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio26_terra}
 \alias{bio26_terra}
-\title{bio26_terra: Solar Radiation of Warmest Period}
+\title{bio26_terra: Radiation of Warmest Period}
 \usage{
 bio26_terra(prad, warmest_period)
 }
 \arguments{
-\item{prad}{spatRaster of solar radiation period means.}
+\item{prad}{A `SpatRaster` object where each layer is the mean solar radiation for a rolling period.}
 
-\item{warmest_period}{Vector indicating the index (1-based) of the warmest period.}
+\item{warmest_period}{A single-layer `SpatRaster` where cell values are integers indicating the layer index (1-based) of the warmest period.}
 }
 \value{
-spatRaster with "bio26".
+A single-layer `SpatRaster` with the solar radiation of the warmest period, named "bio26".
 }
 \description{
-Calculates solar radiation mean of the period with the highest temperature mean.
+Calculates the mean solar radiation of the specific rolling period identified as the warmest.
 }
 \keyword{internal}

@@ -7,16 +7,19 @@
 bio03_fast(bio02V, bio07V, cell)
 }
 \arguments{
-\item{bio02V}{Vector or single-column matrix of bio02 values.}
+\item{bio02V}{A numeric **vector** or **single-column matrix** of Bio02 values (Mean Diurnal Range). 
+Length (or number of rows) must match `bio07V` and `cell`.}
 
-\item{bio07V}{Vector or single-column matrix of bio07 values.}
+\item{bio07V}{A numeric **vector** or **single-column matrix** of Bio07 values (Temperature Range). 
+Length (or number of rows) must match `bio02V` and `cell`.}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the length/rows of `bio02V` and `bio07V`.}
 }
 \value{
-Matrix with "bio03", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio03" and "cell".
 }
 \description{
-Calculates (bio02 / bio07) * 100.
+Calculates Isothermality representing the ratio of mean diurnal range to temperature range: (bio02 / bio07) * 100.
 }
 \keyword{internal}

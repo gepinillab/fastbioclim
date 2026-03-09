@@ -5,7 +5,7 @@
 #'
 #' @param variable A SpatRaster for the primary variable.
 #' @param stats Character vector of stats to compute.
-#' @param prefix_variable Character, prefix for output layer names.
+#' @param output_prefix Character, prefix for output layer names.
 #' @param ... Other arguments including inter_variable, period_length, circular,
 #'   static index SpatRasters, etc.
 #' @return A `terra::SpatRaster` object containing the calculated summary layers.
@@ -25,7 +25,7 @@ stats_terra <- function(variable,
                         min_period = NULL,
                         max_interactive = NULL,
                         min_interactive = NULL,
-                        prefix_variable = "var",
+                        output_prefix = "var",
                         suffix_inter_max = "inter_high", 
                         suffix_inter_min = "inter_low",
                         gdal_opt = c("COMPRESS=DEFLATE", "PREDICTOR=3", "NUM_THREADS=ALL_CPUS"),
@@ -72,43 +72,43 @@ stats_terra <- function(variable,
   # MEAN
   if ("mean" %in% stats) {
     mean_stat <- terra::app(variable, "mean", na.rm = TRUE)
-    names(mean_stat) <- paste0(prefix_variable, "_mean")
+    names(mean_stat) <- paste0(output_prefix, "_mean")
   }
   
   # SUM
   if ("sum" %in% stats) {
     sum_stat <- terra::app(variable, "sum", na.rm = TRUE)
-    names(sum_stat) <- paste0(prefix_variable, "_sum")
+    names(sum_stat) <- paste0(output_prefix, "_sum")
   }
   
   # MAX
   if ("max" %in% stats & is.null(max_unit)) {
     max_stat <- terra::app(variable, "max", na.rm = TRUE)
-    names(max_stat) <- paste0(prefix_variable, "_max")
+    names(max_stat) <- paste0(output_prefix, "_max")
   } else if ("max" %in% stats & !is.null(max_unit)) {
     max_stat <- terra::selectRange(variable, max_unit)
-    names(max_stat) <- paste0(prefix_variable, "_max")
+    names(max_stat) <- paste0(output_prefix, "_max")
   }
   
   # MIN
   if ("min" %in% stats & is.null(min_unit)) {
     min_stat <- terra::app(variable, "min", na.rm = TRUE)
-    names(min_stat) <- paste0(prefix_variable, "_min")
+    names(min_stat) <- paste0(output_prefix, "_min")
   } else if ("min" %in% stats & !is.null(min_unit)) {
     min_stat <- terra::selectRange(variable, min_unit)
-    names(min_stat) <- paste0(prefix_variable, "_min")
+    names(min_stat) <- paste0(output_prefix, "_min")
   }
   
   # STDEV
   if ("stdev" %in% stats) {
     stdev_stat <- terra::app(variable, "std", na.rm = TRUE)
-    names(stdev_stat) <- paste0(prefix_variable, "_stdev")
+    names(stdev_stat) <- paste0(output_prefix, "_stdev")
   }
   
   # CV_CLI
   if ("cv_cli" %in% stats) {
     cv_cli_stat <- cv_cli(variable)
-    names(cv_cli_stat) <- paste0(prefix_variable, "_cv")
+    names(cv_cli_stat) <- paste0(output_prefix, "_cv")
   }
   
   # MAX & MIN PERIOD
@@ -120,18 +120,18 @@ stats_terra <- function(variable,
   ## MAX_PERIOD
   if ("max_period" %in% stats & is.null(max_period)) {
     max_period_stat <- terra::app(period_windows, "max", na.rm = TRUE)
-    names(max_period_stat) <- paste0(prefix_variable, "_max_period")
+    names(max_period_stat) <- paste0(output_prefix, "_max_period")
   } else if ("max_period" %in% stats & !is.null(max_period)) {
     max_period_stat <- terra::selectRange(period_windows, max_period)
-    names(max_period_stat) <- paste0(prefix_variable, "_max_period")
+    names(max_period_stat) <- paste0(output_prefix, "_max_period")
   }
   ## MIN_PERIOD
   if ("min_period" %in% stats & is.null(min_period)) {
     min_period_stat <- terra::app(period_windows, "min", na.rm = TRUE)
-    names(min_period_stat) <- paste0(prefix_variable, "_min_period")
+    names(min_period_stat) <- paste0(output_prefix, "_min_period")
   } else if ("min_period" %in% stats & !is.null(min_period)) {
     min_period_stat <- terra::selectRange(period_windows, min_period)
-    names(min_period_stat) <- paste0(prefix_variable, "_min_period")
+    names(min_period_stat) <- paste0(output_prefix, "_min_period")
   }
   
   # INTERACTIVES (MAX & MIN)
@@ -143,19 +143,19 @@ stats_terra <- function(variable,
     if ("max_inter" %in% inter_stats) {
       if (is.null(max_interactive)) {
         max_inter_stat <- terra::selectRange(period_windows, terra::which.max(inter_windows))
-        names(max_inter_stat) <- paste0(prefix_variable, "_", suffix_inter_max)
+        names(max_inter_stat) <- paste0(output_prefix, "_", suffix_inter_max)
       } else {
         max_inter_stat <- terra::selectRange(period_windows, max_interactive)
-        names(max_inter_stat) <- paste0(prefix_variable, "_", suffix_inter_max)
+        names(max_inter_stat) <- paste0(output_prefix, "_", suffix_inter_max)
       }
     }
     if ("min_inter" %in% inter_stats) {
       if (is.null(min_interactive)) {
         min_inter_stat <- terra::selectRange(period_windows, terra::which.min(inter_windows))
-        names(min_inter_stat) <- paste0(prefix_variable, "_", suffix_inter_min)
+        names(min_inter_stat) <- paste0(output_prefix, "_", suffix_inter_min)
       } else {
         min_inter_stat <- terra::selectRange(period_windows, min_interactive)
-        names(min_inter_stat) <- paste0(prefix_variable, "_", suffix_inter_min)
+        names(min_inter_stat) <- paste0(output_prefix, "_", suffix_inter_min)
       }
     }
   }

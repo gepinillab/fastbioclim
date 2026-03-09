@@ -7,16 +7,19 @@
 bio18_fast(pperiod, tperiod_max_idx, cell)
 }
 \arguments{
-\item{pperiod}{Matrix of precipitation period sums.}
+\item{pperiod}{A numeric **matrix** of precipitation sums for each rolling period. 
+**Rows** represent spatial units (cells). **Columns** represent the rolling periods.}
 
-\item{tperiod_max_idx}{Vector indicating the index (1-based) of the warmest period.}
+\item{tperiod_max_idx}{An integer **vector** indicating the column index (1-based) of the warmest period for each row. 
+Its length must be exactly equal to the number of rows in `pperiod`.}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `pperiod`.}
 }
 \value{
-Matrix with "bio18", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+  The columns are named "bio18" (precipitation of warmest period) and "cell".
 }
 \description{
-Calculates precipitation sum of the period with the highest temperature sum.
+Calculates the total precipitation of the specific rolling period identified as the warmest (highest temperature).
 }
 \keyword{internal}

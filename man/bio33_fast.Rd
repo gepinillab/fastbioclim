@@ -2,21 +2,24 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio33_fast}
 \alias{bio33_fast}
-\title{bio33_fast: Moisture of the Least Moist Period}
+\title{bio33_fast: Mean Moisture of Least Moist Period}
 \usage{
 bio33_fast(speriod, speriod_min_idx, cell)
 }
 \arguments{
-\item{speriod}{Matrix of moisture period means (output from `var_periods`).}
+\item{speriod}{A numeric **matrix** of moisture values (means) for each rolling period. 
+**Rows** represent spatial units (cells). **Columns** represent the rolling periods.}
 
-\item{speriod_min_idx}{Vector indicating the index (1-based) of the least moist period.}
+\item{speriod_min_idx}{An integer **vector** indicating the column index (1-based) of the least moist period for each row. 
+Its length must be exactly equal to the number of rows in `speriod`.}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `speriod`.}
 }
 \value{
-Matrix with "bio33", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells.
+  The columns are named "bio33" (mean moisture of least moist period) and "cell".
 }
 \description{
-Calculates moisture mean of the least moist period.
+Calculates the mean moisture of the specific rolling period identified as the least moist (lowest moisture).
 }
 \keyword{internal}

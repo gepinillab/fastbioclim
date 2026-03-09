@@ -2,21 +2,23 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio31_fast}
 \alias{bio31_fast}
-\title{bio31_fast: Moisture Seasonality (Standard Deviation)}
+\title{bio31_fast: Moisture Seasonality (Std Dev * 100)}
 \usage{
 bio31_fast(mois, n_units, cell)
 }
 \arguments{
-\item{mois}{Matrix containing moisture values for each unit.}
+\item{mois}{A numeric **matrix** containing moisture values. **Rows** represent spatial units (cells) 
+and **columns** represent temporal units.}
 
-\item{n_units}{Integer. The total number of temporal units.}
+\item{n_units}{A single **integer** representing the number of temporal units (e.g., 12).}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `mois`.}
 }
 \value{
-Matrix with "bio31", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio31" (Moisture Seasonality) and "cell".
 }
 \description{
-Calculates coefficient of variation in moisture across units.
+Calculates Moisture Seasonality, defined as the standard deviation of moisture values across all temporal units (e.g., 12 months), multiplied by 100.
 }
 \keyword{internal}

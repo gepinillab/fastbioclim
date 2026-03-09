@@ -25,13 +25,54 @@
 #'     \item `\{end_window\}`: The ending **cycle** index of the window.
 #'     \item `\{idx_unit\}`: The index of the time **unit** within the cycle (e.g., the month number).
 #'   }
-#' @param user_region (Optional) An `sf` or `terra::SpatVector` for clipping.
+#' @param user_region (Optional) An `sf` or `terra::SpatVector` object. If provided,
+#'   the input raster `x` is clipped and masked to this region before processing.
+#'   The output raster's extent is the same of the `user_region`.
 #' @param method Processing method: "auto", "tiled", or "terra".
 #' @param tile_degrees (Tiled method only) Approximate size of processing tiles.
 #' @param gdal_opt (Optional) GDAL creation options for GeoTIFFs.
 #' @param overwrite Logical. If `FALSE` (default), stops if output files exist.
 #' @param verbose Logical, If `TRUE`, prints messages.
-#' @return A `terra::SpatRaster` object pointing to the newly created files.
+#' @return A `terra::SpatRaster` object pointing to the newly created files, with the following characteristics:
+#'   \itemize{
+#'     \item **Number of layers:** The number of layers is determined by the number of rolling windows processed (controlled by `window_size` and `step`) multiplied by the cycle frequency (`freq`).
+#'     \item **Layer names:** Layer names are constructed based on the `name_template` argument, incorporating the window range and unit index (e.g., 'output_w01-20_u01').
+#'     \item **Extent:** If `user_region` is provided, the extent of the output raster will be clipped to match that region. Otherwise, the extent will be the same as the input raster `x`.
+#'   }
+#' @examples
+#' \donttest{
+#' # The example raster "prcp.tif" is included in the package's `inst/extdata` directory.
+#' # Load example data from Lesotho (Montlhy time series from 2016-01 to 2020-12)
+#' raster_path <- system.file("extdata", "prcp.tif", package = "fastbioclim")
+#' # Load the SpatRaster from the file
+#' prcp_ts <- terra::rast(raster_path)
+#' # The data has 60 layers (5 years of monthly data).
+#' # We want to calculate a 3-year rolling average on monthly data.
+#' # Therefore, the window size is 3 (number of years) 
+#' # and the lenght of the cycle is 12 (number of months).
+#' # We also want a moving window of one month, so the number of steps is 1.
+#' n_years <- 3
+#' n_months <- 12
+#' n_steps <- 1
+#' # Define a temporary directory for the output files
+#' output_dir <- file.path(tempdir(), "roll_prcp_avg")
+#' # Run the calculate_average function
+#' roll_avg <- calculate_roll(
+#'   x = prcp_ts,
+#'   window_size = n_years,
+#'   freq = n_months,
+#'   step = n_steps,
+#'   fun = "mean",
+#'   output_prefix = "prcp_roll_avg",
+#'   output_dir = output_dir,
+#'   overwrite = TRUE,
+#'   verbose = FALSE
+#' )
+#' # Print the resulting SpatRaster summary of 36 layesr (n_year * n_months)
+#' print(roll_avg)
+#' # Clean up the created files
+#' unlink(output_dir, recursive = TRUE)
+#' }
 #' @export
 calculate_roll <- function(x,
   window_size,

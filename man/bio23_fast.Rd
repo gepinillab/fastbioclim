@@ -2,21 +2,25 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio23_fast}
 \alias{bio23_fast}
-\title{bio23_fast: Solar Radiation Seasonality (CV)}
+\title{bio23_fast: Radiation Seasonality (CV)}
 \usage{
 bio23_fast(srad, n_units, cell)
 }
 \arguments{
-\item{srad}{Matrix containing solar radiation values for each unit.}
+\item{srad}{A numeric **matrix** of solar radiation values. **Rows** represent spatial units (cells) 
+and **columns** represent temporal units (e.g., 12 months).}
 
-\item{n_units}{Integer. The total number of temporal units.}
+\item{n_units}{A single **integer** representing the number of temporal units (e.g., 12).}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `srad`.}
 }
 \value{
-Matrix with "bio23", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio23" (Solar Radiation Seasonality) and "cell".
 }
 \description{
-Calculates coefficient of variation in solar radiation across units.
+Calculates the Coefficient of Variation (CV) of solar radiation. 
+  The formula used is: `(StandardDeviation / (Mean + 1)) * 100`. 
+  (The "+1" is added to the mean to avoid division by zero).
 }
 \keyword{internal}

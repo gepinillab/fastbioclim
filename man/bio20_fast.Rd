@@ -2,19 +2,22 @@
 % Please edit documentation in R/bios_fast.R
 \name{bio20_fast}
 \alias{bio20_fast}
-\title{bio20_fast: Mean Solar Radiation of Units}
+\title{bio20_fast: Mean Radiation}
 \usage{
 bio20_fast(srad, cell)
 }
 \arguments{
-\item{srad}{Matrix of average solar radiation for each unit.}
+\item{srad}{A numeric **matrix** where **rows** represent spatial units (cells) 
+and **columns** represent temporal units (e.g., 12 months).}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A numeric or character **vector** of original cell IDs. 
+Its length must be exactly equal to the number of rows in `srad`.}
 }
 \value{
-Matrix with columns: "bio20", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio20" (the calculated mean) and "cell" (the IDs).
 }
 \description{
-Calculates mean solar radiation across all temporal units.
+Calculates mean solar radiation across all temporal units (usually 12 months).
 }
 \keyword{internal}

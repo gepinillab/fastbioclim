@@ -7,16 +7,23 @@
 bio30_fast(mois, cell, index_vector = NULL)
 }
 \arguments{
-\item{mois}{Matrix of moisture values for each unit.}
+\item{mois}{A numeric **matrix** of moisture values. **Rows** represent spatial units (cells) 
+and **columns** represent temporal units (e.g., months).}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `mois`.}
 
-\item{index_vector}{Optional vector of unit indices (1-based). If provided, extracts mois for that unit. If NULL, finds overall max mois.}
+\item{index_vector}{(Optional) An integer **vector** of column indices (1-based). 
+If provided, its length must be exactly equal to the number of rows in `mois`. 
+Values must be between 1 and `ncol(mois)`. 
+This is typically used to extract the moisture of a specific unit identified by another metric.}
 }
 \value{
-Matrix with "bio30", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio30" (the minimum moisture) and "cell".
 }
 \description{
-Identifies lowest moisture unit, potentially using a static index.
+Identifies the lowest moisture of the temporal unit with the lowest value. 
+  If `index_vector` is `NULL`, it calculates the row-wise minimum. 
+  If `index_vector` is provided, it extracts the value from the specific column index for each row.
 }
 \keyword{internal}

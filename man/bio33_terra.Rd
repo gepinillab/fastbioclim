@@ -2,19 +2,19 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio33_terra}
 \alias{bio33_terra}
-\title{bio33_terra: Moisture of the Least Moist Period}
+\title{bio33_terra: Mean Moisture of Least Moist Period}
 \usage{
 bio33_terra(pmois, low_mois_period)
 }
 \arguments{
-\item{pmois}{spatRaster of moisture period means.}
+\item{pmois}{A `SpatRaster` object where each layer is the mean moisture for a rolling period.}
 
-\item{low_mois_period}{Vector indicating the index (1-based) of the least moist period.}
+\item{low_mois_period}{A single-layer `SpatRaster` where cell values are integers indicating the layer index (1-based) of the least moist period.}
 }
 \value{
-spatRaster with "bio33".
+A single-layer `SpatRaster` with the moisture of the least moist period, named "bio33".
 }
 \description{
-Calculates moisture mean of the least moist period.
+Calculates the mean moisture of the specific rolling period identified as the least moist.
 }
 \keyword{internal}

@@ -2,19 +2,19 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio35_terra}
 \alias{bio35_terra}
-\title{bio35_terra: Moisture of Coldest Period}
+\title{bio35_terra: Mean Moisture of Coldest Period}
 \usage{
 bio35_terra(pmois, coldest_period)
 }
 \arguments{
-\item{pmois}{spatRaster of moisture period means.}
+\item{pmois}{A `SpatRaster` object where each layer is the mean moisture for a rolling period.}
 
-\item{coldest_period}{Vector indicating the index (1-based) of the coldest period.}
+\item{coldest_period}{A single-layer `SpatRaster` where cell values are integers indicating the layer index (1-based) of the coldest period.}
 }
 \value{
-spatRaster with "bio35".
+A single-layer `SpatRaster` with the moisture of the coldest period, named "bio35".
 }
 \description{
-Calculates moisture mean of the period with the lowest temperature mean.
+Calculates the mean moisture of the specific rolling period identified as the coldest.
 }
 \keyword{internal}

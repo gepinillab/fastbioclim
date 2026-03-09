@@ -7,14 +7,16 @@
 bio04_fast(tavg, cell)
 }
 \arguments{
-\item{tavg}{Matrix of average temperatures for each unit.}
+\item{tavg}{A numeric **matrix** of average temperatures. **Rows** represent spatial units (cells) 
+and **columns** represent temporal units.}
 
-\item{cell}{Vector of original cell IDs.}
+\item{cell}{A vector of original cell IDs. Its length must be exactly equal to the number of rows in `tavg`.}
 }
 \value{
-Matrix with "bio04", "cell".
+A **matrix** with dimensions `c(N, 2)`, where N is the number of input cells. 
+  The columns are named "bio04" (seasonality) and "cell".
 }
 \description{
-Calculates the standard deviation of average temperatures across units, multiplied by 100.
+Calculates Temperature Seasonality, defined as the standard deviation of average temperatures across all temporal units (e.g., 12 months), multiplied by 100.
 }
 \keyword{internal}

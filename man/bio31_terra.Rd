@@ -2,17 +2,17 @@
 % Please edit documentation in R/bios_terra.R
 \name{bio31_terra}
 \alias{bio31_terra}
-\title{bio31_terra: Moisture Seasonality (Standard Deviation)}
+\title{bio31_terra: Moisture Seasonality (Std Dev * 100)}
 \usage{
 bio31_terra(mois)
 }
 \arguments{
-\item{mois}{Matrix containing moisture values for each unit.}
+\item{mois}{A `SpatRaster` object where each layer represents moisture for a temporal unit.}
 }
 \value{
-spatRaster with "bio31".
+A single-layer `SpatRaster` with the moisture seasonality, named "bio31".
 }
 \description{
-Calculates coefficient of variation in moisture across units.
+Calculates the standard deviation of moisture across all layers, multiplied by 100.
 }
 \keyword{internal}
