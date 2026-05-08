@@ -200,3 +200,15 @@ El paquete `fastbioclim` simplifica enormemente el cálculo de resúmenes tempor
 *   Usa `calculate_roll()` para analizar tendencias y cambios a través de ventanas de tiempo móviles.
 
 Ambas funciones están optimizadas para ser eficientes y pueden aprovechar el procesamiento en paralelo para manejar grandes volúmenes de datos.
+
+## Cita
+
+Si utilizas **fastbioclim** en tu investigación, por favor cita nuestro *Software Note*:
+
+> Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R package for creating custom‐time bioclimatic and derived environmental summary variables. Methods in Ecology and Evolution., 17(5), 1585-1594. doi:10.1111/2041-210x.70291
+
+Para obtener el formato de cita más actualizado desde R, siempre puedes usar:
+
+```{r citation, eval=FALSE}
+citation("fastbioclim")
+```

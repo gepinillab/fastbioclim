@@ -286,3 +286,15 @@ bio10_war <- derive_bioclim(
 # Diferencias en bio10 de México
 plot(bio10_mex - bio10_war)
 ```
+
+## Cita
+
+Si utilizas **fastbioclim** en tu investigación, por favor cita nuestro *Software Note*:
+
+> Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R package for creating custom‐time bioclimatic and derived environmental summary variables. Methods in Ecology and Evolution., 17(5), 1585-1594. doi:10.1111/2041-210x.70291
+
+Para obtener el formato de cita más actualizado desde R, siempre puedes usar:
+
+```{r citation, eval=FALSE}
+citation("fastbioclim")
+```
