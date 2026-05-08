@@ -1,3 +1,7 @@
+fastbioclim 0.4.2
+=============
+- CITATION files and text added.
+
 fastbioclim 0.4.1
 =============
 - Update testthat after aggregate_ instead of average_

@@ -131,6 +131,17 @@ print(large_scale_vars)
 plot(large_scale_vars[["bio11"]])
 ```
 
+## Citation
+
+If you use **fastbioclim** in your research, please cite our software note:
+
+Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R package for creating custom‐time bioclimatic and derived environmental summary variables. Methods in Ecology and Evolution., 17(5), 1585-1594. doi:10.1111/2041-210x.70291
+
+You can also retrieve this citation, and its bibtex format, at any time from within R by running:
+```r
+
+```
+
 ## Under Active Development
 
 This R package is currently under active development. While it is functional, it may contain bugs or undergo changes to the API.
