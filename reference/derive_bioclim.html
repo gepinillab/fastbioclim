@@ -13,7 +13,7 @@ tiled) based on data size and user-defined region of interest."><meta property="
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -329,18 +329,18 @@ ANUCLIM 6.1 User Guide. Centre for Resource and Environmental Studies, The Austr
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Print the resulting SpatRaster summary with the four requested layers</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">prcp_bios</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> size        : 49, 57, 6  (nrow, ncol, nlyr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 0.04166673, 0.04166674  (x, y)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sources     : bio12.tif  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               bio13.tif  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               bio14.tif  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sources     : bio12.tif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               bio13.tif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               bio14.tif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               ... and 3 more sources</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       :  bio12,  bio13, bio14,    bio15, bio16, bio17 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 449.24,  75.44,  3.24, 63.89158, 220.8, 12.82 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 990.12, 183.60, 13.70, 81.78966, 504.6, 52.54 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :      bio12,      bio13,     bio14,     bio15,      bio16,     bio17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :  449.23999,  75.440002,      3.24, 63.891582, 220.799988,     12.82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 990.119995, 183.600006, 13.700001, 81.789658, 504.600006, 52.540001</span>
 <span class="r-in"><span><span class="co"># Clean up the created files</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">output_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>

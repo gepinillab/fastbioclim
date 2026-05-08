@@ -201,21 +201,21 @@ prcp_stats <- derive_statistics(
 #> Full rasters appear to fit in memory. Selecting 'terra' workflow.
 #> SpatRasters have same extent, number of rows and columns, projection, resolution, and origin
 #> Writing GeoTIFFs...
-#> Processing complete. Final rasters are in: /tmp/RtmpWglfG0/prcp_stats
+#> Processing complete. Final rasters are in: /tmp/Rtmp0Tokeg/prcp_stats
 # Print the resulting SpatRaster summary with the four requested layers
 print(prcp_stats)
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 49, 57, 4  (nrow, ncol, nlyr)
 #> resolution  : 0.04166673, 0.04166674  (x, y)
 #> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)
-#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs 
-#> sources     : var_mean.tif  
-#>               var_max.tif  
-#>               var_min.tif  
-#>               var_stdev.tif  
-#> names       : var_mean, var_max, var_min, var_stdev 
-#> min values  : 37.43666,   75.44,    3.24,  27.61666 
-#> max values  : 82.51000,  183.60,   13.70,  63.43156 
+#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs
+#> sources     : var_mean.tif
+#>               var_max.tif
+#>               var_min.tif
+#>               var_stdev.tif
+#> names       :  var_mean,    var_max,   var_min, var_stdev
+#> min values  : 37.436665,  75.440002,      3.24, 27.616665
+#> max values  : 82.510002, 183.600006, 13.700001, 63.431564
 # Clean up the created files
 unlink(output_dir, recursive = TRUE)
 # }

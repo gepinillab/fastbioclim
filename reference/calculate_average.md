@@ -114,18 +114,18 @@ monthly_avg <- calculate_average(
 )
 # Print the resulting SpatRaster summary
 print(monthly_avg)
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 49, 57, 12  (nrow, ncol, nlyr)
 #> resolution  : 0.04166673, 0.04166674  (x, y)
 #> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)
-#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs 
-#> sources     : prcp_avg_01.tif  
-#>               prcp_avg_02.tif  
-#>               prcp_avg_03.tif  
+#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs
+#> sources     : prcp_avg_01.tif
+#>               prcp_avg_02.tif
+#>               prcp_avg_03.tif
 #>               ... and 9 more sources
-#> names       : prcp_avg_01, prcp_avg_02, prcp_avg_03, prcp_avg_04, prcp_avg_05, prcp_avg_06, ... 
-#> min values  :       74.18,        69.3,       54.36,       36.42,        7.36,        3.38, ... 
-#> max values  :      183.60,       172.6,      148.84,      100.18,       32.78,       13.70, ... 
+#> names       : prcp_avg_01, prcp_avg_02, prcp_avg_03, prcp_avg_04, prcp_avg_05, prcp_avg_06, ...
+#> min values  :       74.18,   69.300003,   54.360001,   36.419998,        7.36,        3.38, ...
+#> max values  :  183.600006,  172.600006,  148.839996,      100.18,   32.779999,   13.700001, ...
 # Clean up the created files
 unlink(output_dir, recursive = TRUE)
 # }

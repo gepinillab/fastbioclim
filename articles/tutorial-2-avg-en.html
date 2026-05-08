@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -120,7 +120,7 @@ calculations in parallel for greater efficiency.</p>
 <code class="sourceCode R"><span><span class="co"># Load the packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gepinillab.github.io/fastbioclim/">fastbioclim</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## terra 1.9.1</span></span></code></pre>
+<pre><code><span><span class="co">## terra 1.9.25</span></span></code></pre>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://progressr.futureverse.org" class="external-link">progressr</a></span><span class="op">)</span></span>
 <span></span>
@@ -148,17 +148,17 @@ contains 39 years of monthly data (468 layers in total).</p>
 <span><span class="co"># Let's check the structure of our data</span></span>
 <span><span class="co"># We should have 468 layers, corresponding to 12 months * 39 years</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tmax_bel</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## class       : SpatRaster </span></span>
+<pre><code><span><span class="co">## class       : SpatRaster</span></span>
 <span><span class="co">## size        : 314, 134, 468  (nrow, ncol, nlyr)</span></span>
 <span><span class="co">## resolution  : 0.008333333, 0.008333333  (x, y)</span></span>
 <span><span class="co">## extent      : -89.22514, -88.10847, 15.88319, 18.49986  (xmin, xmax, ymin, ymax)</span></span>
-<span><span class="co">## coord. ref. : lon/lat WGS 84 (EPSG:4326) </span></span>
-<span><span class="co">## sources     : 1980-01.tif  </span></span>
-<span><span class="co">##               1980-02.tif  </span></span>
-<span><span class="co">##               1980-03.tif  </span></span>
+<span><span class="co">## coord. ref. : lon/lat WGS 84 (EPSG:4326)</span></span>
+<span><span class="co">## sources     : 1980-01.tif</span></span>
+<span><span class="co">##               1980-02.tif</span></span>
+<span><span class="co">##               1980-03.tif</span></span>
 <span><span class="co">##               ... and 465 more sources</span></span>
-<span><span class="co">## names       : 1980-01, 1980-02, 1980-03, 1980-04, 1980-05, 1980-06, ... </span></span>
-<span><span class="co">## min values  :     220,     217,     248,     253,     270,     240, ... </span></span>
+<span><span class="co">## names       : 1980-01, 1980-02, 1980-03, 1980-04, 1980-05, 1980-06, ...</span></span>
+<span><span class="co">## min values  :     220,     217,     248,     253,     270,     240, ...</span></span>
 <span><span class="co">## max values  :     276,     278,     317,     316,     334,     299, ...</span></span></code></pre>
 <p>As we can see, <code>tmax_bel</code> is a <code>SpatRaster</code>
 with 468 layers, perfect for our examples.</p>
@@ -196,22 +196,22 @@ that repeats the sequence <code>1, 2, ..., 12</code> thirty times.</p>
 <pre><code><span><span class="co">## Data appears to fit in memory. Selecting 'terra' workflow.</span></span></code></pre>
 <pre><code><span><span class="co">## Calculating aggregations ('mean') using terra::tapp...</span></span></code></pre>
 <pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
-<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpmUTQzB/tmax_belize_longterm_avg</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpImxVLF/tmax_belize_longterm_avg</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The result is a SpatRaster with 12 layers</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tmax_avg_longterm</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## class       : SpatRaster </span></span>
+<pre><code><span><span class="co">## class       : SpatRaster</span></span>
 <span><span class="co">## size        : 314, 134, 12  (nrow, ncol, nlyr)</span></span>
 <span><span class="co">## resolution  : 0.008333333, 0.008333333  (x, y)</span></span>
 <span><span class="co">## extent      : -89.22514, -88.10847, 15.88319, 18.49986  (xmin, xmax, ymin, ymax)</span></span>
-<span><span class="co">## coord. ref. : lon/lat WGS 84 (EPSG:4326) </span></span>
-<span><span class="co">## sources     : tmax_avg_01.tif  </span></span>
-<span><span class="co">##               tmax_avg_02.tif  </span></span>
-<span><span class="co">##               tmax_avg_03.tif  </span></span>
+<span><span class="co">## coord. ref. : lon/lat WGS 84 (EPSG:4326)</span></span>
+<span><span class="co">## sources     : tmax_avg_01.tif</span></span>
+<span><span class="co">##               tmax_avg_02.tif</span></span>
+<span><span class="co">##               tmax_avg_03.tif</span></span>
 <span><span class="co">##               ... and 9 more sources</span></span>
-<span><span class="co">## names       : tmax_avg_01, tmax_avg_02, tmax_avg_03, tmax_avg_04, tmax_avg_05, tmax_avg_06, ... </span></span>
-<span><span class="co">## min values  :    210.1667,    223.0000,    241.6333,       254.8,    258.8667,    251.6000, ... </span></span>
-<span><span class="co">## max values  :    276.4000,    296.5667,    321.5667,       336.9,    339.0667,    320.0333, ...</span></span></code></pre>
+<span><span class="co">## names       : tmax_avg_01, tmax_avg_02, tmax_avg_03, tmax_avg_04, tmax_avg_05, tmax_avg_06, ...</span></span>
+<span><span class="co">## min values  :  210.166672,         223,  241.633331,  254.800003,  258.866669,  251.600006, ...</span></span>
+<span><span class="co">## max values  :  276.399994,  296.566681,  321.566681,  336.899994,  339.066681,  320.033325, ...</span></span></code></pre>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># We can visualize the 12 monthly averages</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tmax_avg_longterm</span><span class="op">)</span></span></code></pre></div>
@@ -275,23 +275,23 @@ cycle (e.g., 12 for months in a year).</li>
 <pre><code><span><span class="co">## Processing window: Cycle 19 to 38</span></span></code></pre>
 <pre><code><span><span class="co">## Processing window: Cycle 20 to 39</span></span></code></pre>
 <pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
-<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpmUTQzB/tmax_belize_rolling_avg</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpImxVLF/tmax_belize_rolling_avg</span></span></code></pre>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># How many layers have we created?</span></span>
 <span><span class="co"># (39 cycles - 20 window size + 1) * 12 units = 20 * 12 = 240 layers</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tmax_roll_avg</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## class       : SpatRaster </span></span>
+<pre><code><span><span class="co">## class       : SpatRaster</span></span>
 <span><span class="co">## size        : 314, 134, 240  (nrow, ncol, nlyr)</span></span>
 <span><span class="co">## resolution  : 0.008333333, 0.008333333  (x, y)</span></span>
 <span><span class="co">## extent      : -89.22514, -88.10847, 15.88319, 18.49986  (xmin, xmax, ymin, ymax)</span></span>
-<span><span class="co">## coord. ref. : lon/lat WGS 84 (EPSG:4326) </span></span>
-<span><span class="co">## sources     : tmax_w01-20_u01.tif  </span></span>
-<span><span class="co">##               tmax_w01-20_u02.tif  </span></span>
-<span><span class="co">##               tmax_w01-20_u03.tif  </span></span>
+<span><span class="co">## coord. ref. : lon/lat WGS 84 (EPSG:4326)</span></span>
+<span><span class="co">## sources     : tmax_w01-20_u01.tif</span></span>
+<span><span class="co">##               tmax_w01-20_u02.tif</span></span>
+<span><span class="co">##               tmax_w01-20_u03.tif</span></span>
 <span><span class="co">##               ... and 237 more sources</span></span>
-<span><span class="co">## names       : tmax_~0_u01, tmax_~0_u02, tmax_~0_u03, tmax_~0_u04, tmax_~0_u05, tmax_~0_u06, ... </span></span>
-<span><span class="co">## min values  :       211.6,       223.8,      241.95,      255.55,       259.7,      251.75, ... </span></span>
-<span><span class="co">## max values  :       277.0,       296.0,      319.50,      334.80,       340.1,      319.60, ...</span></span></code></pre>
+<span><span class="co">## names       : tmax_~0_u01, tmax_~0_u02, tmax_~0_u03, tmax_~0_u04, tmax_~0_u05, tmax_~0_u06, ...</span></span>
+<span><span class="co">## min values  :  211.600006,  223.800003,  241.949997,  255.550003,  259.700012,      251.75, ...</span></span>
+<span><span class="co">## max values  :         277,         296,       319.5,  334.799988,  340.100006,  319.600006, ...</span></span></code></pre>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Let's check the names of the first 13 layers to understand the output</span></span>
 <span><span class="co"># We should see the 12 months for the first window (w1-20) and the first of the next</span></span>
@@ -348,7 +348,7 @@ our output files to be named.</p>
 <pre><code><span><span class="co">## Processing window: Cycle 19 to 38</span></span></code></pre>
 <pre><code><span><span class="co">## Processing window: Cycle 20 to 39</span></span></code></pre>
 <pre><code><span><span class="co">## Writing final GeoTIFFs...</span></span></code></pre>
-<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpmUTQzB/tmax_belize_custom_names</span></span></code></pre>
+<pre><code><span><span class="co">## Processing complete. Final rasters are in: /tmp/RtmpImxVLF/tmax_belize_custom_names</span></span></code></pre>
 <div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Let's verify the new names</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tmax_roll_custom</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span><span class="op">]</span></span></code></pre></div>
@@ -399,6 +399,22 @@ entire study period. * Use <code><a href="../reference/calculate_roll.html">calc
 trends and changes across moving time windows.</p>
 <p>Both functions are optimized for efficiency and can leverage parallel
 processing to handle large datasets.</p>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>If you use <strong>fastbioclim</strong> in your research, please cite
+our software note:</p>
+<blockquote>
+<p>Pinilla‐Buitrago, G. E., &amp; Osorio‐Olvera, L. (2026). fastbioclim:
+An R package for creating custom‐time bioclimatic and derived
+environmental summary variables. Methods in Ecology and Evolution.,
+17(5), 1585-1594. <a href="doi:10.1111/2041-210x.70291" class="uri">doi:10.1111/2041-210x.70291</a></p>
+</blockquote>
+<p>To get the most up-to-date citation format from within R, you can
+always run:</p>
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"fastbioclim"</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

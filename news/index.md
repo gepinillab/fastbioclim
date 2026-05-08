@@ -1,6 +1,12 @@
 # Changelog
 
+## fastbioclim 0.4.2
+
+- CITATION files and text added.
+
 ## fastbioclim 0.4.1
+
+CRAN release: 2026-03-10
 
 - Update testthat after aggregate\_ instead of average\_
 

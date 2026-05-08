@@ -113,18 +113,18 @@ annual_sum <- calculate_sum(
 )
 # Print the resulting SpatRaster summary (should have 5 layers)
 print(annual_sum)
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 49, 57, 5  (nrow, ncol, nlyr)
 #> resolution  : 0.04166673, 0.04166674  (x, y)
 #> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)
-#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs 
-#> sources     : prcp_sum_2016.tif  
-#>               prcp_sum_2017.tif  
-#>               prcp_sum_2018.tif  
+#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs
+#> sources     : prcp_sum_2016.tif
+#>               prcp_sum_2017.tif
+#>               prcp_sum_2018.tif
 #>               ... and 2 more sources
-#> names       : prcp_sum_2016, prcp_sum_2017, prcp_sum_2018, prcp_sum_2019, prcp_sum_2020 
-#> min values  :         430.0,         466.8,         388.8,         392.7,         551.2 
-#> max values  :         954.6,        1004.5,         939.2,         986.9,        1096.0 
+#> names       : prcp_sum_2016, prcp_sum_2017, prcp_sum_2018, prcp_sum_2019, prcp_sum_2020
+#> min values  :           430,    466.799988,    388.799988,    392.700012,    551.200012
+#> max values  :    954.599976,        1004.5,    939.200012,    986.900024,          1096
 # Clean up the created files
 unlink(output_dir, recursive = TRUE)
 # }

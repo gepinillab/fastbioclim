@@ -61,6 +61,7 @@ Para instalar `fastbioclim`, puede utilizar el paquete `remotes`. Si aún
 no lo tiene instalado, puede hacerlo ejecutando:
 
 ``` r
+
 install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
 # Instalar para obtener los datos de ejemplo 
@@ -70,6 +71,7 @@ remotes::install_github("gepinillab/egdata.fastbioclim")
 Instale y cargue los paquetes necesarios:
 
 ``` r
+
 # Cargue librerías e instálelas si es necesario
 if (!require("terra")) {
   install.packages("terra") 
@@ -99,6 +101,7 @@ CHELSA v2.1 (Karger et al., 2017) para Ecuador que están disponibles
 dentro del paquete de datos (`egdata.fastbioclim` solo en GitHub).
 
 ``` r
+
 # Obtener lista de rasters y crear un spatRaster para cada variable
 # Temperatura mínima
 tmin_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
@@ -135,6 +138,7 @@ promedio (definida con el parámetro `tavg`) para el cálculo de variables
 bioclimáticas.
 
 ``` r
+
 # Temperatura promedio
 tavg_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("tavg", full.names = TRUE) |> rast()
@@ -169,6 +173,7 @@ no es necesario calcular internamente los trimestres más cálidos/fríos o
 secos/húmedos.
 
 ``` r
+
 bios4_ecu <- derive_bioclim(
   tmin = tmin_ecu, 
   tmax = tmax_ecu, 
@@ -190,6 +195,7 @@ viento. Para las variables interactivas trimestrales, usaremos los
 trimestres más húmedos y secos.
 
 ``` r
+
 wind_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("wind", full.names = TRUE) |> rast()
 wind_dir_ecu <- file.path(tempdir(), "wind_ecuador")
@@ -216,6 +222,7 @@ interacción con la temperatura, las cuales corresponden a “Viento en el
 trimestre más cálido” y “Viento en el trimestre más frío”.
 
 ``` r
+
 ecu_stats_v2 <- derive_statistics(
   variable = wind_ecu,
   stats = NULL,
@@ -260,6 +267,7 @@ o
 Para más información consulte la documentación de dicho paquete.
 
 ``` r
+
 # Obtener lista de rasters y crear un spatRaster para cada variable
 # Temperatura promedio
 tavg_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
@@ -306,18 +314,18 @@ bioclim_neo <- derive_bioclim(
 print(bioclim_neo)
 ```
 
-    ## class       : SpatRaster 
+    ## class       : SpatRaster
     ## size        : 2120, 1978, 35  (nrow, ncol, nlyr)
     ## resolution  : 0.04166667, 0.04166667  (x, y)
     ## extent      : -117.1251, -34.70847, -55.60847, 32.72486  (xmin, xmax, ymin, ymax)
-    ## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
-    ## sources     : bio01.tif  
-    ##               bio02.tif  
-    ##               bio03.tif  
+    ## coord. ref. : lon/lat WGS 84 (EPSG:4326)
+    ## sources     : bio01.tif
+    ##               bio02.tif
+    ##               bio03.tif
     ##               ... and 32 more sources
-    ## names       :     bio01,       bio02,     bio03,      bio04,     bio05,     bio06, ... 
-    ## min values  : -15.08724,  0.06966146,  1.224817,   5.000592, -6.597656, -26.50000, ... 
-    ## max values  :  30.27604, 18.90247536, 91.692070, 836.565613, 42.875000,  26.29688, ...
+    ## names       :      bio01,     bio02,    bio03,      bio04,     bio05,     bio06, ...
+    ## min values  : -15.087239,  0.069661, 1.224817,   5.000592, -6.597656,     -26.5, ...
+    ## max values  :  30.276041, 18.902475, 91.69207, 836.565613,    42.875, 26.296875, ...
 
 ### Ejemplo con región definida por el usuario
 
@@ -326,6 +334,7 @@ un objeto ‘sf’ para delimitar y enmascarar un área de interés. El
 cálculo de las variables bioclimáticas solo se realizará en dicha área.
 
 ``` r
+
 # Obtener áreas de interés
 mex <- qs2::qs_read(system.file("extdata/mex.qs2", package = "egdata.fastbioclim"))
 # Obtener solo bio10
@@ -359,6 +368,7 @@ crearemos un raster lleno de este número, para luego ser usado como
 referencia en la creación de la variable ‘bio10’.
 
 ``` r
+
 # Crear un raster de 6s para el neotrópico
 warmest <- tavg_neo[[1]]
 warmest[!is.na(warmest)] <- 6
@@ -372,6 +382,7 @@ plot(warmest)
 ![](tutorial-1-intro-es_files/figure-html/unnamed-chunk-10-1.png)
 
 ``` r
+
 # Obtener solo bio10
 bio10_war <- derive_bioclim(
   bios = 10,
@@ -387,3 +398,21 @@ plot(bio10_mex - bio10_war)
 ```
 
 ![](tutorial-1-intro-es_files/figure-html/unnamed-chunk-11-1.png)
+
+### Cita
+
+Si utilizas **fastbioclim** en tu investigación, por favor cita nuestro
+*Software Note*:
+
+> Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R
+> package for creating custom‐time bioclimatic and derived environmental
+> summary variables. Methods in Ecology and Evolution., 17(5),
+> 1585-1594. <doi:10.1111/2041-210x.70291>
+
+Para obtener el formato de cita más actualizado desde R, siempre puedes
+usar:
+
+``` r
+
+citation("fastbioclim")
+```

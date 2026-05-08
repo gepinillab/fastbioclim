@@ -342,18 +342,18 @@ prcp_bios <- derive_bioclim(
 )
 # Print the resulting SpatRaster summary with the four requested layers
 print(prcp_bios)
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 49, 57, 6  (nrow, ncol, nlyr)
 #> resolution  : 0.04166673, 0.04166674  (x, y)
 #> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)
-#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs 
-#> sources     : bio12.tif  
-#>               bio13.tif  
-#>               bio14.tif  
+#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs
+#> sources     : bio12.tif
+#>               bio13.tif
+#>               bio14.tif
 #>               ... and 3 more sources
-#> names       :  bio12,  bio13, bio14,    bio15, bio16, bio17 
-#> min values  : 449.24,  75.44,  3.24, 63.89158, 220.8, 12.82 
-#> max values  : 990.12, 183.60, 13.70, 81.78966, 504.6, 52.54 
+#> names       :      bio12,      bio13,     bio14,     bio15,      bio16,     bio17
+#> min values  :  449.23999,  75.440002,      3.24, 63.891582, 220.799988,     12.82
+#> max values  : 990.119995, 183.600006, 13.700001, 81.789658, 504.600006, 52.540001
 # Clean up the created files
 unlink(output_dir, recursive = TRUE)
 # }

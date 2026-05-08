@@ -13,7 +13,7 @@ processing workflow (in-memory vs. tiled)."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -230,21 +230,21 @@ Supported indices: `max_unit`, `min_unit`, `max_period`, `min_period`,
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Full rasters appear to fit in memory. Selecting 'terra' workflow.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> SpatRasters have same extent, number of rows and columns, projection, resolution, and origin</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Writing GeoTIFFs...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Processing complete. Final rasters are in: /tmp/RtmpWglfG0/prcp_stats</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Processing complete. Final rasters are in: /tmp/Rtmp0Tokeg/prcp_stats</span>
 <span class="r-in"><span><span class="co"># Print the resulting SpatRaster summary with the four requested layers</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">prcp_stats</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> size        : 49, 57, 4  (nrow, ncol, nlyr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 0.04166673, 0.04166674  (x, y)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sources     : var_mean.tif  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               var_max.tif  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               var_min.tif  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               var_stdev.tif  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       : var_mean, var_max, var_min, var_stdev </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 37.43666,   75.44,    3.24,  27.61666 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 82.51000,  183.60,   13.70,  63.43156 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sources     : var_mean.tif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               var_max.tif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               var_min.tif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               var_stdev.tif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :  var_mean,    var_max,   var_min, var_stdev</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 37.436665,  75.440002,      3.24, 27.616665</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 82.510002, 183.600006, 13.700001, 63.431564</span>
 <span class="r-in"><span><span class="co"># Clean up the created files</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">output_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>

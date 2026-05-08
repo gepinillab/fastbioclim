@@ -11,17 +11,20 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/gepinillab/fastbioclim/blob/main/DESCRIPTION)
+[`inst/CITATION`](https://github.com/gepinillab/fastbioclim/blob/main/inst/CITATION)
 
-Pinilla-Buitrago G, Osorio-Olvera L (2026). *fastbioclim: Scalable and
-Flexible Derivation of Custom-Time Bioclimatic and Environmental Summary
-Variables*. R package version 0.4.1,
-<https://gepinillab.github.io/fastbioclim/>.
+Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R
+package for creating custom‐time bioclimatic and derived environmental
+summary variables. Methods in Ecology and Evolution., 17(5), 1585-1594.
+doi:10.1111/2041-210x.70291
 
-    @Manual{,
-      title = {fastbioclim: Scalable and Flexible Derivation of Custom-Time Bioclimatic and Environmental Summary Variables},
+    @Article{,
+      title = {fastbioclim: An R package for creating custom‐time bioclimatic and derived environmental summary variables},
       author = {Gonzalo E. Pinilla-Buitrago and Luis Osorio-Olvera},
+      journal = {Methods in Ecology and Evolution},
       year = {2026},
-      note = {R package version 0.4.1},
-      url = {https://gepinillab.github.io/fastbioclim/},
+      volume = {17},
+      number = {5},
+      pages = {1585-1594},
+      doi = {10.1111/2041-210x.70291},
     }

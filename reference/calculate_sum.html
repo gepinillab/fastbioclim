@@ -11,7 +11,7 @@ an in-memory (`terra`) or out-of-core (`tiled`) workflow based on data size."><m
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -150,18 +150,18 @@ The output raster's extent is the same of the `user_region`.</p></dd>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Print the resulting SpatRaster summary (should have 5 layers)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">annual_sum</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> size        : 49, 57, 5  (nrow, ncol, nlyr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 0.04166673, 0.04166674  (x, y)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sources     : prcp_sum_2016.tif  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               prcp_sum_2017.tif  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               prcp_sum_2018.tif  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sources     : prcp_sum_2016.tif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               prcp_sum_2017.tif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               prcp_sum_2018.tif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               ... and 2 more sources</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       : prcp_sum_2016, prcp_sum_2017, prcp_sum_2018, prcp_sum_2019, prcp_sum_2020 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :         430.0,         466.8,         388.8,         392.7,         551.2 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :         954.6,        1004.5,         939.2,         986.9,        1096.0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       : prcp_sum_2016, prcp_sum_2017, prcp_sum_2018, prcp_sum_2019, prcp_sum_2020</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :           430,    466.799988,    388.799988,    392.700012,    551.200012</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :    954.599976,        1004.5,    939.200012,    986.900024,          1096</span>
 <span class="r-in"><span><span class="co"># Clean up the created files</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">output_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>

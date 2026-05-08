@@ -156,18 +156,18 @@ roll_avg <- calculate_roll(
 )
 # Print the resulting SpatRaster summary of 36 layesr (n_year * n_months)
 print(roll_avg)
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 49, 57, 36  (nrow, ncol, nlyr)
 #> resolution  : 0.04166673, 0.04166674  (x, y)
 #> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)
-#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs 
-#> sources     : prcp_roll_avg_w1-3_u01.tif  
-#>               prcp_roll_avg_w1-3_u02.tif  
-#>               prcp_roll_avg_w1-3_u03.tif  
+#> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs
+#> sources     : prcp_roll_avg_w1-3_u01.tif
+#>               prcp_roll_avg_w1-3_u02.tif
+#>               prcp_roll_avg_w1-3_u03.tif
 #>               ... and 33 more sources
-#> names       : prcp_~3_u01, prcp_~3_u02, prcp_~3_u03, prcp_~3_u04, prcp_~3_u05, prcp_~3_u06, ... 
-#> min values  :        81.1,        63.0,    56.13334,    26.33333,    10.73333,         4.8, ... 
-#> max values  :       194.5,       151.5,   155.56667,    71.26666,    46.73333,        20.1, ... 
+#> names       : prcp_~3_u01, prcp_~3_u02, prcp_~3_u03, prcp_~3_u04, prcp_~3_u05, prcp_~3_u06, ...
+#> min values  :   81.099998,          63,   56.133335,   26.333334,   10.733334,         4.8, ...
+#> max values  :       194.5,       151.5,  155.566666,   71.266663,   46.733334,        20.1, ...
 # Clean up the created files
 unlink(output_dir, recursive = TRUE)
 # }

@@ -58,6 +58,7 @@ You can install the development version of `fastbioclim` from GitHub
 with:
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
 # Install to get the package example data 
@@ -85,6 +86,7 @@ This example demonstrates the core functionality using simple,
 self-contained mock data.
 
 ``` r
+
 library(fastbioclim)
 library(terra)
 library(future.apply)
@@ -113,6 +115,7 @@ plot(bioclim_vars[[c("bio01", "bio12")]])
 ```
 
 ``` r
+
 # Derive environmental summary variables for a different factor (e.g., wind speed)
 wind_rast <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("wind", full.names = TRUE) |> rast()
@@ -146,6 +149,7 @@ input `SpatRaster` objects must be pointing to files on disk, not held
 entirely in memory.
 
 ``` r
+
 # Conceptual example for large, file-based rasters
 tmin_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
   list.files("tmin", full.names = TRUE) |> rast()
@@ -173,6 +177,22 @@ large_scale_vars <- derive_bioclim(
 )
 print(large_scale_vars)
 plot(large_scale_vars[["bio11"]])
+```
+
+## Citation
+
+If you use **fastbioclim** in your research, please cite our software
+note:
+
+Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R
+package for creating custom‐time bioclimatic and derived environmental
+summary variables. Methods in Ecology and Evolution., 17(5), 1585-1594.
+<doi:10.1111/2041-210x.70291>
+
+You can also retrieve this citation, and its bibtex format, at any time
+from within R by running:
+
+``` r
 ```
 
 ## Under Active Development

@@ -28,6 +28,7 @@ Para instalar `fastbioclim`, puede utilizar el paquete `remotes`. Si aún
 no lo tiene instalado, puede hacerlo ejecutando:
 
 ``` r
+
 install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
 # Instalar para obtener los datos de ejemplo 
@@ -42,14 +43,16 @@ datos ráster, y `progressr` junto con `future` nos permitirán ver barras
 de progreso y ejecutar los cálculos en paralelo para mayor eficiencia.
 
 ``` r
+
 # Cargar los paquetes
 library(fastbioclim)
 library(terra)
 ```
 
-    ## terra 1.9.1
+    ## terra 1.9.25
 
 ``` r
+
 library(progressr)
 
 # Configurar el procesamiento en paralelo para acelerar los cálculos
@@ -67,6 +70,7 @@ Belice, que viene incluida en un paquete de datos de ejemplo. Esta serie
 contiene 39 años de datos mensuales (468 capas en total).
 
 ``` r
+
 # Obtener la ruta a los archivos de ejemplo
 # system.file() busca archivos dentro de un paquete instalado
 tmax_paths <- system.file("extdata/belize/", package = "egdata.fastbioclim") |>
@@ -80,17 +84,17 @@ tmax_bel <- rast(tmax_paths)
 print(tmax_bel)
 ```
 
-    ## class       : SpatRaster 
+    ## class       : SpatRaster
     ## size        : 314, 134, 468  (nrow, ncol, nlyr)
     ## resolution  : 0.008333333, 0.008333333  (x, y)
     ## extent      : -89.22514, -88.10847, 15.88319, 18.49986  (xmin, xmax, ymin, ymax)
-    ## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
-    ## sources     : 1980-01.tif  
-    ##               1980-02.tif  
-    ##               1980-03.tif  
+    ## coord. ref. : lon/lat WGS 84 (EPSG:4326)
+    ## sources     : 1980-01.tif
+    ##               1980-02.tif
+    ##               1980-03.tif
     ##               ... and 465 more sources
-    ## names       : 1980-01, 1980-02, 1980-03, 1980-04, 1980-05, 1980-06, ... 
-    ## min values  :     220,     217,     248,     253,     270,     240, ... 
+    ## names       : 1980-01, 1980-02, 1980-03, 1980-04, 1980-05, 1980-06, ...
+    ## min values  :     220,     217,     248,     253,     270,     240, ...
     ## max values  :     276,     278,     317,     316,     334,     299, ...
 
 Como podemos ver, `tmax_bel` es un `SpatRaster` con 468 capas, perfecto
@@ -108,6 +112,7 @@ la función cómo agrupar las capas. Para el primer ejemplo, vamos a usar
 secuencia `1, 2, ..., 12` treinta veces.
 
 ``` r
+
 # Usaremos las primeras 360 capas para nuestro ejemplo de 30 años
 tmax_subset <- tmax_bel[[1:360]]
 
@@ -136,27 +141,29 @@ tmax_avg_longterm <- calculate_average(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpEm8XuY/tmax_belize_longterm_avg
+    ## Processing complete. Final rasters are in: /tmp/RtmplvslZU/tmax_belize_longterm_avg
 
 ``` r
+
 # El resultado es un SpatRaster con 12 capas
 print(tmax_avg_longterm)
 ```
 
-    ## class       : SpatRaster 
+    ## class       : SpatRaster
     ## size        : 314, 134, 12  (nrow, ncol, nlyr)
     ## resolution  : 0.008333333, 0.008333333  (x, y)
     ## extent      : -89.22514, -88.10847, 15.88319, 18.49986  (xmin, xmax, ymin, ymax)
-    ## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
-    ## sources     : tmax_avg_01.tif  
-    ##               tmax_avg_02.tif  
-    ##               tmax_avg_03.tif  
+    ## coord. ref. : lon/lat WGS 84 (EPSG:4326)
+    ## sources     : tmax_avg_01.tif
+    ##               tmax_avg_02.tif
+    ##               tmax_avg_03.tif
     ##               ... and 9 more sources
-    ## names       : tmax_avg_01, tmax_avg_02, tmax_avg_03, tmax_avg_04, tmax_avg_05, tmax_avg_06, ... 
-    ## min values  :    210.1667,    223.0000,    241.6333,       254.8,    258.8667,    251.6000, ... 
-    ## max values  :    276.4000,    296.5667,    321.5667,       336.9,    339.0667,    320.0333, ...
+    ## names       : tmax_avg_01, tmax_avg_02, tmax_avg_03, tmax_avg_04, tmax_avg_05, tmax_avg_06, ...
+    ## min values  :  210.166672,         223,  241.633331,  254.800003,  258.866669,  251.600006, ...
+    ## max values  :  276.399994,  296.566681,  321.566681,  336.899994,  339.066681,  320.033325, ...
 
 ``` r
+
 # Podemos visualizar los 12 promedios mensuales
 plot(tmax_avg_longterm)
 ```
@@ -188,6 +195,7 @@ Sus argumentos clave son:
 Calculemos los promedios mensuales para ventanas móviles de 20 años.
 
 ``` r
+
 # Crear un directorio de salida para este análisis
 output_path_rolling <- file.path(tempdir(), "tmax_belize_rolling_avg")
 
@@ -247,28 +255,30 @@ tmax_roll_avg <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpEm8XuY/tmax_belize_rolling_avg
+    ## Processing complete. Final rasters are in: /tmp/RtmplvslZU/tmax_belize_rolling_avg
 
 ``` r
+
 # ¿Cuántas capas hemos creado?
 # (39 ciclos - 20 de ventana + 1) * 12 unidades = 20 * 12 = 240 capas
 print(tmax_roll_avg)
 ```
 
-    ## class       : SpatRaster 
+    ## class       : SpatRaster
     ## size        : 314, 134, 240  (nrow, ncol, nlyr)
     ## resolution  : 0.008333333, 0.008333333  (x, y)
     ## extent      : -89.22514, -88.10847, 15.88319, 18.49986  (xmin, xmax, ymin, ymax)
-    ## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
-    ## sources     : tmax_w01-20_u01.tif  
-    ##               tmax_w01-20_u02.tif  
-    ##               tmax_w01-20_u03.tif  
+    ## coord. ref. : lon/lat WGS 84 (EPSG:4326)
+    ## sources     : tmax_w01-20_u01.tif
+    ##               tmax_w01-20_u02.tif
+    ##               tmax_w01-20_u03.tif
     ##               ... and 237 more sources
-    ## names       : tmax_~0_u01, tmax_~0_u02, tmax_~0_u03, tmax_~0_u04, tmax_~0_u05, tmax_~0_u06, ... 
-    ## min values  :       211.6,       223.8,      241.95,      255.55,       259.7,      251.75, ... 
-    ## max values  :       277.0,       296.0,      319.50,      334.80,       340.1,      319.60, ...
+    ## names       : tmax_~0_u01, tmax_~0_u02, tmax_~0_u03, tmax_~0_u04, tmax_~0_u05, tmax_~0_u06, ...
+    ## min values  :  211.600006,  223.800003,  241.949997,  255.550003,  259.700012,      251.75, ...
+    ## max values  :         277,         296,       319.5,  334.799988,  340.100006,  319.600006, ...
 
 ``` r
+
 # Veamos los nombres de las primeras 13 capas para entender la salida
 # Deberíamos ver los 12 meses para la primera ventana (w1-20) y el primero de la siguiente
 names(tmax_roll_avg)[1:13]
@@ -289,6 +299,7 @@ definir exactamente cómo queremos que se llamen nuestros archivos de
 salida.
 
 ``` r
+
 # Definir una plantilla de nombres más descriptiva
 template_personalizado <- "{prefix}_año_{start_window}-{end_window}_mes_{idx_unit}"
 
@@ -352,9 +363,10 @@ tmax_roll_custom <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpEm8XuY/tmax_belize_custom_names
+    ## Processing complete. Final rasters are in: /tmp/RtmplvslZU/tmax_belize_custom_names
 
 ``` r
+
 # Verifiquemos los nuevos nombres
 names(tmax_roll_custom)[1:13]
 ```
@@ -374,6 +386,7 @@ específico a lo largo de las ventanas.
 Vamos a extraer y visualizar todos los promedios de **enero** (`idx01`).
 
 ``` r
+
 # Seleccionar todas las capas que corresponden a enero (índice 01)
 # Usamos grep() para buscar el patrón "_u01" en los nombres de las capas
 indices_enero <- grep("_u01", names(tmax_roll_avg), value = TRUE)
@@ -409,3 +422,21 @@ móviles.
 Ambas funciones están optimizadas para ser eficientes y pueden
 aprovechar el procesamiento en paralelo para manejar grandes volúmenes
 de datos.
+
+## Cita
+
+Si utilizas **fastbioclim** en tu investigación, por favor cita nuestro
+*Software Note*:
+
+> Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R
+> package for creating custom‐time bioclimatic and derived environmental
+> summary variables. Methods in Ecology and Evolution., 17(5),
+> 1585-1594. <doi:10.1111/2041-210x.70291>
+
+Para obtener el formato de cita más actualizado desde R, siempre puedes
+usar:
+
+``` r
+
+citation("fastbioclim")
+```

@@ -56,28 +56,40 @@ To install `fastbioclim`, you can use the `remotes` package. If you do
 not have it installed, you can do so by running:
 
 ``` r
+
 install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
 ```
 
-    ## 
+    ## RcppArmad... (NA -> 15.2.6-1) [CRAN]
+
     ## ── R CMD build ─────────────────────────────────────────────────────────────────
-    ## * checking for file ‘/tmp/RtmpeocgqU/remotes22842380867b/gepinillab-fastbioclim-aaccafa/DESCRIPTION’ ... OK
+    ## * checking for file ‘/tmp/RtmpOyzws9/remotes234c4ed2e126/gepinillab-fastbioclim-a3dfb4e/DESCRIPTION’ ... OK
     ## * preparing ‘fastbioclim’:
     ## * checking DESCRIPTION meta-information ... OK
     ## * checking for LF line-endings in source and make files and shell scripts
     ## * checking for empty or unneeded directories
     ## Omitted ‘LazyData’ from DESCRIPTION
-    ## * building ‘fastbioclim_0.4.1.tar.gz’
+    ## * building ‘fastbioclim_0.4.2.tar.gz’
 
 ``` r
+
 # Install to get the package example data 
 remotes::install_github("gepinillab/egdata.fastbioclim")
 ```
 
+    ## ── R CMD build ─────────────────────────────────────────────────────────────────
+    ## * checking for file ‘/tmp/RtmpOyzws9/remotes234c3f4684ad/gepinillab-egdata.fastbioclim-f40549e/DESCRIPTION’ ... OK
+    ## * preparing ‘egdata.fastbioclim’:
+    ## * checking DESCRIPTION meta-information ... OK
+    ## * checking for LF line-endings in source and make files and shell scripts
+    ## * checking for empty or unneeded directories
+    ## * building ‘egdata.fastbioclim_0.1.0.tar.gz’
+
 Install and load the necessary packages:
 
 ``` r
+
 # Load libraries and install them if necessary
 if (!require("terra")) {
   install.packages("terra") 
@@ -107,6 +119,7 @@ use variables obtained and processed from CHELSA v2.1 (Karger et al.,
 (`egdata.fastbioclim` on GitHub only).
 
 ``` r
+
 # Get a list of rasters and create a SpatRaster for each variable
 # Minimum temperature
 tmin_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
@@ -143,6 +156,7 @@ temperature (defined with the `tavg` parameter) for calculating
 bioclimatic variables.
 
 ``` r
+
 # Average temperature
 tavg_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("tavg", full.names = TRUE) |> rast()
@@ -176,6 +190,7 @@ This example is somewhat faster, as it is not necessary to internally
 calculate the warmest/coldest or driest/wettest quarters.
 
 ``` r
+
 bios4_ecu <- derive_bioclim(
   tmin = tmin_ecu, 
   tmax = tmax_ecu, 
@@ -197,6 +212,7 @@ For the quarterly interactive variables, we will use the wettest and
 driest quarters.
 
 ``` r
+
 wind_ecu <- system.file("extdata/ecuador/", package = "egdata.fastbioclim") |>
   list.files("wind", full.names = TRUE) |> rast()
 wind_dir_ecu <- file.path(tempdir(), "wind_ecuador")
@@ -223,6 +239,7 @@ temperature, which correspond to “Wind in the warmest quarter” and “Wind
 in the coldest quarter”.
 
 ``` r
+
 ecu_stats_v2 <- derive_statistics(
   variable = wind_ecu,
   stats = NULL,
@@ -266,6 +283,7 @@ or
 For more information, consult the documentation of that package.
 
 ``` r
+
 # Get a list of rasters and create a SpatRaster for each variable
 # Average temperature
 tavg_neo <- system.file("extdata/neotropics/", package = "egdata.fastbioclim") |>
@@ -312,18 +330,18 @@ bioclim_neo <- derive_bioclim(
 print(bioclim_neo)
 ```
 
-    ## class       : SpatRaster 
+    ## class       : SpatRaster
     ## size        : 2120, 1978, 35  (nrow, ncol, nlyr)
     ## resolution  : 0.04166667, 0.04166667  (x, y)
     ## extent      : -117.1251, -34.70847, -55.60847, 32.72486  (xmin, xmax, ymin, ymax)
-    ## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
-    ## sources     : bio01.tif  
-    ##               bio02.tif  
-    ##               bio03.tif  
+    ## coord. ref. : lon/lat WGS 84 (EPSG:4326)
+    ## sources     : bio01.tif
+    ##               bio02.tif
+    ##               bio03.tif
     ##               ... and 32 more sources
-    ## names       :     bio01,       bio02,     bio03,      bio04,     bio05,     bio06, ... 
-    ## min values  : -15.08724,  0.06966146,  1.224817,   5.000592, -6.597656, -26.50000, ... 
-    ## max values  :  30.27604, 18.90247536, 91.692070, 836.565613, 42.875000,  26.29688, ...
+    ## names       :      bio01,     bio02,    bio03,      bio04,     bio05,     bio06, ...
+    ## min values  : -15.087239,  0.069661, 1.224817,   5.000592, -6.597656,     -26.5, ...
+    ## max values  :  30.276041, 18.902475, 91.69207, 836.565613,    42.875, 26.296875, ...
 
 ### Example with a User-Defined Region
 
@@ -333,6 +351,7 @@ calculation of the bioclimatic variables will only be performed in this
 area.
 
 ``` r
+
 # Get areas of interest
 mex <- qs2::qs_read(system.file("extdata/mex.qs2", package = "egdata.fastbioclim"))
 # Get only bio10
@@ -366,6 +385,7 @@ Therefore, we will create a raster filled with this number, to then be
 used as a reference in the creation of the ‘bio10’ variable.
 
 ``` r
+
 # Create a raster of 6s for the Neotropics
 warmest <- tavg_neo[[1]]
 warmest[!is.na(warmest)] <- 6
@@ -379,6 +399,7 @@ plot(warmest)
 ![](tutorial-1-intro-en_files/figure-html/unnamed-chunk-10-1.png)
 
 ``` r
+
 # Get only bio10
 bio10_war <- derive_bioclim(
   bios = 10,
@@ -394,3 +415,21 @@ plot(bio10_mex - bio10_war)
 ```
 
 ![](tutorial-1-intro-en_files/figure-html/unnamed-chunk-11-1.png)
+
+### Citation
+
+If you use **fastbioclim** in your research, please cite our software
+note:
+
+> Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R
+> package for creating custom‐time bioclimatic and derived environmental
+> summary variables. Methods in Ecology and Evolution., 17(5),
+> 1585-1594. <doi:10.1111/2041-210x.70291>
+
+To get the most up-to-date citation format from within R, you can always
+run:
+
+``` r
+
+citation("fastbioclim")
+```

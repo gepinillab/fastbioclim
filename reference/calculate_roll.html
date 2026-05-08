@@ -11,7 +11,7 @@ are grouped into repeating **cycles** (e.g., years)."><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -185,18 +185,18 @@ The output raster's extent is the same of the `user_region`.</p></dd>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Print the resulting SpatRaster summary of 36 layesr (n_year * n_months)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">roll_avg</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> size        : 49, 57, 36  (nrow, ncol, nlyr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> resolution  : 0.04166673, 0.04166674  (x, y)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : 26.95833, 29.33334, -30.66667, -28.625  (xmin, xmax, ymin, ymax)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sources     : prcp_roll_avg_w1-3_u01.tif  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               prcp_roll_avg_w1-3_u02.tif  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               prcp_roll_avg_w1-3_u03.tif  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : +proj=longlat +ellps=WGS84 +no_defs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sources     : prcp_roll_avg_w1-3_u01.tif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               prcp_roll_avg_w1-3_u02.tif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               prcp_roll_avg_w1-3_u03.tif</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               ... and 33 more sources</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       : prcp_~3_u01, prcp_~3_u02, prcp_~3_u03, prcp_~3_u04, prcp_~3_u05, prcp_~3_u06, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :        81.1,        63.0,    56.13334,    26.33333,    10.73333,         4.8, ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :       194.5,       151.5,   155.56667,    71.26666,    46.73333,        20.1, ... </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       : prcp_~3_u01, prcp_~3_u02, prcp_~3_u03, prcp_~3_u04, prcp_~3_u05, prcp_~3_u06, ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :   81.099998,          63,   56.133335,   26.333334,   10.733334,         4.8, ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :       194.5,       151.5,  155.566666,   71.266663,   46.733334,        20.1, ...</span>
 <span class="r-in"><span><span class="co"># Clean up the created files</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">output_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
