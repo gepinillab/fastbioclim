@@ -4,11 +4,11 @@ Scope: all files in `R/`. No package code was changed.
 
 ## How the findings were checked
 
-- **Environment:** R 4.3.3 on Ubuntu 24.04, with terra 1.7-65, sf, exactextractr 0.10.0, future 1.33.1, future.apply 1.11.1, purrr, glue and progressr.
-- **Missing dependencies:** the sandbox's network policy blocks CRAN and its mirrors, and Ubuntu doesn't package **`Rfast` or `qs2`**. The package therefore couldn't be installed. Instead, every file in `R/` was loaded with `sys.source()` and the real functions were run.
-  - Everything up to the first `Rfast`/`qs2` call ran for real. That covers the whole terra backend, the wrappers, the `auto` logic, input validation, and the tiled setup (geometry, region, tiling and cell translation).
-  - Where a tiled result depends on code after that point, the finding is marked **(by reading)**. In those cases the R lines involved were run verbatim where possible.
-- **The examples below** use `library(fastbioclim)` / `fastbioclim:::` so they can be pasted into a normal install. Each one was run as shown, through the sourced code.
+- **Environment:** R 4.3.3 on Ubuntu 24.04, with terra 1.7-65, sf, exactextractr 0.10.0, Rfast 2.1.5.2, qs2 0.3.1, future 1.33.1, future.apply 1.11.1, purrr, glue and progressr. fastbioclim 0.4.2 was installed from this checkout with `R CMD INSTALL`.
+- **Both backends were run end to end**, with `future::plan(sequential)` unless stated otherwise. A first pass, made while CRAN was unreachable, ran the sourced `R/` files up to the first `Rfast`/`qs2` call. Every tiled finding from that pass was then rerun against the installed package.
+- **All numbered findings were confirmed by running code.** The performance notes in P1, P3 and P4 come from reading the code; P2 was measured.
+- **Existing test suite:** `tests/testthat.R` gives `[ FAIL 2 | PASS 84 ]` on terra 1.7-65. Both failures are the `mem_info(print = FALSE)` call from finding 5.
+- **The examples below** use `library(fastbioclim)` / `fastbioclim:::` and can be pasted into a normal install.
 - **Severity labels:**
   - **bug** means wrong results or a crash on valid input.
   - **risk** means fragile behaviour likely to cause problems.
@@ -32,17 +32,17 @@ The terra backend's formulas are correct, including quarters that wrap around th
 | 8 | bug | terra path rejects `tavg`-only input for bio01/04/10/11… | run |
 | 9 | bug | Tiled bio05/bio06 require both `tmin` and `tmax` | run |
 | 10 | bug | Exported `check_rasters()`: geometry check fails for ≥3 inputs; NA check always errors | run |
-| 11 | bug | NA handling: terra silently sums the months it has; tiled returns NA; tiled NA mask comes from one layer | run (terra) / reading (tiled) |
-| 12 | bug | `stats = "stdev"`: population SD (terra) vs sample SD (tiled) | run (terra) / reading (tiled) |
+| 11 | bug | NA handling: terra silently sums the months it has; tiled returns NA; tiled NA mask comes from one layer | run |
+| 12 | bug | `stats = "stdev"`: population SD (terra) vs sample SD (tiled) | run |
 | 13 | bug | `stats_fast()`: a region whose first-layer values are all ≤ 0 is treated as "empty" | run |
 | 14 | bug | `user_region` in another CRS: terra path and `auto` fail; tiled reprojects | run |
 | 15 | bug | `derive_statistics()`: invalid `inter_stats` accepted silently (copy-paste typo) | run |
 | 16 | bug | `period_length` not validated in terra path (13 → double-counted month; 2.5 → wrong mean) | run |
-| 17 | bug | Tiled backends read the wrong layers for layer-subset inputs and reject multi-band files | partly run |
-| 18 | bug | Out-of-range static period index returns the `min_idx`/`max_idx` column as data (bios_fast) | reading |
-| 19 | bug | `sf::sf_use_s2(FALSE)` changed globally and never restored | reading |
-| 20 | bug | `calculate_roll()` tiled finds no outputs when `name_template` doesn't start with `{prefix}` | reading |
-| 21 | risk | Tiled outputs lose the CRS identity (EPSG:3035/2193 not `same.crs` as input) | run |
+| 17 | bug | Tiled backends read the wrong layers for layer-subset inputs and reject multi-band files | run |
+| 18 | bug | Out-of-range static period index returns the `min_idx`/`max_idx` column as data (bios_fast) | run |
+| 19 | bug | `sf::sf_use_s2(FALSE)` changed globally and never restored | run |
+| 20 | bug | `calculate_roll()` tiled finds no outputs when `name_template` doesn't start with `{prefix}` | run |
+| 21 | risk | Tiled outputs lose the CRS identity (EPSG code dropped; not `same.crs` as the input for EPSG:3035) | run |
 | 22 | risk | Intermediate `*_qs_*` directories left in `output_dir` after any failure | run |
 | 23 | risk | Overwrite handling: pre-check misses `cv_cli`; `write_layers()` ignores `overwrite`; default `tempdir()` collides | run |
 | 24 | risk | Weak validation and error messages (`bios` 36, duplicate `bios`, `call. = FALSE` printed as "FALSE") | run |
@@ -62,7 +62,7 @@ fastbioclim  15.5 766.9301    24     7    25     6   500   120     5 94.0602   3
 reference    15.5 766.9301    24     7    25     6   500   120     5 94.0602   310    20   250    20
 ```
 
-The tiled formulas are algebraically the same, by reading `bios_fast.R`:
+**Backend parity.** On a 10×10×12 dataset with this seasonal shape and random noise, with no NAs and no `user_region`, `method = "tiled"` matched `method = "terra"` **exactly** for all of bio01–bio19: the maximum absolute difference was 0 for every variable. The tiled formulas are therefore the same as the terra ones:
 - bio15 = `sd(p) / (1 + mean(p)) * 100`, which equals `sd(p+1)/mean(p+1) * 100`.
 - bio04 uses the sample SD.
 - `compute_periods()` handles wrap-around the same way as `get_window()`.
@@ -107,6 +107,16 @@ cbind(terra = values(tgt)[, 1], tiled = rvals[1:ncell(tgt)])[c(9, 13), ]
 ```
 7 of the 19 extracted cells were translated to the wrong target cell. Three of them were cells with `coverage_fraction` around 1e-16, which are union slivers.
 
+**End-to-end confirmation with the installed package.** Run `derive_statistics()` on 12 file-backed layers in which every layer holds its own source cell id, with the same L-shaped `sf` region:
+```r
+st <- derive_statistics(id, stats = "mean", user_region = reg, method = "tiled", output_dir = tempfile())
+tt <- derive_statistics(id, stats = "mean", user_region = reg, method = "terra", output_dir = tempfile())
+#>  cell terra tiled
+#>     9   NaN    57
+#>    13   NaN    67
+```
+Both outputs have extent `2 6 2 6`. The tiled output carries values of source cells 57 and 67 in two cells that the terra output masks.
+
 **Fix:**
 - In `define_translate()`, take `nrow_tgt` as well and use `valid <- row_tgt >= 1L & col_tgt >= 1L & row_tgt <= nrow_tgt & col_tgt <= ncol_tgt`.
 - For parity with the terra path, keep only cells whose centre is inside the region. One way is to build the target mask once, with `crop(..., mask = TRUE)` plus `cells()`, and drop translated cells that are NA in it. Another is a small `coverage_fraction` threshold, but the mask is exact.
@@ -119,9 +129,10 @@ cbind(terra = values(tgt)[, 1], tiled = rvals[1:ncell(tgt)])[c(9, 13), ]
 
 Large rasters with no region are exactly the case `auto` sends to this path. The existing tests mock `aggregate_fast()`, so this branch never runs in CI.
 
-**Evidence:** lines 180–191 run verbatim, with `user_region <- NULL`:
-```
-Error in g() : object 'noMap' not found
+**Evidence:** installed package, file-backed 12-layer input:
+```r
+calculate_average(prcp, index = rep(1:4, each = 3), method = "tiled", output_dir = tempfile())
+#> Error in ...future.FUN(...future.X_jj, ...) : object 'noMap' not found
 ```
 **Fix:** set `noMap <- rep(TRUE, length(cell_ids_source))` before the `if`, or index with `nonaID` in the `else` branch as `roll_fast.R:158-168` does.
 
@@ -265,22 +276,31 @@ check_rasters(tmin = sources(a), prcp = sources(b2))
 
 **What:**
 - **terra path:** a cell with one missing month silently returns the sum of the other months. bio12 is too low, and the wettest period's total is understated. It may also select the wrong period, because a period with a missing month sums lower.
-- **tiled path:** the NA mask comes from the *first layer of the first variable only* (`nonaID <- which(!is.na(df[[ref_col_name]]))`). Missing values in other months or variables pass straight into Rfast, which gives NA, or an unspecified result for `rowMaxs(value = FALSE)`.
+- **tiled path:** the NA mask comes from the *first layer of the first variable only* (`nonaID <- which(!is.na(df[[ref_col_name]]))`). Missing values in other months or variables pass straight into Rfast. Sums and means become NA, but period selection through `rowMaxs(value = FALSE)` still returns a value. One cell can therefore get NA for bio12 and a number for bio16.
 - **Net effect:** the same input gives different outputs depending on what `auto` happens to pick.
 
-**Evidence:** terra path, with December prcp set to NA:
+**Evidence:** terra path, single-cell series from finding 0 with December prcp set to NA:
 ```
 bio12 bio16 bio17
   380   190    20      # true total with Dec = 500; wettest quarter Nov-Dec-Jan = 310
 ```
-The tiled side is **(by reading)**: Rfast wasn't available to run it.
+Both backends, on a 10×10×12 dataset with December set to NA in cell 1:
+```
+cell 1  terra: bio12 369.33  bio16 187.83
+        tiled: bio12     NA  bio16 187.83
+```
+With only *January* set to NA, the tiled path drops the whole cell, because January is the layer the mask is read from.
 
 **Fix:** choose one policy and apply it in both backends. A good default is NA when any month is NA, i.e. drop `na.rm = TRUE`. Optionally add an `na_policy` argument. In the tiled path, compute `nonaID` from `rowSums(is.na(climate_mat)) == 0`, or apply the same policy explicitly.
 
 ### 12. [bug] `derive_statistics(stats = "stdev")`: population SD on the terra path, sample SD on the tiled path
 **Where:** `R/stats_terra.R:104` (`app(variable, "std")`) vs `R/stats_fast.R:576` (`Rfast::rowVars(std = TRUE)`). bio04 and bio31 use the sample SD.
 
-**Evidence:** terra path on the 12-value series above gives `var_stdev = 7.3428`, which is the population SD. The sample SD is `7.6693`. The tiled side is **(by reading)**: Rfast `rowVars` uses n − 1.
+**Evidence:** the same 12-layer `tmin`, cell 1:
+```
+terra: 7.235152   tiled: 7.556870   sd() (sample): 7.556869
+```
+The terra path returns the population SD; the tiled path returns the sample SD.
 
 **Fix:** use `terra::stdev(variable, pop = FALSE, na.rm = …)` in `stats_terra`, matching bio04.
 
@@ -340,7 +360,7 @@ derive_bioclim(bios = 12, prcp = p, user_region = reg, method = "terra", output_
 
 **Fix:** in every exported wrapper, require `period_length` to be a single whole number with `1 <= period_length <= nlyr`. Pass `circular = FALSE` only when `period_length < nlyr`.
 
-### 17. [bug] Tiled backends assume one single-band file per layer (partly run)
+### 17. [bug] Tiled backends assume one single-band file per layer
 **Where:**
 - `derive_bioclim.R:294`
 - `derive_statistics.R:233`
@@ -359,11 +379,20 @@ terra::nlyr(m); basename(terra::sources(m)); terra::nlyr(terra::rast(terra::sour
 derive_bioclim(bios = 12, prcp = m, method = "tiled", output_dir = tempfile())
 #> Error ... prcp_path length error: expected 12, received 1.
 ```
-The silent wrong-layer outcome for `calculate_*` is **(by reading)**: it needs Rfast to complete.
+`calculate_*` silently uses the wrong layers. A full-extent `user_region` was passed so the run gets past finding 2:
+```r
+mb  <- terra::rast(system.file("extdata", "prcp.tif", package = "fastbioclim"))
+sub <- mb[[13:24]]
+til <- calculate_average(sub, index = 1:12, output_names = "s", method = "tiled",
+                         user_region = terra::vect(terra::ext(mb), crs = terra::crs(mb)), output_dir = tempfile())
+# compared with method = "terra":  max |terra - tiled| = 125.9
+# all.equal(values(til), values(mb[[1:12]]))  -> TRUE   (layers 1-12, wrong)
+# all.equal(values(til), values(sub))         -> FALSE  (layers 13-24, requested)
+```
 
 **Fix:** pass `(file, band)` pairs. Use `terra::sources(x, bands = TRUE)` in recent terra, or build `terra::rast(file, lyrs = band)`. In workers, build the stack from those pairs. Alternatively, accept any SpatRaster by writing a VRT, `terra::vrt()`, that holds exactly the selected layers, and pass the VRT path.
 
-### 18. [bug] An out-of-range static period index returns the `min_idx`/`max_idx` column as data (by reading)
+### 18. [bug] An out-of-range static period index returns the `min_idx`/`max_idx` column as data
 **Where:** `R/bios_fast.R`: `bio08_fast` … `bio35_fast` period extractors, e.g. `tperiod[cbind(seq_len(nrow(tperiod)), pperiod_max_idx)]`
 
 **What:**
@@ -372,19 +401,35 @@ The silent wrong-layer outcome for `calculate_*` is **(by reading)**: it needs R
 - **Example:** a static `warmest_period` made with `circular = TRUE` (values 1–12) used in a `circular = FALSE` run (10 periods). Index 11 returns the *period number* in `min_idx` as if it were a temperature.
 - The terra path (`selectRange`) returns NA for the same input, and `stats_fast` masks invalid indices correctly.
 
+**Evidence:** a static `warmest_period` of 11 everywhere, with `circular = FALSE` (10 periods):
+```r
+derive_bioclim(10, tmin = tmin, tmax = tmax, circular = FALSE, warmest_period = wp, method = "terra")  # cell 1: NA
+derive_bioclim(10, tmin = tmin, tmax = tmax, circular = FALSE, warmest_period = wp, method = "tiled")  # cell 1: 6
+#> Warning: bio10_fast: Some max_temp_period indices are out of bounds.
+```
+The tiled bio10 of 6 is the index of the coolest period, written out as a temperature.
+
 **Fix:** mask invalid indices to NA, as `stats_fast.R:589-597` does. Factor that into one helper used by all period extractors.
 
-### 19. [bug] `sf::sf_use_s2(FALSE)` changes the user's global sf setting (by reading)
+### 19. [bug] `sf::sf_use_s2(FALSE)` changes the user's global sf setting
 **Where:** `bioclim_fast.R:330`, `stats_fast.R:279`, `aggregate_fast.R:147`, `roll_fast.R:122`
 
-**What:** after any tiled run, S2 spherical geometry stays off for the rest of the session. That changes the results of the user's own `st_intersection`, `st_area` and similar calls on geographic data. (The tiled runs here stopped at `qs2`, before this line.)
+**What:** after any tiled run, S2 spherical geometry stays off for the rest of the session. That changes the results of the user's own `st_intersection`, `st_area` and similar calls on geographic data.
+
+**Evidence:** `sf_use_s2(TRUE)`, then one `derive_bioclim(12, prcp = prcp, method = "tiled")` call, then `sf_use_s2()` returns `FALSE`.
 
 **Fix:** `old <- sf::sf_use_s2(FALSE); on.exit(sf::sf_use_s2(old), add = TRUE)`. Better, build the tiles with terra (see P2) and drop the sf geometry step.
 
-### 20. [bug] `calculate_roll()` tiled returns nothing when `name_template` doesn't start with `{prefix}` (by reading)
+### 20. [bug] `calculate_roll()` tiled returns nothing when `name_template` doesn't start with `{prefix}`
 **Where:** `R/calculate_roll.R:129, 211`; `write_layers.R:68-73`
 
-**What:** `write_layers()` keeps only intermediate files whose names start with `file_pattern = output_prefix`. A valid template such as `"{fun}_{prefix}_{idx_unit}"` produces files that don't match, so the call stops with "No intermediate '.qs2' files found matching…". The terra path works.
+**What:** `write_layers()` keeps only intermediate files whose names start with `file_pattern = output_prefix`. A valid template such as `"{fun}_{prefix}_{idx_unit}"` produces files that don't match. The tiled run does all the work and then stops; the terra path works.
+
+**Evidence:**
+```r
+calculate_roll(r24, window_size = 2, freq = 12, name_template = "{fun}_{prefix}_u{idx_unit}", method = "tiled")
+#> Error in write_layers(...) : No intermediate '.qs2' files found matching the pattern starting with 'output'.
+```
 
 **Fix:** the temp directory belongs to this call alone. Give `write_layers()` the list of expected names (`all_output_names`) instead of a prefix.
 
@@ -403,7 +448,11 @@ EPSG:3035 -> code after round-trip: NA  same.crs: FALSE
 EPSG:2193 -> code after round-trip: NA  same.crs: FALSE
 EPSG:4326 -> code after round-trip: NA  same.crs: TRUE
 ```
-Outputs may then fail `compareGeom()` against their own inputs, or against terra-path outputs.
+End to end, with `derive_bioclim(12, prcp = p)` on an EPSG:3035 input:
+- **terra output:** EPSG code 3035.
+- **tiled output:** EPSG code NA, and `same.crs(input, tiled_output)` is `FALSE`.
+
+EPSG:4326 outputs come back as 4326, because GDAL recognises the PROJ string. On terra 1.7-65, `compareGeom()` still accepts the tiled output. Code that keys on the CRS, or later reprojection steps, will see a different, unnamed CRS.
 
 **Fix:** store `terra::crs(ref)`, which is WKT2.
 
@@ -580,4 +629,4 @@ Either way, the `.qs2` round-trip (P3) and the full-size vector both go away.
 - **Return values.** `derive_*` and `calculate_*` return SpatRasters, but layer order on the tiled path comes from `write_layers`' sort (numeric for `"bio"`, alphabetical otherwise), not the order requested.
 
 ### Tests
-Every test that touches a backend replaces it with `mockery` stubs (`tests/testthat/*`), so neither the tiled code nor the terra and tiled numerics is ever executed. One small parity test on a 20×20×12 raster would have caught findings 1, 2, 3, 9, 11 and 12. It would run both `method = "terra"` and `method = "tiled"` and compare with `all.equal()`, with and without a non-rectangular `user_region` and with some NA cells. It would take seconds and should be added before any refactor (M1–M4).
+Every test that touches a backend replaces it with `mockery` stubs (`tests/testthat/*`), so neither the tiled code nor the terra and tiled numerics is ever executed. On terra 1.7-65 the suite gives `[ FAIL 2 | PASS 84 ]`, and both failures are finding 5. One small parity test on a 20×20×12 raster would have caught findings 1, 2, 3, 9, 11, 12, 17 and 18. It would run both `method = "terra"` and `method = "tiled"` and compare with `all.equal()`, with and without a non-rectangular `user_region` and with some NA cells. It would take seconds and should be added before any refactor (M1–M4).
