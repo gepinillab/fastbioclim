@@ -36,7 +36,7 @@ Imports:
     qs2,
     Rfast,
     sf,
-    terra (>= 1.7-0)
+    terra (>= 1.8-15)
 Suggests: 
     mockery,
     testthat (>= 3.0.0),
