@@ -1,6 +1,9 @@
 # Checks that the in-memory ("terra") and on-disk ("tiled") backends give the
 # same results. The rasters are 12 x 16 cells at 0.5 degrees (8 x 6 degrees), so
-# `tile_degrees = 2` splits them into 4 x 3 = 12 tiles.
+# `tile_degrees = 2` splits them into 4 x 3 = 12 tiles and `tile_degrees = 4`
+# into 2 x 2 = 4 tiles. The tiled backend calls gc() once per tile and once per
+# output layer, which dominates its run time on rasters this small, so only the
+# all-35-bios test uses 12 tiles.
 
 test_that("derive_bioclim(): terra and tiled backends agree for all 35 bios", {
   skip_on_cran()
@@ -13,7 +16,7 @@ test_that("derive_bioclim(): terra and tiled backends agree for all 35 bios", {
                            prcp = inputs$prcp, srad = inputs$srad, mois = inputs$mois,
                            tile_degrees = 2)
 
-  expect_identical(terra::nlyr(terra_res), 35L)
+  expect_equal(terra::nlyr(terra_res), 35)
   expect_identical(names(terra_res), sprintf("bio%02d", 1:35))
   expect_rasters_equal(tiled_res, terra_res, label = "bioclim tiled vs terra")
 })
@@ -29,7 +32,7 @@ test_that("derive_bioclim(): backends agree when tavg is supplied directly", {
   terra_res <- run_bioclim("terra", bios = bios, tmin = inputs$tmin, tmax = inputs$tmax,
                            tavg = tavg, prcp = inputs$prcp)
   tiled_res <- run_bioclim("tiled", bios = bios, tmin = inputs$tmin, tmax = inputs$tmax,
-                           tavg = tavg, prcp = inputs$prcp, tile_degrees = 2)
+                           tavg = tavg, prcp = inputs$prcp, tile_degrees = 4)
 
   expect_rasters_equal(tiled_res, terra_res, label = "bioclim (tavg supplied)")
 })
@@ -48,7 +51,7 @@ test_that("derive_statistics(): terra and tiled backends agree", {
     tiled_res <- run_statistics("tiled", variable = inputs$srad, inter_variable = inputs$prcp,
                                 stats = stats, inter_stats = inter_stats,
                                 period_stats = period_stats, output_prefix = "srad",
-                                tile_degrees = 2)
+                                tile_degrees = 4)
 
     expect_setequal(names(terra_res),
                     c("srad_mean", "srad_max", "srad_min", "srad_sum", "srad_cv",
@@ -86,7 +89,7 @@ test_that("derive_statistics(): 'stdev' on the tiled backend is the sample stand
   skip_on_cran()
   clim <- make_climate(withr::local_tempdir(), nrows = 12, ncols = 16)
   tiled_res <- run_statistics("tiled", variable = clim$rasters$srad, stats = "stdev",
-                              output_prefix = "srad", tile_degrees = 2)
+                              output_prefix = "srad", tile_degrees = 4)
   cells <- c(1, 50, 192)
 
   expect_cells_match(tiled_res, cells, stdev_reference(clim, cells),

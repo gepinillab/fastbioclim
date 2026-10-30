@@ -77,6 +77,21 @@ local_s2_restore <- function(envir = parent.frame()) {
   withr::defer(suppressMessages(sf::sf_use_s2(old)), envir = envir)
 }
 
+# The tiled backend raises these two warnings for every tile, whatever the
+# input. They are muffled so that any other warning still surfaces.
+expected_tile_warnings <- c(
+  "x is already of type POLYGON",
+  "No CRS specified for polygons; assuming they have the same CRS as the raster"
+)
+
+muffle_tile_warnings <- function(expr) {
+  withCallingHandlers(expr, warning = function(w) {
+    if (any(startsWith(conditionMessage(w), expected_tile_warnings))) {
+      invokeRestart("muffleWarning")
+    }
+  })
+}
+
 run_bioclim <- function(method, ..., tile_degrees = NULL) {
   out_dir <- withr::local_tempdir(.local_envir = parent.frame())
   args <- list(..., output_dir = out_dir, method = method, verbose = FALSE)
@@ -84,7 +99,7 @@ run_bioclim <- function(method, ..., tile_degrees = NULL) {
     local_s2_restore()
     args$tile_degrees <- tile_degrees
   }
-  suppressMessages(do.call(derive_bioclim, args))
+  muffle_tile_warnings(suppressMessages(do.call(derive_bioclim, args)))
 }
 
 run_statistics <- function(method, ..., tile_degrees = NULL) {
@@ -94,7 +109,7 @@ run_statistics <- function(method, ..., tile_degrees = NULL) {
     local_s2_restore()
     args$tile_degrees <- tile_degrees
   }
-  suppressMessages(do.call(derive_statistics, args))
+  muffle_tile_warnings(suppressMessages(do.call(derive_statistics, args)))
 }
 
 # --- Known discrepancies ------------------------------------------------------
