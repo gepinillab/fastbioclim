@@ -1,4 +1,15 @@
 #' In-Memory Rolling Time Series Averaging (Internal)
+#' @param x A `terra::SpatRaster` where each layer is a time unit.
+#' @param window_size Integer, size of the moving window in number of cycles.
+#' @param freq Integer, number of layers (units) that make up one cycle.
+#' @param step Integer, number of cycles the window slides at each step.
+#' @param fun Character, name of the summary function (e.g., `"mean"`).
+#' @param output_names_list List of character vectors with the output layer
+#'   names, one element per window.
+#' @param output_dir Character, path to save final rasters.
+#' @param gdal_opt Character vector of GDAL options for writing.
+#' @param overwrite Logical, whether to overwrite existing files.
+#' @param verbose Logical, If `TRUE`, prints messages.
 #' @keywords internal
 roll_terra <- function(x, window_size, freq, step, fun, output_names_list, output_dir, gdal_opt, overwrite, verbose) {
   

@@ -6,3 +6,4 @@
 ^data$
 ^vignettes$
 ^\.github$
+(^|/)\.DS_Store$

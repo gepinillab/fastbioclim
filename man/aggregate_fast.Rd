@@ -15,6 +15,27 @@ aggregate_fast(
   aggregation_type = "mean"
 )
 }
+\arguments{
+\item{paths}{Character vector of file paths of the input rasters
+(e.g., from `terra::sources()`).}
+
+\item{index}{Vector giving the group each layer belongs to
+(see `terra::tapp()`).}
+
+\item{output_names}{Character vector with the names of the aggregated
+output layers.}
+
+\item{user_region}{(Optional) An `sf` or `terra::SpatVector` object. If
+`NULL`, the full extent of the input rasters is used.}
+
+\item{tile_degrees}{Numeric, size of processing tiles.}
+
+\item{output_dir}{Character, path for temporary files.}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
+
+\item{aggregation_type}{Character, either `"mean"` or `"sum"`.}
+}
 \description{
 Tiled, Out-of-Core Time Series Aggregation (Internal)
 }

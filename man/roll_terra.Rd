@@ -17,6 +17,28 @@ roll_terra(
   verbose
 )
 }
+\arguments{
+\item{x}{A `terra::SpatRaster` where each layer is a time unit.}
+
+\item{window_size}{Integer, size of the moving window in number of cycles.}
+
+\item{freq}{Integer, number of layers (units) that make up one cycle.}
+
+\item{step}{Integer, number of cycles the window slides at each step.}
+
+\item{fun}{Character, name of the summary function (e.g., `"mean"`).}
+
+\item{output_names_list}{List of character vectors with the output layer
+names, one element per window.}
+
+\item{output_dir}{Character, path to save final rasters.}
+
+\item{gdal_opt}{Character vector of GDAL options for writing.}
+
+\item{overwrite}{Logical, whether to overwrite existing files.}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
+}
 \description{
 In-Memory Rolling Time Series Averaging (Internal)
 }

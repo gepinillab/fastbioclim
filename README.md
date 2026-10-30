@@ -27,6 +27,12 @@ The core of the package is a set of flexible functions—`derive_bioclim()` and 
 
 ## Installation
 
+You can install the released version of `fastbioclim` from [CRAN](https://CRAN.R-project.org/package=fastbioclim) with:
+
+```r
+install.packages("fastbioclim")
+```
+
 You can install the development version of `fastbioclim` from GitHub with:
 
 ```r
@@ -135,7 +141,7 @@ plot(large_scale_vars[["bio11"]])
 
 If you use **fastbioclim** in your research, please cite our software note:
 
-Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R package for creating custom‐time bioclimatic and derived environmental summary variables. Methods in Ecology and Evolution., 17(5), 1585-1594. doi:10.1111/2041-210x.70291
+Pinilla‐Buitrago, G. E., & Osorio Olvera, L. (2026). fastbioclim: An R package for creating custom‐time bioclimatic and derived environmental summary variables. Methods in Ecology and Evolution., 17(5), 1585-1594. doi:10.1111/2041-210x.70291
 
 You can also retrieve this citation, and its bibtex format, at any time from within R by running:
 ```r

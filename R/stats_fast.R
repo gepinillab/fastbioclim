@@ -6,7 +6,26 @@
 #' @param variable_path Path to primary variable rasters.
 #' @param n_units Integer, number of layers per variable.
 #' @param stats Character vector of stats to compute.
+#' @param period_length Integer, length of a calculation period.
+#' @param period_stats Character, either `"mean"` or `"sum"`; statistic used to
+#'   summarize each period.
+#' @param circular Logical, whether to wrap periods.
+#' @param inter_variable_path (Optional) Path to the interactive variable
+#'   rasters, one path per layer.
+#' @param inter_stats (Optional) Character vector of interactive statistics to
+#'   compute (`"max_inter"`, `"min_inter"`).
+#' @param max_unit_path,min_unit_path,max_period_path,min_period_path,max_interactive_path,min_interactive_path
+#'   (Optional) Path to a single-layer raster with a static index.
 #' @param output_prefix Character, prefix for output files.
+#' @param suffix_inter_max,suffix_inter_min Character, suffixes for the
+#'   `"max_inter"` and `"min_inter"` statistic names.
+#' @param user_region (Optional) An `sf` or `terra::SpatVector` object. If
+#'   `NULL`, the full extent of the input rasters is used.
+#' @param tile_degrees Numeric, size of processing tiles.
+#' @param output_dir Character, path for temporary files.
+#' @param write_raw_vars Logical. Currently ignored: writing raw variable tiles
+#'   is controlled by the `BIOCLIM_DEBUG_RAW_VARS` environment variable.
+#' @param verbose Logical, If `TRUE`, prints messages.
 #' @param ... Other arguments including inter_variable_path, period_length, circular,
 #'   static index paths, etc.
 #' @return Character string: Path to the temporary directory containing

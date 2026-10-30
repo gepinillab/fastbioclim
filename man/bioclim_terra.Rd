@@ -24,6 +24,9 @@ bioclim_terra(
 \arguments{
 \item{bios}{Numeric vector of variables to compute.}
 
+\item{tmin, tmax, tavg, prcp, srad, mois}{(Optional) `terra::SpatRaster` objects
+of the corresponding climate variable.}
+
 \item{period_length}{Integer, length of a calculation period.}
 
 \item{circular}{Logical, whether to wrap periods.}

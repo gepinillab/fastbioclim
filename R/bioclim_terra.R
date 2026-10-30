@@ -4,6 +4,8 @@
 #' It is designed for datasets that can fit into RAM.
 #'
 #' @param bios Numeric vector of variables to compute.
+#' @param tmin,tmax,tavg,prcp,srad,mois (Optional) `terra::SpatRaster` objects
+#'   of the corresponding climate variable.
 #' @param ... `SpatRaster` objects for climate variables (e.g., `tmin`, `tmax`)
 #'   and static indices (e.g., `warmest_period`).
 #' @param output_dir Character, path to save final rasters.
