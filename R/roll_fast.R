@@ -119,7 +119,8 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
     stop("Failed to save template geometry information: ", e$message)
   })
   rm(ref_rast_geom)
-  sf::sf_use_s2(FALSE)
+  old_s2 <- sf::sf_use_s2(FALSE)
+  on.exit(sf::sf_use_s2(old_s2), add = TRUE)
   grid_bbox <- sf::st_bbox(base_map)
   rtt_grid <- sf::st_make_grid(grid_bbox, cellsize = tile_degrees, 
                                what = "polygons", crs = sf::st_crs(base_map))

@@ -276,7 +276,8 @@ stats_fast <- function(variable_path,
   rm(ref_rast_geom_check)
 
   # --- 4. Create Spatial Tiles ---
-  sf::sf_use_s2(FALSE)
+  old_s2 <- sf::sf_use_s2(FALSE)
+  on.exit(sf::sf_use_s2(old_s2), add = TRUE)
   grid_bbox <- sf::st_bbox(base_map)
   # Ensure tile_degrees is positive
   if(tile_degrees <= 0) stop("'tile_degrees' must be positive.")
