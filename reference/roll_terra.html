@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,7 +39,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>In-Memory Rolling Time Series Averaging (Internal)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.4.2/R/roll_terra.R" class="external-link"><code>R/roll_terra.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/R/roll_terra.R" class="external-link"><code>R/roll_terra.R</code></a></small>
       <div class="d-none name"><code>roll_terra.Rd</code></div>
     </div>
 
@@ -63,8 +63,54 @@
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
-  </main></div>
+
+<dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>A `terra::SpatRaster` where each layer is a time unit.</p></dd>
+
+
+<dt id="arg-window-size">window_size<a class="anchor" aria-label="anchor" href="#arg-window-size"></a></dt>
+<dd><p>Integer, size of the moving window in number of cycles.</p></dd>
+
+
+<dt id="arg-freq">freq<a class="anchor" aria-label="anchor" href="#arg-freq"></a></dt>
+<dd><p>Integer, number of layers (units) that make up one cycle.</p></dd>
+
+
+<dt id="arg-step">step<a class="anchor" aria-label="anchor" href="#arg-step"></a></dt>
+<dd><p>Integer, number of cycles the window slides at each step.</p></dd>
+
+
+<dt id="arg-fun">fun<a class="anchor" aria-label="anchor" href="#arg-fun"></a></dt>
+<dd><p>Character, name of the summary function (e.g., `"mean"`).</p></dd>
+
+
+<dt id="arg-output-names-list">output_names_list<a class="anchor" aria-label="anchor" href="#arg-output-names-list"></a></dt>
+<dd><p>List of character vectors with the output layer
+names, one element per window.</p></dd>
+
+
+<dt id="arg-output-dir">output_dir<a class="anchor" aria-label="anchor" href="#arg-output-dir"></a></dt>
+<dd><p>Character, path to save final rasters.</p></dd>
+
+
+<dt id="arg-gdal-opt">gdal_opt<a class="anchor" aria-label="anchor" href="#arg-gdal-opt"></a></dt>
+<dd><p>Character vector of GDAL options for writing.</p></dd>
+
+
+<dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
+<dd><p>Logical, whether to overwrite existing files.</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Logical, If `TRUE`, prints messages.</p></dd>
+
+</dl></div>
+
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

@@ -9,7 +9,7 @@ by processing them in tiles."><meta property="og:image" content="https://gepinil
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@ by processing them in tiles."><meta property="og:image" content="https://gepinil
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Tiled, Out-of-Core Custom Variable Summarization</h1>
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.4.2/R/stats_fast.R" class="external-link"><code>R/stats_fast.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/R/stats_fast.R" class="external-link"><code>R/stats_fast.R</code></a></small>
       <div class="d-none name"><code>stats_fast.Rd</code></div>
     </div>
 
@@ -95,8 +95,62 @@ by processing them in tiles.</p>
 <dd><p>Character vector of stats to compute.</p></dd>
 
 
+<dt id="arg-period-length">period_length<a class="anchor" aria-label="anchor" href="#arg-period-length"></a></dt>
+<dd><p>Integer, length of a calculation period.</p></dd>
+
+
+<dt id="arg-period-stats">period_stats<a class="anchor" aria-label="anchor" href="#arg-period-stats"></a></dt>
+<dd><p>Character, either `"mean"` or `"sum"`; statistic used to
+summarize each period.</p></dd>
+
+
+<dt id="arg-circular">circular<a class="anchor" aria-label="anchor" href="#arg-circular"></a></dt>
+<dd><p>Logical, whether to wrap periods.</p></dd>
+
+
+<dt id="arg-inter-variable-path">inter_variable_path<a class="anchor" aria-label="anchor" href="#arg-inter-variable-path"></a></dt>
+<dd><p>(Optional) Path to the interactive variable
+rasters, one path per layer.</p></dd>
+
+
+<dt id="arg-inter-stats">inter_stats<a class="anchor" aria-label="anchor" href="#arg-inter-stats"></a></dt>
+<dd><p>(Optional) Character vector of interactive statistics to
+compute (`"max_inter"`, `"min_inter"`).</p></dd>
+
+
+<dt id="arg-max-unit-path-min-unit-path-max-period-path-min-period-path-max-interactive-path-min-interactive-path">max_unit_path, min_unit_path, max_period_path, min_period_path, max_interactive_path, min_interactive_path<a class="anchor" aria-label="anchor" href="#arg-max-unit-path-min-unit-path-max-period-path-min-period-path-max-interactive-path-min-interactive-path"></a></dt>
+<dd><p>(Optional) Path to a single-layer raster with a static index.</p></dd>
+
+
 <dt id="arg-output-prefix">output_prefix<a class="anchor" aria-label="anchor" href="#arg-output-prefix"></a></dt>
 <dd><p>Character, prefix for output files.</p></dd>
+
+
+<dt id="arg-suffix-inter-max-suffix-inter-min">suffix_inter_max, suffix_inter_min<a class="anchor" aria-label="anchor" href="#arg-suffix-inter-max-suffix-inter-min"></a></dt>
+<dd><p>Character, suffixes for the
+`"max_inter"` and `"min_inter"` statistic names.</p></dd>
+
+
+<dt id="arg-user-region">user_region<a class="anchor" aria-label="anchor" href="#arg-user-region"></a></dt>
+<dd><p>(Optional) An `sf` or `terra::SpatVector` object. If
+`NULL`, the full extent of the input rasters is used.</p></dd>
+
+
+<dt id="arg-tile-degrees">tile_degrees<a class="anchor" aria-label="anchor" href="#arg-tile-degrees"></a></dt>
+<dd><p>Numeric, size of processing tiles.</p></dd>
+
+
+<dt id="arg-output-dir">output_dir<a class="anchor" aria-label="anchor" href="#arg-output-dir"></a></dt>
+<dd><p>Character, path for temporary files.</p></dd>
+
+
+<dt id="arg-write-raw-vars">write_raw_vars<a class="anchor" aria-label="anchor" href="#arg-write-raw-vars"></a></dt>
+<dd><p>Logical. Currently ignored: writing raw variable tiles
+is controlled by the `BIOCLIM_DEBUG_RAW_VARS` environment variable.</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Logical, If `TRUE`, prints messages.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

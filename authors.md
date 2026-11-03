@@ -11,7 +11,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/gepinillab/fastbioclim/blob/v0.4.2/inst/CITATION)
+[`inst/CITATION`](https://github.com/gepinillab/fastbioclim/blob/main/inst/CITATION)
 
 Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R
 package for creating custom‐time bioclimatic and derived environmental

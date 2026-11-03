@@ -11,7 +11,7 @@ and performs calculations with `Rfast`."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@ and performs calculations with `Rfast`."><meta property="og:image" content="http
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Tiled, Out-of-Core Bioclimatic Variable Calculation</h1>
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.4.2/R/bioclim_fast.R" class="external-link"><code>R/bioclim_fast.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/R/bioclim_fast.R" class="external-link"><code>R/bioclim_fast.R</code></a></small>
       <div class="d-none name"><code>bioclim_fast.Rd</code></div>
     </div>
 
@@ -84,6 +84,11 @@ and performs calculations with `Rfast`.</p>
 
 <dt id="arg-n-units">n_units<a class="anchor" aria-label="anchor" href="#arg-n-units"></a></dt>
 <dd><p>Integer, number of layers per variable.</p></dd>
+
+
+<dt id="arg-tmin-path-tmax-path-prcp-path-tavg-path-srad-path-mois-path">tmin_path, tmax_path, prcp_path, tavg_path, srad_path, mois_path<a class="anchor" aria-label="anchor" href="#arg-tmin-path-tmax-path-prcp-path-tavg-path-srad-path-mois-path"></a></dt>
+<dd><p>(Optional) Character vectors of file paths (e.g., from `terra::sources()`)
+of the corresponding climate variable, one path per layer.</p></dd>
 
 
 <dt id="arg-period-length">period_length<a class="anchor" aria-label="anchor" href="#arg-period-length"></a></dt>

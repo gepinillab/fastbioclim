@@ -65,12 +65,12 @@ remotes::install_github("gepinillab/fastbioclim")
     ## qs2    (0.3.1  -> 0.4.0 ) [CRAN]
 
     ## ── R CMD build ─────────────────────────────────────────────────────────────────
-    ## * checking for file ‘/tmp/RtmpI37t7s/remotes22895e3fccd6/gepinillab-fastbioclim-c8a7b00/DESCRIPTION’ ... OK
+    ## * checking for file ‘/tmp/Rtmppba2vu/remotes21e05a4945e6/gepinillab-fastbioclim-9fbc938/DESCRIPTION’ ... OK
     ## * preparing ‘fastbioclim’:
     ## * checking DESCRIPTION meta-information ... OK
     ## * checking for LF line-endings in source and make files and shell scripts
     ## * checking for empty or unneeded directories
-    ## * building ‘fastbioclim_0.4.2.tar.gz’
+    ## * building ‘fastbioclim_0.4.2.9000.tar.gz’
 
 ``` r
 

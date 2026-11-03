@@ -30,6 +30,11 @@ bioclim_terra(
 
   Numeric vector of variables to compute.
 
+- tmin, tmax, tavg, prcp, srad, mois:
+
+  (Optional) \`terra::SpatRaster\` objects of the corresponding climate
+  variable.
+
 - period_length:
 
   Integer, length of a calculation period.

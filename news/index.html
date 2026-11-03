@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">fastbioclim</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,9 +39,16 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.4.2/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.2.9000" id="fastbioclim-0429000">fastbioclim 0.4.2.9000<a class="anchor" aria-label="anchor" href="#fastbioclim-0429000"></a></h2>
+<ul><li>Require terra &gt;= 1.8-15 because the package calls mem_info(print = FALSE) (<a href="https://github.com/gepinillab/fastbioclim/issues/9" class="external-link">#9</a>, closes <a href="https://github.com/gepinillab/fastbioclim/issues/15" class="external-link">#15</a>).</li>
+<li>Remove LazyData from DESCRIPTION and document internal function arguments (<a href="https://github.com/gepinillab/fastbioclim/issues/9" class="external-link">#9</a>).</li>
+<li>Add the CRAN installation instructions to the README and remove committed .DS_Store files (<a href="https://github.com/gepinillab/fastbioclim/issues/9" class="external-link">#9</a>).</li>
+<li>Add tests for terra and tiled backend equivalence, hand-computed bio01-bio19 values and edge cases. Five tests for known bugs are skipped for now (<a href="https://github.com/gepinillab/fastbioclim/issues/10" class="external-link">#10</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.2" id="fastbioclim-042">fastbioclim 0.4.2<a class="anchor" aria-label="anchor" href="#fastbioclim-042"></a></h2><p class="text-muted">CRAN release: 2026-05-08</p>
 <ul><li>CITATION files and text added.</li>

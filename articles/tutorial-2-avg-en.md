@@ -139,7 +139,7 @@ tmax_avg_longterm <- calculate_average(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpClf1Ov/tmax_belize_longterm_avg
+    ## Processing complete. Final rasters are in: /tmp/RtmpKamE0B/tmax_belize_longterm_avg
 
 ``` r
 
@@ -251,7 +251,7 @@ tmax_roll_avg <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpClf1Ov/tmax_belize_rolling_avg
+    ## Processing complete. Final rasters are in: /tmp/RtmpKamE0B/tmax_belize_rolling_avg
 
 ``` r
 
@@ -358,7 +358,7 @@ tmax_roll_custom <- calculate_roll(
 
     ## Writing final GeoTIFFs...
 
-    ## Processing complete. Final rasters are in: /tmp/RtmpClf1Ov/tmax_belize_custom_names
+    ## Processing complete. Final rasters are in: /tmp/RtmpKamE0B/tmax_belize_custom_names
 
 ``` r
 

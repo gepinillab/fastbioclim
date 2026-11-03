@@ -1,5 +1,20 @@
 # Changelog
 
+## fastbioclim 0.4.2.9000
+
+- Require terra \>= 1.8-15 because the package calls mem_info(print =
+  FALSE) ([\#9](https://github.com/gepinillab/fastbioclim/issues/9),
+  closes [\#15](https://github.com/gepinillab/fastbioclim/issues/15)).
+- Remove LazyData from DESCRIPTION and document internal function
+  arguments ([\#9](https://github.com/gepinillab/fastbioclim/issues/9)).
+- Add the CRAN installation instructions to the README and remove
+  committed .DS_Store files
+  ([\#9](https://github.com/gepinillab/fastbioclim/issues/9)).
+- Add tests for terra and tiled backend equivalence, hand-computed
+  bio01-bio19 values and edge cases. Five tests for known bugs are
+  skipped for now
+  ([\#10](https://github.com/gepinillab/fastbioclim/issues/10)).
+
 ## fastbioclim 0.4.2
 
 CRAN release: 2026-05-08
