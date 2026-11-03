@@ -27,6 +27,9 @@ bioclim_fast(
 
 \item{n_units}{Integer, number of layers per variable.}
 
+\item{tmin_path, tmax_path, prcp_path, tavg_path, srad_path, mois_path}{(Optional) Character vectors of file paths (e.g., from `terra::sources()`)
+of the corresponding climate variable, one path per layer.}
+
 \item{period_length}{Integer, length of a calculation period.}
 
 \item{circular}{Logical, whether to wrap periods.}

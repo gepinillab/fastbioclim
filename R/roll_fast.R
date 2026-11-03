@@ -1,4 +1,17 @@
 #' Tiled, Out-of-Core Rolling Time Series Averaging (Internal)
+#' @param paths Character vector of file paths of the input rasters
+#'   (e.g., from `terra::sources()`).
+#' @param window_size Integer, size of the moving window in number of cycles.
+#' @param freq Integer, number of layers (units) that make up one cycle.
+#' @param step Integer, number of cycles the window slides at each step.
+#' @param fun Character, name of the summary function (e.g., `"mean"`).
+#' @param output_names_list List of character vectors with the output layer
+#'   names, one element per window.
+#' @param user_region (Optional) An `sf` or `terra::SpatVector` object. If
+#'   `NULL`, the full extent of the input rasters is used.
+#' @param tile_degrees Numeric, size of processing tiles.
+#' @param output_dir Character, path for temporary files.
+#' @param verbose Logical, If `TRUE`, prints messages.
 #' @keywords internal
 roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, user_region, tile_degrees, output_dir, verbose) {
   

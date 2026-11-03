@@ -17,6 +17,30 @@ roll_fast(
   verbose
 )
 }
+\arguments{
+\item{paths}{Character vector of file paths of the input rasters
+(e.g., from `terra::sources()`).}
+
+\item{window_size}{Integer, size of the moving window in number of cycles.}
+
+\item{freq}{Integer, number of layers (units) that make up one cycle.}
+
+\item{step}{Integer, number of cycles the window slides at each step.}
+
+\item{fun}{Character, name of the summary function (e.g., `"mean"`).}
+
+\item{output_names_list}{List of character vectors with the output layer
+names, one element per window.}
+
+\item{user_region}{(Optional) An `sf` or `terra::SpatVector` object. If
+`NULL`, the full extent of the input rasters is used.}
+
+\item{tile_degrees}{Numeric, size of processing tiles.}
+
+\item{output_dir}{Character, path for temporary files.}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
+}
 \description{
 Tiled, Out-of-Core Rolling Time Series Averaging (Internal)
 }

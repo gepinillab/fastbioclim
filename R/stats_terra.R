@@ -5,7 +5,23 @@
 #'
 #' @param variable A SpatRaster for the primary variable.
 #' @param stats Character vector of stats to compute.
+#' @param period_length Integer, length of a calculation period.
+#' @param period_stats Character, either `"mean"` or `"sum"`; statistic used to
+#'   summarize each period.
+#' @param circular Logical, whether to wrap periods.
+#' @param inter_variable (Optional) A `terra::SpatRaster` for an interactive
+#'   variable.
+#' @param inter_stats Character vector of interactive statistics to compute
+#'   (`"max_inter"`, `"min_inter"`).
+#' @param max_unit,min_unit,max_period,min_period,max_interactive,min_interactive
+#'   (Optional) `terra::SpatRaster` with a static index.
 #' @param output_prefix Character, prefix for output layer names.
+#' @param suffix_inter_max,suffix_inter_min Character, suffixes for the
+#'   `"max_inter"` and `"min_inter"` statistic names.
+#' @param gdal_opt Character vector of GDAL options for writing.
+#' @param overwrite Logical, whether to overwrite existing files.
+#' @param output_dir Character, path to save final rasters.
+#' @param verbose Logical, If `TRUE`, prints messages.
 #' @param ... Other arguments including inter_variable, period_length, circular,
 #'   static index SpatRasters, etc.
 #' @return A `terra::SpatRaster` object containing the calculated summary layers.

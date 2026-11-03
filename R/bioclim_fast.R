@@ -6,6 +6,9 @@
 #'
 #' @param bios Numeric vector of variables to compute.
 #' @param n_units Integer, number of layers per variable.
+#' @param tmin_path,tmax_path,prcp_path,tavg_path,srad_path,mois_path
+#'   (Optional) Character vectors of file paths (e.g., from `terra::sources()`)
+#'   of the corresponding climate variable, one path per layer.
 #' @param ... File paths for climate variables (e.g., `tmin_path`) and static
 #'   indices (e.g., `warmest_period_path`).
 #' @param period_length Integer, length of a calculation period.

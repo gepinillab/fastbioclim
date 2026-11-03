@@ -15,6 +15,25 @@ aggregate_terra(
   aggregation_type = "mean"
 )
 }
+\arguments{
+\item{x}{A `terra::SpatRaster` with the time series to aggregate.}
+
+\item{index}{Vector giving the group each layer belongs to
+(see `terra::tapp()`).}
+
+\item{output_names}{Character vector with the names of the aggregated
+output layers.}
+
+\item{output_dir}{Character, path to save final rasters.}
+
+\item{gdal_opt}{Character vector of GDAL options for writing.}
+
+\item{overwrite}{Logical, whether to overwrite existing files.}
+
+\item{verbose}{Logical, If `TRUE`, prints messages.}
+
+\item{aggregation_type}{Character, either `"mean"` or `"sum"`.}
+}
 \description{
 In-Memory Time Series Aggregation (Internal)
 }
