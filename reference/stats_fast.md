@@ -47,64 +47,9 @@ stats_fast(
 
   Character vector of stats to compute.
 
-- period_length:
-
-  Integer, length of a calculation period.
-
-- period_stats:
-
-  Character, either \`"mean"\` or \`"sum"\`; statistic used to summarize
-  each period.
-
-- circular:
-
-  Logical, whether to wrap periods.
-
-- inter_variable_path:
-
-  (Optional) Path to the interactive variable rasters, one path per
-  layer.
-
-- inter_stats:
-
-  (Optional) Character vector of interactive statistics to compute
-  (\`"max_inter"\`, \`"min_inter"\`).
-
-- max_unit_path, min_unit_path, max_period_path, min_period_path,
-  max_interactive_path, min_interactive_path:
-
-  (Optional) Path to a single-layer raster with a static index.
-
 - output_prefix:
 
   Character, prefix for output files.
-
-- suffix_inter_max, suffix_inter_min:
-
-  Character, suffixes for the \`"max_inter"\` and \`"min_inter"\`
-  statistic names.
-
-- user_region:
-
-  (Optional) An \`sf\` or \`terra::SpatVector\` object. If \`NULL\`, the
-  full extent of the input rasters is used.
-
-- tile_degrees:
-
-  Numeric, size of processing tiles.
-
-- output_dir:
-
-  Character, path for temporary files.
-
-- write_raw_vars:
-
-  Logical. Currently ignored: writing raw variable tiles is controlled
-  by the \`BIOCLIM_DEBUG_RAW_VARS\` environment variable.
-
-- verbose:
-
-  Logical, If \`TRUE\`, prints messages.
 
 - ...:
 

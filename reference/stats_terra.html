@@ -41,7 +41,7 @@ Designed for datasets that fit into RAM."><meta property="og:image" content="htt
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>In-Memory Custom Variable Summarization</h1>
-      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/main/R/stats_terra.R" class="external-link"><code>R/stats_terra.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gepinillab/fastbioclim/blob/v0.4.2/R/stats_terra.R" class="external-link"><code>R/stats_terra.R</code></a></small>
       <div class="d-none name"><code>stats_terra.Rd</code></div>
     </div>
 
@@ -89,56 +89,8 @@ Designed for datasets that fit into RAM.</p>
 <dd><p>Character vector of stats to compute.</p></dd>
 
 
-<dt id="arg-period-length">period_length<a class="anchor" aria-label="anchor" href="#arg-period-length"></a></dt>
-<dd><p>Integer, length of a calculation period.</p></dd>
-
-
-<dt id="arg-period-stats">period_stats<a class="anchor" aria-label="anchor" href="#arg-period-stats"></a></dt>
-<dd><p>Character, either `"mean"` or `"sum"`; statistic used to
-summarize each period.</p></dd>
-
-
-<dt id="arg-circular">circular<a class="anchor" aria-label="anchor" href="#arg-circular"></a></dt>
-<dd><p>Logical, whether to wrap periods.</p></dd>
-
-
-<dt id="arg-inter-variable">inter_variable<a class="anchor" aria-label="anchor" href="#arg-inter-variable"></a></dt>
-<dd><p>(Optional) A `terra::SpatRaster` for an interactive
-variable.</p></dd>
-
-
-<dt id="arg-inter-stats">inter_stats<a class="anchor" aria-label="anchor" href="#arg-inter-stats"></a></dt>
-<dd><p>Character vector of interactive statistics to compute
-(`"max_inter"`, `"min_inter"`).</p></dd>
-
-
-<dt id="arg-max-unit-min-unit-max-period-min-period-max-interactive-min-interactive">max_unit, min_unit, max_period, min_period, max_interactive, min_interactive<a class="anchor" aria-label="anchor" href="#arg-max-unit-min-unit-max-period-min-period-max-interactive-min-interactive"></a></dt>
-<dd><p>(Optional) `terra::SpatRaster` with a static index.</p></dd>
-
-
 <dt id="arg-output-prefix">output_prefix<a class="anchor" aria-label="anchor" href="#arg-output-prefix"></a></dt>
 <dd><p>Character, prefix for output layer names.</p></dd>
-
-
-<dt id="arg-suffix-inter-max-suffix-inter-min">suffix_inter_max, suffix_inter_min<a class="anchor" aria-label="anchor" href="#arg-suffix-inter-max-suffix-inter-min"></a></dt>
-<dd><p>Character, suffixes for the
-`"max_inter"` and `"min_inter"` statistic names.</p></dd>
-
-
-<dt id="arg-gdal-opt">gdal_opt<a class="anchor" aria-label="anchor" href="#arg-gdal-opt"></a></dt>
-<dd><p>Character vector of GDAL options for writing.</p></dd>
-
-
-<dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
-<dd><p>Logical, whether to overwrite existing files.</p></dd>
-
-
-<dt id="arg-output-dir">output_dir<a class="anchor" aria-label="anchor" href="#arg-output-dir"></a></dt>
-<dd><p>Character, path to save final rasters.</p></dd>
-
-
-<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>Logical, If `TRUE`, prints messages.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
