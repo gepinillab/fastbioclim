@@ -252,3 +252,33 @@ test_that("Clipping with `user_region` is passed to helpers", {
 
 # --- Cleanup ---
 unlink(test_output_dir, recursive = TRUE)
+test_that("terra backend labels groups in sorted order when index is not sorted (#13)", {
+  # One cell, six layers; groups appear in the order 3, 1, 2.
+  r <- terra::rast(nrows = 1, ncols = 1, nlyrs = 6)
+  terra::values(r) <- matrix(c(30, 31, 10, 11, 20, 21), 1)
+  index <- c(3, 3, 1, 1, 2, 2)
+
+  avg <- run_calculate(calculate_average, "terra", r, index = index, output_names = "x")
+  expect_identical(names(avg), c("x_01", "x_02", "x_03"))
+  expect_equal(unname(unlist(avg[1])), c(10.5, 20.5, 30.5))
+
+  smm <- run_calculate(calculate_sum, "terra", r, index = index, output_names = "s")
+  expect_identical(names(smm), c("s_01", "s_02", "s_03"))
+  expect_equal(unname(unlist(smm[1])), c(21, 41, 61))
+})
+
+test_that("calculate_average() and calculate_sum() backends agree for an unsorted index (#13)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 4, ncols = 6)
+  x <- clim$rasters$prcp
+  # Water-year style grouping: groups 10, 11, 12, 1, ..., 9 in that order.
+  index <- c(10, 11, 12, 1:9)
+  # A full-extent user_region, because the tiled calculate_*() backends need one (#12).
+  region <- terra::vect(terra::ext(x), crs = terra::crs(x))
+  for (fun in list(calculate_average, calculate_sum)) {
+    terra_res <- run_calculate(fun, "terra", x, index = index, output_names = "p")
+    tiled_res <- run_calculate(fun, "tiled", x, index = index, output_names = "p",
+                               user_region = region, tile_degrees = 2)
+    expect_rasters_equal(tiled_res, terra_res, label = "unsorted index")
+  }
+})

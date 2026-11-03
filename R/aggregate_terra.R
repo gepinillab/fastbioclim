@@ -17,6 +17,9 @@ aggregate_terra <- function(x, index, output_names, output_dir, gdal_opt, overwr
     stop("Invalid 'aggregation_type'. Must be one of 'mean' or 'sum'.")
   }
   if (verbose) message(glue::glue("Calculating aggregations ('{aggregation_type}') using terra::tapp..."))
+  # tapp() orders groups by first appearance unless index is a factor; use the
+  # sorted order that output_names (and the tiled backend) follow.
+  index <- factor(index, levels = sort(unique(index)))
   agg_rast <- terra::tapp(x, index = index, fun = aggregation_type, na.rm = TRUE)
   names(agg_rast) <- output_names
   output_files <- file.path(output_dir, paste0(names(agg_rast), ".tif"))
