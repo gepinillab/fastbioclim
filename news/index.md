@@ -2,6 +2,8 @@
 
 ## fastbioclim 0.4.2
 
+CRAN release: 2026-05-08
+
 - CITATION files and text added.
 
 ## fastbioclim 0.4.1

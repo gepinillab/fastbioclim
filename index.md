@@ -54,6 +54,14 @@ variables.
 
 ## Installation
 
+You can install the released version of `fastbioclim` from
+[CRAN](https://CRAN.R-project.org/package=fastbioclim) with:
+
+``` r
+
+install.packages("fastbioclim")
+```
+
 You can install the development version of `fastbioclim` from GitHub
 with:
 

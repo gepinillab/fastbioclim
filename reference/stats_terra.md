@@ -41,9 +41,57 @@ stats_terra(
 
   Character vector of stats to compute.
 
+- period_length:
+
+  Integer, length of a calculation period.
+
+- period_stats:
+
+  Character, either \`"mean"\` or \`"sum"\`; statistic used to summarize
+  each period.
+
+- circular:
+
+  Logical, whether to wrap periods.
+
+- inter_variable:
+
+  (Optional) A \`terra::SpatRaster\` for an interactive variable.
+
+- inter_stats:
+
+  Character vector of interactive statistics to compute
+  (\`"max_inter"\`, \`"min_inter"\`).
+
+- max_unit, min_unit, max_period, min_period, max_interactive,
+  min_interactive:
+
+  (Optional) \`terra::SpatRaster\` with a static index.
+
 - output_prefix:
 
   Character, prefix for output layer names.
+
+- suffix_inter_max, suffix_inter_min:
+
+  Character, suffixes for the \`"max_inter"\` and \`"min_inter"\`
+  statistic names.
+
+- gdal_opt:
+
+  Character vector of GDAL options for writing.
+
+- overwrite:
+
+  Logical, whether to overwrite existing files.
+
+- output_dir:
+
+  Character, path to save final rasters.
+
+- verbose:
+
+  Logical, If \`TRUE\`, prints messages.
 
 - ...:
 

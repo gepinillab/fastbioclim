@@ -1,12 +1,12 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   tutorial-1-intro-en: tutorial-1-intro-en.html
   tutorial-1-intro-es: tutorial-1-intro-es.html
   tutorial-2-avg-en: tutorial-2-avg-en.html
   tutorial-2-avg-es: tutorial-2-avg-es.html
-last_built: 2026-05-08T16:44Z
+last_built: 2026-11-03T00:12Z
 urls:
   reference: https://gepinillab.github.io/fastbioclim/reference
   article: https://gepinillab.github.io/fastbioclim/articles

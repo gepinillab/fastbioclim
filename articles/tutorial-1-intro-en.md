@@ -61,15 +61,17 @@ install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
 ```
 
-    ## RcppArmad... (NA -> 15.2.6-1) [CRAN]
+    ## RcppArmad... (NA     -> 15.6.2-1) [CRAN]
+    ## charport     (NA     -> 0.1.1   ) [CRAN]
+    ## future       (1.80.0 -> 1.82.0  ) [CRAN]
+    ## qs2          (0.3.1  -> 0.4.0   ) [CRAN]
 
     ## ── R CMD build ─────────────────────────────────────────────────────────────────
-    ## * checking for file ‘/tmp/RtmpOyzws9/remotes234c4ed2e126/gepinillab-fastbioclim-a3dfb4e/DESCRIPTION’ ... OK
+    ## * checking for file ‘/tmp/Rtmp7vUBNi/remotes2392597718f7/gepinillab-fastbioclim-59d62c6/DESCRIPTION’ ... OK
     ## * preparing ‘fastbioclim’:
     ## * checking DESCRIPTION meta-information ... OK
     ## * checking for LF line-endings in source and make files and shell scripts
     ## * checking for empty or unneeded directories
-    ## Omitted ‘LazyData’ from DESCRIPTION
     ## * building ‘fastbioclim_0.4.2.tar.gz’
 
 ``` r
@@ -79,7 +81,7 @@ remotes::install_github("gepinillab/egdata.fastbioclim")
 ```
 
     ## ── R CMD build ─────────────────────────────────────────────────────────────────
-    ## * checking for file ‘/tmp/RtmpOyzws9/remotes234c3f4684ad/gepinillab-egdata.fastbioclim-f40549e/DESCRIPTION’ ... OK
+    ## * checking for file ‘/tmp/Rtmp7vUBNi/remotes239262e0b986/gepinillab-egdata.fastbioclim-f40549e/DESCRIPTION’ ... OK
     ## * preparing ‘egdata.fastbioclim’:
     ## * checking DESCRIPTION meta-information ... OK
     ## * checking for LF line-endings in source and make files and shell scripts
