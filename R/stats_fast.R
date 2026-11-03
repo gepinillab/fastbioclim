@@ -208,7 +208,7 @@ stats_fast <- function(variable_path,
 
   original_extent_vec <- as.vector(terra::ext(ref_rast_geom_check))
   original_dims_vec <- c(terra::nrow(ref_rast_geom_check), terra::ncol(ref_rast_geom_check))
-  original_crs_txt <- terra::crs(ref_rast_geom_check, proj = TRUE)
+  original_crs_txt <- terra::crs(ref_rast_geom_check)
   original_res_vec <- terra::res(ref_rast_geom_check)
   original_ncol <- original_dims_vec[2]
 

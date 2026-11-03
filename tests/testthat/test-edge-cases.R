@@ -521,3 +521,31 @@ test_that("backends give NA for a static period index beyond the number of perio
   expect_true(all(is.na(terra::values(terra_res))))
   expect_true(all(is.na(terra::values(tiled_res))))
 })
+
+# --- CRS of tiled outputs (#31) ---------------------------------------------------------
+
+test_that("tiled outputs keep the input CRS, including its EPSG code (#31)", {
+  skip_on_cran()
+  set.seed(31)
+  # 4 x 5 cells of 10 km in EPSG:3035 (ETRS89 / LAEA Europe), whose PROJ.4 string
+  # does not round-trip to the EPSG code.
+  template <- terra::rast(nrows = 4, ncols = 5, xmin = 4000000, xmax = 4050000,
+                          ymin = 3000000, ymax = 3040000, crs = "EPSG:3035")
+  vals <- matrix(stats::runif(20 * 12, 0, 100), 20)
+  x <- write_units(vals, template, withr::local_tempdir(), "prcp")
+  code <- function(r) terra::crs(r, describe = TRUE)$code
+  region <- terra::vect(terra::ext(x), crs = terra::crs(x))
+
+  outputs <- list(
+    bioclim = run_bioclim("tiled", bios = 12, prcp = x, tile_degrees = 1e6),
+    statistics = run_statistics("tiled", variable = x, stats = "mean", tile_degrees = 1e6),
+    average = run_calculate(calculate_average, "tiled", x, index = rep(1:4, 3),
+                            output_names = "p", user_region = region, tile_degrees = 1e6),
+    roll = run_calculate(calculate_roll, "tiled", x, window_size = 2, freq = 4,
+                         output_prefix = "p", user_region = region, tile_degrees = 1e6)
+  )
+  for (nm in names(outputs)) {
+    expect_identical(code(outputs[[nm]]), "3035", label = paste(nm, "EPSG code"))
+    expect_true(terra::same.crs(outputs[[nm]], x), label = paste(nm, "same.crs"))
+  }
+})

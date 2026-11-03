@@ -61,7 +61,7 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
     ref_rast_geom <- terra::rast(paths[1])
     original_extent_vec <- as.vector(terra::ext(ref_rast_geom))
     original_dims_vec <- c(terra::nrow(ref_rast_geom), terra::ncol(ref_rast_geom))
-    original_crs_txt <- terra::crs(ref_rast_geom, proj = TRUE)
+    original_crs_txt <- terra::crs(ref_rast_geom)
     original_ncol <- original_dims_vec[2]
     original_res <- terra::res(ref_rast_geom)
     target_extent_vec <- original_extent_vec
