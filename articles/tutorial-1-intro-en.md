@@ -61,13 +61,11 @@ install.packages("remotes")
 remotes::install_github("gepinillab/fastbioclim")
 ```
 
-    ## RcppArmad... (NA     -> 15.6.2-1) [CRAN]
-    ## charport     (NA     -> 0.1.1   ) [CRAN]
-    ## future       (1.80.0 -> 1.82.0  ) [CRAN]
-    ## qs2          (0.3.1  -> 0.4.0   ) [CRAN]
+    ## future (1.80.0 -> 1.82.0) [CRAN]
+    ## qs2    (0.3.1  -> 0.4.0 ) [CRAN]
 
     ## ── R CMD build ─────────────────────────────────────────────────────────────────
-    ## * checking for file ‘/tmp/Rtmp7vUBNi/remotes2392597718f7/gepinillab-fastbioclim-59d62c6/DESCRIPTION’ ... OK
+    ## * checking for file ‘/tmp/RtmpjcL9Yf/remotes217466afa4ad/gepinillab-fastbioclim-c8a7b00/DESCRIPTION’ ... OK
     ## * preparing ‘fastbioclim’:
     ## * checking DESCRIPTION meta-information ... OK
     ## * checking for LF line-endings in source and make files and shell scripts
@@ -79,14 +77,6 @@ remotes::install_github("gepinillab/fastbioclim")
 # Install to get the package example data 
 remotes::install_github("gepinillab/egdata.fastbioclim")
 ```
-
-    ## ── R CMD build ─────────────────────────────────────────────────────────────────
-    ## * checking for file ‘/tmp/Rtmp7vUBNi/remotes239262e0b986/gepinillab-egdata.fastbioclim-f40549e/DESCRIPTION’ ... OK
-    ## * preparing ‘egdata.fastbioclim’:
-    ## * checking DESCRIPTION meta-information ... OK
-    ## * checking for LF line-endings in source and make files and shell scripts
-    ## * checking for empty or unneeded directories
-    ## * building ‘egdata.fastbioclim_0.1.0.tar.gz’
 
 Install and load the necessary packages:
 
