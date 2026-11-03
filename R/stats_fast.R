@@ -387,7 +387,9 @@ stats_fast <- function(variable_path,
     # If df is NULL or ref_col_name_for_na doesn't exist, return NULL early
     if (is.null(df) || !(ref_col_name_for_na %in% names(df))) return(NULL)
 
-    nonaID <- which(!is.na(df[[ref_col_name_for_na]]))
+    # Keep every cell with data in at least one unit; cells with some NA units
+    # are set to NA per statistic below (NA policy, as in stats_terra()).
+    nonaID <- which(rowSums(!is.na(df[, path_variables_map$variable, drop = FALSE])) > 0)
     if (length(nonaID) == 0L) return(NULL)
 
     all_colnames_in_df <- names(df)
@@ -536,6 +538,13 @@ stats_fast <- function(variable_path,
     }
   }
 
+  # NA policy: rows with an NA in any unit of the variable / interactive variable.
+  na_variable <- rowSums(is.na(tile_data_prepared$variable_matrix)) > 0
+  na_inter_variable <- na_variable
+  if (!is.null(tile_data_prepared$inter_variable_matrix)) {
+    na_inter_variable <- na_variable | rowSums(is.na(tile_data_prepared$inter_variable_matrix)) > 0
+  }
+
   # --- Calculate Requested Statistics ---
   # Combine stats and inter_stats for iteration, but handle their specific needs
   all_stats_to_attempt <- unique(c(stats, inter_stats))
@@ -655,6 +664,13 @@ stats_fast <- function(variable_path,
         result_value[valid_idx_mask] <- tile_data_prepared$variable_period_summary[cbind(which(valid_idx_mask), idx_period_of_inter_min[valid_idx_mask])]
       }
       output_stat_name_full <- paste0(output_prefix, "_", suffix_inter_min)
+    }
+
+    # Apply the NA policy
+    if (!is.null(result_value)) {
+      uses_inter <- (current_stat_type == "max_inter" && is.null(static_indices_for_tile$max_interactive)) ||
+        (current_stat_type == "min_inter" && is.null(static_indices_for_tile$min_interactive))
+      result_value[if (uses_inter) na_inter_variable else na_variable] <- NA_real_
     }
 
     # Save the calculated statistic if successful

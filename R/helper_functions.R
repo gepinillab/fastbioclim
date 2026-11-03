@@ -310,3 +310,42 @@ write_region_mask <- function(ref_rast, region, dir) {
               datatype = "INT1U", overwrite = TRUE)
   mask_file
 }
+
+#' Climate Variables a Bioclimatic Variable Is Computed From
+#'
+#' Both backends use this table for the NA policy: a bio is NA in a cell when
+#' any temporal unit of any variable it is computed from is NA in that cell. A
+#' static period index takes the place of the variable that would otherwise
+#' select the period (e.g. `warmest_period` replaces `tavg` for bio18).
+#'
+#' @param bio_num Integer. Number of the bioclimatic variable (1-35).
+#' @param static Character vector with the names of the static indices supplied
+#'   (e.g. `"warmest_period"`).
+#' @return Character vector with some of `"tmin"`, `"tmax"`, `"tavg"`, `"prcp"`,
+#'   `"srad"` and `"mois"`.
+#' @keywords internal
+bio_inputs <- function(bio_num, static = character()) {
+  selector <- function(index_name, variable) {
+    if (index_name %in% static) character() else variable
+  }
+  switch(as.character(bio_num),
+    "1" = , "4" = , "10" = , "11" = "tavg",
+    "2" = , "3" = , "7" = c("tmin", "tmax"),
+    "5" = "tmax",
+    "6" = "tmin",
+    "8" = c("tavg", selector("wettest_period", "prcp")),
+    "9" = c("tavg", selector("driest_period", "prcp")),
+    "12" = , "13" = , "14" = , "15" = , "16" = , "17" = "prcp",
+    "18" = c("prcp", selector("warmest_period", "tavg")),
+    "19" = c("prcp", selector("coldest_period", "tavg")),
+    "20" = , "21" = , "22" = , "23" = "srad",
+    "24" = c("srad", selector("wettest_period", "prcp")),
+    "25" = c("srad", selector("driest_period", "prcp")),
+    "26" = c("srad", selector("warmest_period", "tavg")),
+    "27" = c("srad", selector("coldest_period", "tavg")),
+    "28" = , "29" = , "30" = , "31" = , "32" = , "33" = "mois",
+    "34" = c("mois", selector("warmest_period", "tavg")),
+    "35" = c("mois", selector("coldest_period", "tavg")),
+    stop("Unknown bioclimatic variable: ", bio_num)
+  )
+}

@@ -60,17 +60,70 @@ test_that("backends agree when only some layers of a cell are NA", {
   clim$rasters$prcp <- write_units(clim$vals$prcp, clim$template, dir, "prcp")
   clim$rasters$tmin <- write_units(clim$vals$tmin, clim$template, dir, "tmin")
 
-  skip_known_issue(paste(
-    "The backends treat partly missing cells differently. bioclim_fast() keeps only cells",
-    "where the first layer it reads (tmin_01 here) is not NA, so cell 30 is NA in all 35",
-    "bios on the tiled backend but fully computed by terra. For cell 10 (one prcp month NA),",
-    "terra sums the other 11 months for bio12 (na.rm = TRUE) while Rfast::rowsums() returns",
-    "NA; bio15 is NA on both backends, so terra is not consistent with its own bio12 either."
-  ))
   terra_res <- do.call(run_bioclim, c(list("terra", bios = 1:35), all_inputs(clim)))
   tiled_res <- do.call(run_bioclim, c(list("tiled", bios = 1:35, tile_degrees = 2), all_inputs(clim)))
 
   expect_rasters_equal(tiled_res, terra_res, label = "partially-NA cells")
+})
+
+# NA policy (#21): a bio is NA in a cell when any unit of any variable it is
+# computed from is NA there; bios that do not use that variable are unaffected.
+test_that("a bio is NA where any unit of a variable it uses is NA (#21)", {
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  dir <- withr::local_tempdir()
+  clim$vals$prcp[10, 12] <- NA  # cell 10: December precipitation missing
+  clim$vals$tmin[30, 1] <- NA   # cell 30: January tmin missing
+  clim$vals$srad[40, 6] <- NA   # cell 40: June radiation missing
+  clim$rasters$prcp <- write_units(clim$vals$prcp, clim$template, dir, "prcp")
+  clim$rasters$tmin <- write_units(clim$vals$tmin, clim$template, dir, "tmin")
+  clim$rasters$srad <- write_units(clim$vals$srad, clim$template, dir, "srad")
+
+  res <- do.call(run_bioclim, c(list("terra", bios = 1:35), all_inputs(clim)))
+  na_bios <- function(cell) {
+    v <- terra::values(res)[cell, ]
+    sort(names(v)[is.na(v)])
+  }
+  bios_using <- function(var) {
+    sort(sprintf("bio%02d", Filter(function(b) var %in% bio_inputs(b), 1:35)))
+  }
+  # tavg = (tmin + tmax) / 2, so a missing tmin also makes tavg missing.
+  expect_identical(na_bios(10), bios_using("prcp"))
+  expect_identical(na_bios(30), sort(union(bios_using("tmin"), bios_using("tavg"))))
+  expect_identical(na_bios(40), bios_using("srad"))
+  expect_true("bio12" %in% na_bios(10))
+  expect_false("bio01" %in% na_bios(10))
+
+  # A static warmest period replaces tavg as the selector of bio18, so a missing
+  # tmin no longer makes bio18 NA.
+  wp <- write_index(rep(5L, terra::ncell(clim$template)), clim$template, dir, "warmest_period")
+  res_wp <- run_bioclim("terra", bios = c(10, 18), tmin = clim$rasters$tmin,
+                        tmax = clim$rasters$tmax, prcp = clim$rasters$prcp, warmest_period = wp)
+  v <- terra::values(res_wp)[30, ]
+  expect_true(is.na(v[["bio10"]]))
+  expect_false(is.na(v[["bio18"]]))
+})
+
+test_that("derive_statistics(): backends agree when only some layers of a cell are NA (#21)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  dir <- withr::local_tempdir()
+  clim$vals$srad[c(10, 30), c(5, 1)] <- NA  # variable: one unit missing in cells 10 and 30
+  clim$vals$prcp[20, 7] <- NA               # interactive variable: one unit missing in cell 20
+  srad <- write_units(clim$vals$srad, clim$template, dir, "srad")
+  prcp <- write_units(clim$vals$prcp, clim$template, dir, "prcp")
+  stats <- c("mean", "max", "min", "sum", "cv_cli", "max_period", "min_period")
+  args <- list(variable = srad, inter_variable = prcp, stats = stats,
+               inter_stats = c("max_inter", "min_inter"), output_prefix = "srad")
+
+  terra_res <- do.call(run_statistics, c(list("terra"), args))
+  tiled_res <- do.call(run_statistics, c(list("tiled", tile_degrees = 2), args))
+  expect_rasters_equal(tiled_res[[sort(names(tiled_res))]], terra_res[[sort(names(terra_res))]],
+                       label = "statistics, partially-NA cells")
+
+  v <- terra::values(terra_res)
+  expect_true(all(is.na(v[c(10, 30), ])))
+  # Cell 20: only the interactive statistics use prcp.
+  expect_identical(sort(colnames(v)[is.na(v[20, ])]), c("srad_inter_high", "srad_inter_low"))
 })
 
 # --- Single-cell raster -----------------------------------------------------------

@@ -262,6 +262,20 @@ bioclim_terra <- function(bios,
     )
   }
 
+  # NA policy: a bio is NA where any unit of any variable it is computed from
+  # is NA (see bio_inputs()), the same rule bioclim_fast() applies. anyNA()
+  # dispatches to the terra method for SpatRaster (imported via import(terra)).
+  input_vars <- purrr::compact(list(tmin = tmin, tmax = tmax, tavg = tavg,
+                                    prcp = prcp, srad = srad, mois = mois))
+  na_any <- list()
+  for (bio_num in bios) {
+    vars <- intersect(bio_inputs(bio_num, names(dot_args)), names(input_vars))
+    if (length(vars) == 0) next
+    for (v in setdiff(vars, names(na_any))) na_any[[v]] <- anyNA(input_vars[[v]])
+    bio_name <- paste0("bio", sprintf("%02d", bio_num))
+    assign(bio_name, terra::mask(get(bio_name), Reduce(`|`, na_any[vars]), maskvalues = TRUE))
+  }
+
   # Create a unique spatRaster
   bios_rast <- terra::rast(mget(paste0("bio", sprintf("%02d", bios))))
   output_files <- file.path(output_dir, paste0(names(bios_rast), ".tif"))

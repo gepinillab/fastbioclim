@@ -176,6 +176,23 @@ stats_terra <- function(variable,
     }
   }
   
+  # NA policy: every statistic is NA where any unit of `variable` is NA; the
+  # interactive statistics also where any unit of `inter_variable` is NA, unless
+  # a static index replaces it. stats_fast() applies the same rule.
+  na_var <- anyNA(variable)
+  mask_na <- function(r, na) if (is.null(r)) NULL else terra::mask(r, na, maskvalues = TRUE)
+  mean_stat <- mask_na(mean_stat, na_var)
+  sum_stat <- mask_na(sum_stat, na_var)
+  max_stat <- mask_na(max_stat, na_var)
+  min_stat <- mask_na(min_stat, na_var)
+  stdev_stat <- mask_na(stdev_stat, na_var)
+  cv_cli_stat <- mask_na(cv_cli_stat, na_var)
+  max_period_stat <- mask_na(max_period_stat, na_var)
+  min_period_stat <- mask_na(min_period_stat, na_var)
+  na_inter <- if (is.null(inter_variable)) na_var else na_var | anyNA(inter_variable)
+  max_inter_stat <- mask_na(max_inter_stat, if (is.null(max_interactive)) na_inter else na_var)
+  min_inter_stat <- mask_na(min_inter_stat, if (is.null(min_interactive)) na_inter else na_var)
+
   raster_stats <- terra::rast(list(
     mean_stat, sum_stat, max_stat, min_stat, stdev_stat, cv_cli_stat, 
     max_period_stat, min_period_stat, max_inter_stat, min_inter_stat) |>

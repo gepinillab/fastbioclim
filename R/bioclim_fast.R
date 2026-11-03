@@ -382,7 +382,7 @@ bioclim_fast <- function(
                         "req_prcp_path", "req_tavg_load", "req_tavg_calc", "req_srad_path", "req_mois_path", 
                         "worker_req_tavg", "worker_req_temp_p", "worker_req_prec_p", 
                         "worker_req_srad_p", "worker_req_mois_p", 
-                        "check_evar", "compute_periods", "var_periods", 
+                        "check_evar", "compute_periods", "var_periods", "bio_inputs",
                         paste0("bio", 1:35, "_fast"), "bios_qs_paths", "write_raw_vars", "bioclima_dir")
       if (exists("raw_paths_list")) export_vars <- c(export_vars, "raw_paths_list")
       vals <- future.apply::future_lapply(seq_len(ntiles), function(x) {
@@ -398,11 +398,12 @@ bioclim_fast <- function(
         rt0_geom <- sf::st_geometry(rtt[x, ])
 
         exct_fun_combined <- function(df, coverage_fractions) {
-          ref_col_name <- path_variables$climate[1]
-          nonaID <- which(!is.na(df[[ref_col_name]]))
+          climate_colnames <- path_variables$climate
+          # Keep every cell with data in at least one layer; cells with some NA
+          # layers are set to NA per bio below (NA policy, see bio_inputs()).
+          nonaID <- which(rowSums(!is.na(df[, climate_colnames, drop = FALSE])) > 0)
           if (length(nonaID) == 0L) return(NULL)
           all_colnames <- names(df)
-          climate_colnames <- path_variables$climate
           static_colnames_expected <- names(paths)[grepl("^idx_", names(paths))]
           static_colnames_present <- intersect(static_colnames_expected, all_colnames)
           cell_id_col_name <- "cell"
@@ -553,6 +554,13 @@ bioclim_fast <- function(
           }
         }
         
+        # NA policy: rows with an NA in any unit of each variable. A bio is NA
+        # where any variable it is computed from is NA (see bio_inputs()).
+        tile_na <- lapply(list(tmin = tile_results$tmin, tmax = tile_results$tmax,
+                               tavg = tile_results$temperature_avg, prcp = tile_results$prec_vals,
+                               srad = tile_results$srad_vals, mois = tile_results$mois_vals),
+                          function(m) if (is.null(m)) NULL else rowSums(is.na(m)) > 0)
+
         # Calculate BIOs
         calculated_bios_in_tile <- list()
         # Order bios
@@ -762,6 +770,8 @@ bioclim_fast <- function(
                                     cell = cell_ids)
           }
           if (!is.null(result_var)) { 
+            na_rows <- Reduce(`|`, purrr::compact(tile_na[bio_inputs(bio_num, names(static_indices_tile))]), FALSE)
+            result_var[na_rows, 1] <- NA_real_
             calculated_bios_in_tile[[bio_output_name]] <- result_var
             if (bio_num %in% bios) { 
               qs2::qs_save(result_var, 
