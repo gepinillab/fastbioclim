@@ -382,7 +382,7 @@ bioclim_fast <- function(
                         "req_prcp_path", "req_tavg_load", "req_tavg_calc", "req_srad_path", "req_mois_path", 
                         "worker_req_tavg", "worker_req_temp_p", "worker_req_prec_p", 
                         "worker_req_srad_p", "worker_req_mois_p", 
-                        "check_evar", "compute_periods", "var_periods", "bio_inputs",
+                        "check_evar", "compute_periods", "var_periods", "bio_inputs", "select_period",
                         paste0("bio", 1:35, "_fast"), "bios_qs_paths", "write_raw_vars", "bioclima_dir")
       if (exists("raw_paths_list")) export_vars <- c(export_vars, "raw_paths_list")
       vals <- future.apply::future_lapply(seq_len(ntiles), function(x) {

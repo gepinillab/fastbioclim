@@ -492,3 +492,32 @@ test_that("tiled backends read the selected layers of a multi-band file (#27)", 
                               output_prefix = "p", user_region = region, tile_degrees = 2)
   expect_rasters_equal(tiled_roll, terra_roll, label = "calculate_roll, band subset")
 })
+
+# --- Out-of-range static period indices (#28) ------------------------------------------
+
+test_that("period extractors return NA for out-of-range period indices (#28)", {
+  # Two cells, three periods, then the min_idx and max_idx columns.
+  periods <- cbind(period_1 = c(10, 20), period_2 = c(11, 21), period_3 = c(12, 22),
+                   min_idx = c(1, 1), max_idx = c(3, 3))
+  idx <- c(4, 2)  # 4 would point at min_idx
+  expect_warning(res <- bio10_fast(periods, idx, period_length = 3, cell = 1:2), "out of bounds")
+  expect_identical(unname(res[, "bio10"]), c(NA_real_, 21))
+  expect_warning(res <- bio18_fast(periods, c(5, 0), cell = 1:2), "out of bounds")
+  expect_identical(unname(res[, "bio18"]), c(NA_real_, NA_real_))
+  expect_identical(unname(bio16_fast(periods, c(NA, 1), cell = 1:2)[, "bio16"]), c(NA_real_, 20))
+})
+
+test_that("backends give NA for a static period index beyond the number of periods (#28)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  # circular = FALSE with 12 units and period_length 3 gives 10 periods; 11 is out of range.
+  wp <- write_index(rep(11L, terra::ncell(clim$template)), clim$template,
+                    withr::local_tempdir(), "warmest_period")
+  common <- list(bios = c(10, 18, 26, 34), tmin = clim$rasters$tmin, tmax = clim$rasters$tmax,
+                 prcp = clim$rasters$prcp, srad = clim$rasters$srad, mois = clim$rasters$mois,
+                 circular = FALSE, warmest_period = wp)
+  terra_res <- do.call(run_bioclim, c(list("terra"), common))
+  tiled_res <- suppressWarnings(do.call(run_bioclim, c(list("tiled", tile_degrees = 2), common)))
+  expect_true(all(is.na(terra::values(terra_res))))
+  expect_true(all(is.na(terra::values(tiled_res))))
+})

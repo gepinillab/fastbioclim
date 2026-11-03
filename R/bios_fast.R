@@ -190,13 +190,7 @@ bio07_fast <- function(bio05V, bio06V, cell){
 #'   The columns are named "bio08" (mean temperature of wettest period) and "cell".
 #' @keywords internal
 bio08_fast <- function(tperiod, pperiod_max_idx, period_length, cell){
-  num_period_cols <- ncol(tperiod) - 2 # Exclude min/max ID columns
-  if (any(pperiod_max_idx < 1, na.rm=TRUE) || any(pperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio08_fast: Some max_prec_period indices are out of bounds.")
-    # Handle invalid indices - results will be NA due to matrix indexing rules
-  }
-  # Extract the temperature mean for the wettest period
-  bio08V <- tperiod[cbind(seq_len(nrow(tperiod)), pperiod_max_idx)]
+  bio08V <- select_period(tperiod, pperiod_max_idx, "bio08_fast", "max_prec_period")
   bio08V <- cbind(bio08 = bio08V, cell = cell)
   return(bio08V)
 }
@@ -213,11 +207,7 @@ bio08_fast <- function(tperiod, pperiod_max_idx, period_length, cell){
 #'   The columns are named "bio09" (mean temperature of driest period) and "cell".
 #' @keywords internal
 bio09_fast <- function(tperiod, pperiod_min_idx, period_length, cell){
-  num_period_cols <- ncol(tperiod) - 2
-  if (any(pperiod_min_idx < 1, na.rm=TRUE) || any(pperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio09_fast: Some min_prec_period indices are out of bounds.")
-  }
-  bio09V <- tperiod[cbind(seq_len(nrow(tperiod)), pperiod_min_idx)]
+  bio09V <- select_period(tperiod, pperiod_min_idx, "bio09_fast", "min_prec_period")
   bio09V <- cbind(bio09 = bio09V, cell = cell)
   return(bio09V)
 }
@@ -234,11 +224,7 @@ bio09_fast <- function(tperiod, pperiod_min_idx, period_length, cell){
 #'   The columns are named "bio10" (mean temperature of warmest period) and "cell".
 #' @keywords internal
 bio10_fast <- function(tperiod, tperiod_max_idx, period_length, cell){
-  num_period_cols <- ncol(tperiod) - 2
-  if (any(tperiod_max_idx < 1, na.rm=TRUE) || any(tperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio10_fast: Some max_temp_period indices are out of bounds.")
-  }
-  bio10V <- tperiod[cbind(seq_len(nrow(tperiod)), tperiod_max_idx)]
+  bio10V <- select_period(tperiod, tperiod_max_idx, "bio10_fast", "max_temp_period")
   bio10V <- cbind(bio10 = bio10V, cell = cell)
   return(bio10V)
 }
@@ -255,11 +241,7 @@ bio10_fast <- function(tperiod, tperiod_max_idx, period_length, cell){
 #'   The columns are named "bio11" (mean temperature of coldest period) and "cell".
 #' @keywords internal
 bio11_fast <- function(tperiod, tperiod_min_idx, period_length, cell){
-  num_period_cols <- ncol(tperiod) - 2
-  if (any(tperiod_min_idx < 1, na.rm=TRUE) || any(tperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio11_fast: Some min_temp_period indices are out of bounds.")
-  }
-  bio11V <- tperiod[cbind(seq_len(nrow(tperiod)), tperiod_min_idx)]
+  bio11V <- select_period(tperiod, tperiod_min_idx, "bio11_fast", "min_temp_period")
   bio11V <- cbind(bio11 = bio11V, cell = cell)
   return(bio11V)
 }
@@ -377,12 +359,7 @@ bio15_fast <- function(prcp, bio12V, n_units, cell) {
 #'   The columns are named "bio16" (precipitation of wettest period) and "cell".
 #' @keywords internal
 bio16_fast <- function(pperiod, pperiod_max_idx, cell){
-  num_period_cols <- ncol(pperiod) - 2
-  if (any(pperiod_max_idx < 1, na.rm=TRUE) || any(pperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio16_fast: Some max_prec_period indices are out of bounds.")
-  }
-  # Extract the sum for the wettest period
-  bio16V <- pperiod[cbind(seq_len(nrow(pperiod)), pperiod_max_idx)]
+  bio16V <- select_period(pperiod, pperiod_max_idx, "bio16_fast", "max_prec_period")
   bio16V <- cbind(bio16 = bio16V, cell = cell)
   return(bio16V)
 }
@@ -398,11 +375,7 @@ bio16_fast <- function(pperiod, pperiod_max_idx, cell){
 #'   The columns are named "bio17" (precipitation of driest period) and "cell".
 #' @keywords internal
 bio17_fast <- function(pperiod, pperiod_min_idx, cell){
-  num_period_cols <- ncol(pperiod) - 2
-  if (any(pperiod_min_idx < 1, na.rm=TRUE) || any(pperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio17_fast: Some min_prec_period indices are out of bounds.")
-  }
-  bio17V <- pperiod[cbind(seq_len(nrow(pperiod)), pperiod_min_idx)]
+  bio17V <- select_period(pperiod, pperiod_min_idx, "bio17_fast", "min_prec_period")
   bio17V <- cbind(bio17 = bio17V, cell = cell)
   return(bio17V)
 }
@@ -418,11 +391,7 @@ bio17_fast <- function(pperiod, pperiod_min_idx, cell){
 #'   The columns are named "bio18" (precipitation of warmest period) and "cell".
 #' @keywords internal
 bio18_fast <- function(pperiod, tperiod_max_idx, cell){
-  num_period_cols <- ncol(pperiod) - 2
-  if (any(tperiod_max_idx < 1, na.rm=TRUE) || any(tperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio18_fast: Some max_temp_period indices are out of bounds.")
-  }
-  bio18V <- pperiod[cbind(seq_len(nrow(pperiod)), tperiod_max_idx)]
+  bio18V <- select_period(pperiod, tperiod_max_idx, "bio18_fast", "max_temp_period")
   bio18V <- cbind(bio18 = bio18V, cell = cell)
   return(bio18V)
 }
@@ -438,11 +407,7 @@ bio18_fast <- function(pperiod, tperiod_max_idx, cell){
 #'   The columns are named "bio19" (precipitation of coldest period) and "cell".
 #' @keywords internal
 bio19_fast <- function(pperiod, tperiod_min_idx, cell){
-  num_period_cols <- ncol(pperiod) - 2
-  if (any(tperiod_min_idx < 1, na.rm=TRUE) || any(tperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio19_fast: Some min_temp_period indices are out of bounds.")
-  }
-  bio19V <- pperiod[cbind(seq_len(nrow(pperiod)), tperiod_min_idx)]
+  bio19V <- select_period(pperiod, tperiod_min_idx, "bio19_fast", "min_temp_period")
   bio19V <- cbind(bio19 = bio19V, cell = cell)
   return(bio19V)
 }
@@ -556,12 +521,7 @@ bio23_fast <- function(srad, n_units, cell) {
 #'   The columns are named "bio24" (mean solar radiation of wettest period) and "cell".
 #' @keywords internal
 bio24_fast <- function(speriod, pperiod_max_idx, cell) {
-  num_period_cols <- ncol(speriod) - 2
-  if (any(pperiod_max_idx < 1, na.rm=TRUE) || any(pperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio24_fast: Some max_prec_period indices are out of bounds.")
-  }
-  # Extract the mean for the wettest period
-  bio24V <- speriod[cbind(seq_len(nrow(speriod)), pperiod_max_idx)]
+  bio24V <- select_period(speriod, pperiod_max_idx, "bio24_fast", "max_prec_period")
   bio24V <- cbind(bio24 = bio24V, cell = cell)
   return(bio24V)
 }
@@ -577,12 +537,7 @@ bio24_fast <- function(speriod, pperiod_max_idx, cell) {
 #'   The columns are named "bio25" (mean solar radiation of driest period) and "cell".
 #' @keywords internal
 bio25_fast <- function(speriod, pperiod_min_idx, cell) {
-  num_period_cols <- ncol(speriod) - 2
-  if (any(pperiod_min_idx < 1, na.rm=TRUE) || any(pperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio25_fast: Some min_prec_period indices are out of bounds.")
-  }
-  # Extract the mean for the driest period
-  bio25V <- speriod[cbind(seq_len(nrow(speriod)), pperiod_min_idx)]
+  bio25V <- select_period(speriod, pperiod_min_idx, "bio25_fast", "min_prec_period")
   bio25V <- cbind(bio25 = bio25V, cell = cell)
   return(bio25V)
 }
@@ -598,12 +553,7 @@ bio25_fast <- function(speriod, pperiod_min_idx, cell) {
 #'   The columns are named "bio26" (mean solar radiation of warmest period) and "cell".
 #' @keywords internal
 bio26_fast <- function(speriod, tperiod_max_idx, cell) {
-  num_period_cols <- ncol(speriod) - 2
-  if (any(tperiod_max_idx < 1, na.rm=TRUE) || any(tperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio26_fast: Some max_temp_period indices are out of bounds.")
-  }
-  # Extract the mean for the warmest period
-  bio26V <- speriod[cbind(seq_len(nrow(speriod)), tperiod_max_idx)]
+  bio26V <- select_period(speriod, tperiod_max_idx, "bio26_fast", "max_temp_period")
   bio26V <- cbind(bio26 = bio26V, cell = cell)
   return(bio26V)
 }
@@ -619,12 +569,7 @@ bio26_fast <- function(speriod, tperiod_max_idx, cell) {
 #'   The columns are named "bio27" (mean solar radiation of coldest period) and "cell".
 #' @keywords internal
 bio27_fast <- function(speriod, tperiod_min_idx, cell) {
-  num_period_cols <- ncol(speriod) - 2
-  if (any(tperiod_min_idx < 1, na.rm=TRUE) || any(tperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio27_fast: Some min_temp_period indices are out of bounds.")
-  }
-  # Extract the mean for the coldest period
-  bio27V <- speriod[cbind(seq_len(nrow(speriod)), tperiod_min_idx)]
+  bio27V <- select_period(speriod, tperiod_min_idx, "bio27_fast", "min_temp_period")
   bio27V <- cbind(bio27 = bio27V, cell = cell)
   return(bio27V)
 }
@@ -732,12 +677,7 @@ bio31_fast <- function(mois, n_units, cell) {
 #'   The columns are named "bio32" (mean moisture of most moist period) and "cell".
 #' @keywords internal
 bio32_fast <- function(speriod, speriod_max_idx, cell) {
-  num_period_cols <- ncol(speriod) - 2
-  if (any(speriod_max_idx < 1, na.rm=TRUE) || any(speriod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio32_fast: Some max_prec_period indices are out of bounds.")
-  }
-  # Extract the mean for the most moist period
-  bio32V <- speriod[cbind(seq_len(nrow(speriod)), speriod_max_idx)]
+  bio32V <- select_period(speriod, speriod_max_idx, "bio32_fast", "max_prec_period")
   bio32V <- cbind(bio32 = bio32V, cell = cell)
   return(bio32V)
 }
@@ -753,12 +693,7 @@ bio32_fast <- function(speriod, speriod_max_idx, cell) {
 #'   The columns are named "bio33" (mean moisture of least moist period) and "cell".
 #' @keywords internal
 bio33_fast <- function(speriod, speriod_min_idx, cell) {
-  num_period_cols <- ncol(speriod) - 2
-  if (any(speriod_min_idx < 1, na.rm=TRUE) || any(speriod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio33_fast: Some min_prec_period indices are out of bounds.")
-  }
-  # Extract the mean for the least moist period
-  bio33V <- speriod[cbind(seq_len(nrow(speriod)), speriod_min_idx)]
+  bio33V <- select_period(speriod, speriod_min_idx, "bio33_fast", "min_prec_period")
   bio33V <- cbind(bio33 = bio33V, cell = cell)
   return(bio33V)
 }
@@ -774,12 +709,7 @@ bio33_fast <- function(speriod, speriod_min_idx, cell) {
 #'   The columns are named "bio34" (mean moisture of warmest period) and "cell".
 #' @keywords internal
 bio34_fast <- function(speriod, tperiod_max_idx, cell) {
-  num_period_cols <- ncol(speriod) - 2
-  if (any(tperiod_max_idx < 1, na.rm=TRUE) || any(tperiod_max_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio34_fast: Some max_temp_period indices are out of bounds.")
-  }
-  # Extract the mean for the warmest period
-  bio34V <- speriod[cbind(seq_len(nrow(speriod)), tperiod_max_idx)]
+  bio34V <- select_period(speriod, tperiod_max_idx, "bio34_fast", "max_temp_period")
   bio34V <- cbind(bio34 = bio34V, cell = cell)
   return(bio34V)
 }
@@ -795,12 +725,33 @@ bio34_fast <- function(speriod, tperiod_max_idx, cell) {
 #'   The columns are named "bio35" (mean moisture of coldest period) and "cell".
 #' @keywords internal
 bio35_fast <- function(speriod, tperiod_min_idx, cell) {
-  num_period_cols <- ncol(speriod) - 2
-  if (any(tperiod_min_idx < 1, na.rm=TRUE) || any(tperiod_min_idx > num_period_cols, na.rm=TRUE)) {
-    warning("bio35_fast: Some min_temp_period indices are out of bounds.")
-  }
-  # Extract the mean for the coldest period
-  bio35V <- speriod[cbind(seq_len(nrow(speriod)), tperiod_min_idx)]
+  bio35V <- select_period(speriod, tperiod_min_idx, "bio35_fast", "min_temp_period")
   bio35V <- cbind(bio35 = bio35V, cell = cell)
   return(bio35V)
+}
+
+#' Select One Period per Cell from a var_periods() Matrix
+#'
+#' Returns `periods[i, idx[i]]` for each row. The last two columns of a
+#' `var_periods()` matrix hold the min/max period indices, not data, so an
+#' index outside `1:(ncol(periods) - 2)` (e.g. a static period index made with
+#' a different `circular` or `period_length`) gives `NA`, as on the terra path.
+#'
+#' @param periods Numeric matrix from `var_periods()`: one column per period,
+#'   then `min_idx` and `max_idx`.
+#' @param idx Integer vector with one period index per row of `periods`.
+#' @param caller,idx_name Character, used in the out-of-bounds warning.
+#' @return Numeric vector of length `nrow(periods)`.
+#' @keywords internal
+select_period <- function(periods, idx, caller, idx_name) {
+  num_period_cols <- ncol(periods) - 2
+  idx <- as.integer(idx)
+  out_of_bounds <- !is.na(idx) & (idx < 1 | idx > num_period_cols)
+  if (any(out_of_bounds)) {
+    warning(caller, ": Some ", idx_name, " indices are out of bounds.")
+  }
+  valid <- which(!is.na(idx) & !out_of_bounds)
+  out <- rep(NA_real_, nrow(periods))
+  out[valid] <- periods[cbind(valid, idx[valid])]
+  out
 }
