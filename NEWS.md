@@ -1,3 +1,15 @@
+fastbioclim 0.4.2.9001
+=============
+- Tiled backends with a `user_region` no longer write values from cells beyond the edge of the cropped grid into other cells, and they now drop the cells outside the region that the terra backend masks (#11).
+- `calculate_average()` and `calculate_sum()` with the terra backend now order and name the output layers by sorted `index` values when `index` is not sorted (#13).
+- `derive_bioclim()` and `derive_statistics()` apply one NA policy on both backends: an output is NA in a cell when any temporal unit of any variable it is computed from is NA there. The terra backend used to ignore missing units, and the tiled backend only looked at the first layer (#21).
+- `derive_statistics(stats = "stdev")` returns the sample standard deviation on the terra backend, as on the tiled backend and in bio04/bio31 (#22).
+- The tiled `derive_statistics()` no longer falls back to the full extent when all values inside `user_region` are <= 0 (#23).
+- Tiled backends read the selected layers of a multi-band file, e.g. `r[[13:24]]`. `derive_bioclim()` and `derive_statistics()` used to stop with a length error, and the `calculate_*()` functions used the first layers of the file (#27).
+- Tiled period-based bios return NA for a static period index beyond the number of periods, as the terra backend does, instead of a period number (#28).
+- Tiled outputs keep the CRS of the input, including its EPSG code (#31).
+- Add scripts in dev/issue-checks/ that reproduce each of these issues and compare two versions of the package.
+
 fastbioclim 0.4.2.9000
 =============
 - Require terra >= 1.8-15 because the package calls mem_info(print = FALSE) (#9, closes #15).
