@@ -76,11 +76,6 @@ test_that("derive_statistics(): 'stdev' on the terra backend is the sample stand
                               output_prefix = "srad")
   cells <- c(1, 50, 192)
 
-  skip_known_issue(paste(
-    "stats_terra() uses terra::app(x, \"std\"), which is the population standard deviation,",
-    "while stats_fast() uses Rfast::rowVars(std = TRUE), the sample standard deviation.",
-    "With 12 units the terra values are sqrt(11/12) (about 0.957) times the tiled ones."
-  ))
   expect_cells_match(terra_res, cells, stdev_reference(clim, cells),
                      label = "terra stdev vs sample sd")
 })
@@ -94,4 +89,16 @@ test_that("derive_statistics(): 'stdev' on the tiled backend is the sample stand
 
   expect_cells_match(tiled_res, cells, stdev_reference(clim, cells),
                      label = "tiled stdev vs sample sd")
+})
+
+test_that("derive_statistics(): 'stdev' is the same on both backends (#22)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 12, ncols = 16)
+  terra_res <- run_statistics("terra", variable = clim$rasters$srad, stats = "stdev",
+                              output_prefix = "srad")
+  tiled_res <- run_statistics("tiled", variable = clim$rasters$srad, stats = "stdev",
+                              output_prefix = "srad", tile_degrees = 4)
+  expect_rasters_equal(tiled_res, terra_res, label = "stdev tiled vs terra")
+  expect_equal(unname(terra::values(terra_res)[, 1]), apply(clim$vals$srad, 1, stats::sd),
+               tolerance = 1e-5)
 })

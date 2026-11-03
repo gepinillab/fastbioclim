@@ -117,7 +117,8 @@ stats_terra <- function(variable,
   
   # STDEV
   if ("stdev" %in% stats) {
-    stdev_stat <- terra::app(variable, "std", na.rm = TRUE)
+    # Sample standard deviation, as in bio04/bio31 and stats_fast()
+    stdev_stat <- terra::stdev(variable, pop = FALSE, na.rm = TRUE)
     names(stdev_stat) <- paste0(output_prefix, "_stdev")
   }
   

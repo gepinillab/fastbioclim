@@ -111,7 +111,7 @@ test_that("derive_statistics(): backends agree when only some layers of a cell a
   clim$vals$prcp[20, 7] <- NA               # interactive variable: one unit missing in cell 20
   srad <- write_units(clim$vals$srad, clim$template, dir, "srad")
   prcp <- write_units(clim$vals$prcp, clim$template, dir, "prcp")
-  stats <- c("mean", "max", "min", "sum", "cv_cli", "max_period", "min_period")
+  stats <- c("mean", "max", "min", "sum", "stdev", "cv_cli", "max_period", "min_period")
   args <- list(variable = srad, inter_variable = prcp, stats = stats,
                inter_stats = c("max_inter", "min_inter"), output_prefix = "srad")
 
