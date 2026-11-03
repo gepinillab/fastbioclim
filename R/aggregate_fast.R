@@ -80,6 +80,7 @@ aggregate_fast <- function(paths, index, output_names, user_region, tile_degrees
     target_ncol <- original_ncol
     target_res <- original_res
 
+    region_mask_file <- NULL
     if (!is.null(user_region)) {
       target_template_rast <- NULL
       tryCatch({
@@ -87,6 +88,7 @@ aggregate_fast <- function(paths, index, output_names, user_region, tile_degrees
         if (terra::ncell(target_template_rast) > 0) {
           target_extent_vec <- as.vector(terra::ext(target_template_rast))
           target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
+          region_mask_file <- write_region_mask(ref_rast_geom, terra::vect(base_map), qs_dir)
           target_ncol <- target_dims_vec[2]
           target_res <- terra::res(target_template_rast)
         } else {
@@ -109,7 +111,8 @@ aggregate_fast <- function(paths, index, output_names, user_region, tile_degrees
         dimensions = target_dims_vec,
         crs = target_crs_txt,
         res = target_res
-      )
+      ),
+      region_mask = region_mask_file
     )
     # --- Calculate Translation Parameters ---
     if (!is.null(user_region)) {
@@ -141,7 +144,8 @@ aggregate_fast <- function(paths, index, output_names, user_region, tile_degrees
       ncol_src = original_ncol,
       ncol_tgt = target_ncol,
       row_offset = row_offset,
-      col_offset = col_offset
+      col_offset = col_offset,
+      nrow_tgt = target_dims_vec[1]
     )
   }
     

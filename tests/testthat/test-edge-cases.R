@@ -326,3 +326,48 @@ test_that("derive_statistics(): tiled backend applies static indices", {
   expect_cells_match(tiled_res, static_cells, setup$expected,
                      label = "tiled statistics, static indices")
 })
+
+# --- Non-rectangular user_region (#11) ----------------------------------------------
+
+test_that("define_translate() drops source cells outside the target grid (#11)", {
+  # 10-column source grid; the 4 x 4 target starts at source row 4, column 3.
+  translate <- define_translate(ncol_src = 10L, ncol_tgt = 4L, row_offset = 3L,
+                                col_offset = 2L, nrow_tgt = 4L)
+  # Source cells at (row, col): (4, 3), (4, 6), (4, 7), (7, 3), (7, 6), (8, 3).
+  expect_identical(translate(c(33, 36, 37, 63, 66, 73)), c(1L, 4L, NA, 13L, 16L, NA))
+})
+
+test_that("tiled backends match terra with a non-rectangular user_region (#11)", {
+  skip_on_cran()
+  # Every layer holds the source cell id, so a value written to the wrong cell
+  # shows up as a different number. The L-shaped region cuts through cells on
+  # all sides, so exact_extract() returns cells that crop(mask = TRUE) drops.
+  template <- terra::rast(nrows = 10, ncols = 10, xmin = 0, xmax = 10, ymin = 0, ymax = 10,
+                          crs = "EPSG:4326")
+  id <- write_units(matrix(seq_len(100), 100, 12), template, withr::local_tempdir(), "id")
+  region <- sf::st_as_sf(sf::st_union(
+    sf::st_as_sfc(sf::st_bbox(c(xmin = 2.3, ymin = 4, xmax = 6.3, ymax = 6.3), crs = sf::st_crs(4326))),
+    sf::st_as_sfc(sf::st_bbox(c(xmin = 4, ymin = 2, xmax = 6.3, ymax = 4), crs = sf::st_crs(4326)))
+  ))
+
+  terra_stats <- run_statistics("terra", variable = id, stats = "mean", user_region = region)
+  tiled_stats <- run_statistics("tiled", variable = id, stats = "mean", user_region = region,
+                                tile_degrees = 2)
+  expect_rasters_equal(tiled_stats, terra_stats, label = "statistics, L-shaped region")
+
+  terra_bio <- run_bioclim("terra", bios = 12, prcp = id, user_region = region)
+  tiled_bio <- run_bioclim("tiled", bios = 12, prcp = id, user_region = region, tile_degrees = 2)
+  expect_rasters_equal(tiled_bio, terra_bio, label = "bioclim, L-shaped region")
+
+  avg_args <- list(index = rep(1:6, 2), output_names = "id", user_region = region)
+  terra_avg <- do.call(run_calculate, c(list(calculate_average, "terra", id), avg_args))
+  tiled_avg <- do.call(run_calculate, c(list(calculate_average, "tiled", id, tile_degrees = 2),
+                                        avg_args))
+  expect_rasters_equal(tiled_avg, terra_avg, label = "calculate_average, L-shaped region")
+
+  roll_args <- list(window_size = 2, freq = 6, output_prefix = "id", user_region = region)
+  terra_roll <- do.call(run_calculate, c(list(calculate_roll, "terra", id), roll_args))
+  tiled_roll <- do.call(run_calculate, c(list(calculate_roll, "tiled", id, tile_degrees = 2),
+                                         roll_args))
+  expect_rasters_equal(tiled_roll, terra_roll, label = "calculate_roll, L-shaped region")
+})

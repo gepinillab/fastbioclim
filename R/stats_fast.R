@@ -219,6 +219,7 @@ stats_fast <- function(variable_path,
   target_ncol <- original_ncol
 
 
+  region_mask_file <- NULL
   if (!is.null(user_region)) {
     target_template_rast <- NULL
     tryCatch({
@@ -227,6 +228,7 @@ stats_fast <- function(variable_path,
       if (terra::ncell(target_template_rast) > 0 && sum(terra::values(target_template_rast,na.rm=TRUE)) > 0 ) {
         target_extent_vec <- as.vector(terra::ext(target_template_rast))
         target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
+        region_mask_file <- write_region_mask(ref_rast_geom_check, terra::vect(base_map), stats_qs_dir)
         target_res_vec <- terra::res(target_template_rast) # Get resolution of cropped raster
         target_ncol <- target_dims_vec[2]
       } else {
@@ -250,7 +252,8 @@ stats_fast <- function(variable_path,
       dimensions = target_dims_vec,
       crs = target_crs_txt,
       res = target_res_vec
-    )
+    ),
+    region_mask = region_mask_file
   )
 
   translate_cell_fun <- NULL
@@ -282,7 +285,8 @@ stats_fast <- function(variable_path,
       ncol_src = original_ncol,
       ncol_tgt = target_ncol,
       row_offset = row_offset,
-      col_offset = col_offset
+      col_offset = col_offset,
+      nrow_tgt = target_dims_vec[1]
     )
   }
 

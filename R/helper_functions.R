@@ -255,16 +255,18 @@ var_periods <- function(variable, periodos, n_units, period_length, stat) {
 #'   relative to the source grid's top-left corner (0-based).
 #' @param col_offset Integer. Column offset of the target grid's top-left corner
 #'   relative to the source grid's top-left corner (0-based).
+#' @param nrow_tgt Integer. Number of rows in the target raster.
 #'
 #' @return A function that takes a vector of source cell IDs (`cell_src`) and
 #'   returns a vector of corresponding target cell IDs. Cells falling outside
 #'   the target grid bounds will have `NA_integer_` as their target ID.
 #' @keywords internal
-define_translate <- function(ncol_src, ncol_tgt, row_offset, col_offset) {
+define_translate <- function(ncol_src, ncol_tgt, row_offset, col_offset, nrow_tgt) {
   force(ncol_src) # Force evaluation of arguments in the enclosing environment
   force(ncol_tgt)
   force(row_offset)
   force(col_offset)
+  force(nrow_tgt)
 
   function(cell_src) {
     if (!is.integer(cell_src)) cell_src <- as.integer(cell_src) # Ensure integer input
@@ -281,10 +283,30 @@ define_translate <- function(ncol_src, ncol_tgt, row_offset, col_offset) {
     col_tgt <- col_src - col_offset
 
     # Identify valid cells (within the bounds of the target grid)
-    valid <- row_tgt >= 1L & col_tgt >= 1L
+    valid <- row_tgt >= 1L & col_tgt >= 1L & row_tgt <= nrow_tgt & col_tgt <= ncol_tgt
 
     # Compute target cell ID *only* for valid indices
     result[valid] <- (row_tgt[valid] - 1L) * ncol_tgt + col_tgt[valid]
     result
   }
+}
+
+#' Write the user_region Mask of the Target Grid
+#'
+#' The tiled backends extract every cell a tile polygon touches, while the terra
+#' backend keeps only the cells that `terra::crop(x, region, mask = TRUE)` keeps.
+#' This writes that mask (1 inside, NA outside) on the cropped target grid, so
+#' that `write_layers()` can drop the cells the terra backend masks out.
+#'
+#' @param ref_rast A `SpatRaster` with the geometry of the input rasters.
+#' @param region A `SpatVector` with the user region, in the CRS of `ref_rast`.
+#' @param dir Character. Directory where the mask file is written.
+#' @return The base name of the mask file, relative to `dir`.
+#' @keywords internal
+write_region_mask <- function(ref_rast, region, dir) {
+  target <- terra::init(terra::crop(terra::rast(ref_rast), region), 1)
+  mask_file <- "region_mask.tif"
+  terra::crop(target, region, mask = TRUE, filename = file.path(dir, mask_file),
+              datatype = "INT1U", overwrite = TRUE)
+  mask_file
 }

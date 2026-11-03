@@ -109,6 +109,16 @@ write_layers <- function(input_dir,
                    !all(dim(original_template)[1:2] == dim(target_template)[1:2])
   
   n_target_cells <- terra::ncell(target_template)
+
+  # Cells outside user_region (as terra::crop(mask = TRUE) defines them) are set
+  # to NA, so the tiled output matches the terra output along the region edges.
+  region_mask <- NULL
+  if (!is.null(template_info$region_mask)) {
+    region_mask <- terra::rast(file.path(input_dir, template_info$region_mask))
+    if (!all(dim(region_mask)[1:2] == dim(target_template)[1:2])) {
+      stop("The user_region mask does not match the target geometry.")
+    }
+  }
   # --- 4. Process Each Bioclim Variable ---
   if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
   
@@ -152,6 +162,11 @@ write_layers <- function(input_dir,
         start_cell_block <- terra::cellFromRowCol(outRast, start_row_block, 1)
         end_cell_block <- terra::cellFromRowCol(outRast, start_row_block + num_rows_in_block - 1, n_target_cols)
         values_for_block <- rvals[start_cell_block:end_cell_block]
+        if (!is.null(region_mask)) {
+          mask_block <- terra::values(region_mask, row = start_row_block,
+                                      nrows = num_rows_in_block, mat = FALSE)
+          values_for_block[is.na(mask_block)] <- NA_real_
+        }
         terra::writeValues(x = outRast, v = values_for_block,
                            start = start_row_block, 
                            nrows = num_rows_in_block)
