@@ -225,14 +225,14 @@ stats_fast <- function(variable_path,
     tryCatch({
       # Crop using the already loaded ref_rast_geom_check
       target_template_rast <- terra::crop(ref_rast_geom_check, terra::vect(base_map), mask = TRUE)
-      if (terra::ncell(target_template_rast) > 0 && sum(terra::values(target_template_rast,na.rm=TRUE)) > 0 ) {
+      if (terra::ncell(target_template_rast) > 0) {
         target_extent_vec <- as.vector(terra::ext(target_template_rast))
         target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
         region_mask_file <- write_region_mask(ref_rast_geom_check, terra::vect(base_map), stats_qs_dir)
         target_res_vec <- terra::res(target_template_rast) # Get resolution of cropped raster
         target_ncol <- target_dims_vec[2]
       } else {
-      warning("Cropping resulted in empty or all-NA raster, using original geometry.")
+      warning("Cropping resulted in empty raster, using original geometry.")
       }
     rm(target_template_rast)
     }, error = function(e) {

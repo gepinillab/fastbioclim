@@ -177,3 +177,19 @@ test_that("Arguments are passed correctly to the chosen workflow", {
   expect_true("max_unit_path" %in% names(tiled_args))
   expect_match(tiled_args$max_unit_path, "static.tif")
 })
+test_that("tiled backend crops to user_region when all values are <= 0 (#23)", {
+  skip_on_cran()
+  set.seed(23)
+  template <- terra::rast(nrows = 10, ncols = 10, xmin = 0, xmax = 10, ymin = 0, ymax = 10,
+                          crs = "EPSG:4326")
+  vals <- matrix(stats::runif(100 * 12, -20, -1), 100)
+  neg <- write_units(vals, template, withr::local_tempdir(), "neg")
+  region <- terra::vect(terra::ext(2, 6, 2, 6), crs = "EPSG:4326")
+
+  terra_res <- run_statistics("terra", variable = neg, stats = "mean", user_region = region)
+  tiled_res <- expect_no_warning(
+    run_statistics("tiled", variable = neg, stats = "mean", user_region = region, tile_degrees = 2)
+  )
+  expect_equal(as.vector(terra::ext(tiled_res)), c(xmin = 2, xmax = 6, ymin = 2, ymax = 6))
+  expect_rasters_equal(tiled_res, terra_res, label = "negative values, user_region")
+})
