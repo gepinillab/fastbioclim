@@ -99,7 +99,7 @@ stats_fast <- function(variable_path,
   for (idx_name in names(static_inputs_map)) {
     idx_path <- static_inputs_map[[idx_name]]
     if (!is.null(idx_path)) {
-      if (is.character(idx_path) && length(idx_path) == 1 && file.exists(idx_path)) {
+      if (is.character(idx_path) && length(idx_path) == 1 && file.exists(sub("^vrt://(.*)\\?bands=[0-9]+$", "\\1", idx_path))) {
         static_index_paths[[idx_name]] <- idx_path
         if (verbose) message("Using static index for: ", idx_name)
       } else {
@@ -208,7 +208,7 @@ stats_fast <- function(variable_path,
 
   original_extent_vec <- as.vector(terra::ext(ref_rast_geom_check))
   original_dims_vec <- c(terra::nrow(ref_rast_geom_check), terra::ncol(ref_rast_geom_check))
-  original_crs_txt <- terra::crs(ref_rast_geom_check, proj = TRUE)
+  original_crs_txt <- terra::crs(ref_rast_geom_check)
   original_res_vec <- terra::res(ref_rast_geom_check)
   original_ncol <- original_dims_vec[2]
 
@@ -219,18 +219,20 @@ stats_fast <- function(variable_path,
   target_ncol <- original_ncol
 
 
+  region_mask_file <- NULL
   if (!is.null(user_region)) {
     target_template_rast <- NULL
     tryCatch({
       # Crop using the already loaded ref_rast_geom_check
       target_template_rast <- terra::crop(ref_rast_geom_check, terra::vect(base_map), mask = TRUE)
-      if (terra::ncell(target_template_rast) > 0 && sum(terra::values(target_template_rast,na.rm=TRUE)) > 0 ) {
+      if (terra::ncell(target_template_rast) > 0) {
         target_extent_vec <- as.vector(terra::ext(target_template_rast))
         target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
+        region_mask_file <- write_region_mask(ref_rast_geom_check, terra::vect(base_map), stats_qs_dir)
         target_res_vec <- terra::res(target_template_rast) # Get resolution of cropped raster
         target_ncol <- target_dims_vec[2]
       } else {
-      warning("Cropping resulted in empty or all-NA raster, using original geometry.")
+      warning("Cropping resulted in empty raster, using original geometry.")
       }
     rm(target_template_rast)
     }, error = function(e) {
@@ -250,7 +252,8 @@ stats_fast <- function(variable_path,
       dimensions = target_dims_vec,
       crs = target_crs_txt,
       res = target_res_vec
-    )
+    ),
+    region_mask = region_mask_file
   )
 
   translate_cell_fun <- NULL
@@ -282,7 +285,8 @@ stats_fast <- function(variable_path,
       ncol_src = original_ncol,
       ncol_tgt = target_ncol,
       row_offset = row_offset,
-      col_offset = col_offset
+      col_offset = col_offset,
+      nrow_tgt = target_dims_vec[1]
     )
   }
 
@@ -383,7 +387,9 @@ stats_fast <- function(variable_path,
     # If df is NULL or ref_col_name_for_na doesn't exist, return NULL early
     if (is.null(df) || !(ref_col_name_for_na %in% names(df))) return(NULL)
 
-    nonaID <- which(!is.na(df[[ref_col_name_for_na]]))
+    # Keep every cell with data in at least one unit; cells with some NA units
+    # are set to NA per statistic below (NA policy, as in stats_terra()).
+    nonaID <- which(rowSums(!is.na(df[, path_variables_map$variable, drop = FALSE])) > 0)
     if (length(nonaID) == 0L) return(NULL)
 
     all_colnames_in_df <- names(df)
@@ -532,6 +538,13 @@ stats_fast <- function(variable_path,
     }
   }
 
+  # NA policy: rows with an NA in any unit of the variable / interactive variable.
+  na_variable <- rowSums(is.na(tile_data_prepared$variable_matrix)) > 0
+  na_inter_variable <- na_variable
+  if (!is.null(tile_data_prepared$inter_variable_matrix)) {
+    na_inter_variable <- na_variable | rowSums(is.na(tile_data_prepared$inter_variable_matrix)) > 0
+  }
+
   # --- Calculate Requested Statistics ---
   # Combine stats and inter_stats for iteration, but handle their specific needs
   all_stats_to_attempt <- unique(c(stats, inter_stats))
@@ -651,6 +664,13 @@ stats_fast <- function(variable_path,
         result_value[valid_idx_mask] <- tile_data_prepared$variable_period_summary[cbind(which(valid_idx_mask), idx_period_of_inter_min[valid_idx_mask])]
       }
       output_stat_name_full <- paste0(output_prefix, "_", suffix_inter_min)
+    }
+
+    # Apply the NA policy
+    if (!is.null(result_value)) {
+      uses_inter <- (current_stat_type == "max_inter" && is.null(static_indices_for_tile$max_interactive)) ||
+        (current_stat_type == "min_inter" && is.null(static_indices_for_tile$min_interactive))
+      result_value[if (uses_inter) na_inter_variable else na_variable] <- NA_real_
     }
 
     # Save the calculated statistic if successful

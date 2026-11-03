@@ -8,13 +8,16 @@
 # SpatRaster. The tiled backend expects one file per unit (it checks that
 # `length(terra::sources(x)) == nlyr(x)`), so a single multi-band file would
 # not work. FLT8S keeps the inputs exact, so reference values can be computed
-# from the same numbers the backends read.
+# from the same numbers the backends read. Each file stores its own layer name:
+# the tiled calculate_*() backends stack the files as they are, and exactextractr
+# fails on duplicate layer names.
 write_units <- function(vals, template, dir, prefix) {
   vals <- as.matrix(vals)
   files <- file.path(dir, sprintf("%s_%02d.tif", prefix, seq_len(ncol(vals))))
   for (i in seq_len(ncol(vals))) {
     r <- terra::rast(template, nlyrs = 1)
     terra::values(r) <- vals[, i]
+    names(r) <- sprintf("%s_%02d", prefix, i)
     terra::writeRaster(r, files[i], overwrite = TRUE, datatype = "FLT8S")
   }
   out <- terra::rast(files)
@@ -110,6 +113,17 @@ run_statistics <- function(method, ..., tile_degrees = NULL) {
     args$tile_degrees <- tile_degrees
   }
   muffle_tile_warnings(suppressMessages(do.call(derive_statistics, args)))
+}
+
+# Runs calculate_average(), calculate_sum() or calculate_roll() (`fun`) on `x`.
+run_calculate <- function(fun, method, x, ..., tile_degrees = NULL) {
+  out_dir <- withr::local_tempdir(.local_envir = parent.frame())
+  args <- list(x = x, ..., output_dir = out_dir, method = method, verbose = FALSE)
+  if (method == "tiled") {
+    local_s2_restore()
+    args$tile_degrees <- tile_degrees
+  }
+  muffle_tile_warnings(suppressMessages(do.call(fun, args)))
 }
 
 # --- Known discrepancies ------------------------------------------------------

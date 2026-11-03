@@ -52,7 +52,7 @@ bioclim_fast <- function(
       if (endsWith(arg_name, path_suffix)) { 
         index_name <- sub(path_suffix, "", arg_name)
         if (index_name %in% valid_static_indices) {
-          if(is.character(dot_args[[arg_name]]) && length(dot_args[[arg_name]]) == 1 && file.exists(dot_args[[arg_name]])) { 
+          if(is.character(dot_args[[arg_name]]) && length(dot_args[[arg_name]]) == 1 && file.exists(sub("^vrt://(.*)\\?bands=[0-9]+$", "\\1", dot_args[[arg_name]]))) {
             static_index_paths[[index_name]] <- dot_args[[arg_name]]
             if (verbose) message("Using static index for: ", index_name)
           } else { 
@@ -243,7 +243,7 @@ bioclim_fast <- function(
       ref_rast_geom <- terra::rast(paths[1])
       original_extent_vec <- as.vector(terra::ext(ref_rast_geom))
       original_dims_vec <- c(terra::nrow(ref_rast_geom), terra::ncol(ref_rast_geom))
-      original_crs_txt <- terra::crs(ref_rast_geom, proj = TRUE)
+      original_crs_txt <- terra::crs(ref_rast_geom)
       original_ncol <- original_dims_vec[2]
       original_res <- terra::res(ref_rast_geom)
 
@@ -254,6 +254,7 @@ bioclim_fast <- function(
       target_ncol <- original_ncol
       target_res <- original_res
 
+      region_mask_file <- NULL
       if (!is.null(user_region)) {
           target_template_rast <- NULL
           tryCatch({
@@ -261,6 +262,7 @@ bioclim_fast <- function(
               if(terra::ncell(target_template_rast) > 0){
                   target_extent_vec <- as.vector(terra::ext(target_template_rast))
                   target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
+                  region_mask_file <- write_region_mask(ref_rast_geom, terra::vect(base_map), bioclima_dir)
                   target_ncol <- target_dims_vec[2]
                   target_res <- terra::res(target_template_rast)
               } else {
@@ -284,7 +286,8 @@ bioclim_fast <- function(
               dimensions = target_dims_vec,
               crs = target_crs_txt,
               res = target_res
-          )
+          ),
+          region_mask = region_mask_file
       )
   
       # --- Calculate Translation Parameters ---
@@ -317,7 +320,8 @@ bioclim_fast <- function(
           ncol_src = original_ncol,
           ncol_tgt = target_ncol,
           row_offset = row_offset,
-          col_offset = col_offset
+          col_offset = col_offset,
+          nrow_tgt = target_dims_vec[1]
       )
       }
   
@@ -378,7 +382,7 @@ bioclim_fast <- function(
                         "req_prcp_path", "req_tavg_load", "req_tavg_calc", "req_srad_path", "req_mois_path", 
                         "worker_req_tavg", "worker_req_temp_p", "worker_req_prec_p", 
                         "worker_req_srad_p", "worker_req_mois_p", 
-                        "check_evar", "compute_periods", "var_periods", 
+                        "check_evar", "compute_periods", "var_periods", "bio_inputs", "select_period",
                         paste0("bio", 1:35, "_fast"), "bios_qs_paths", "write_raw_vars", "bioclima_dir")
       if (exists("raw_paths_list")) export_vars <- c(export_vars, "raw_paths_list")
       vals <- future.apply::future_lapply(seq_len(ntiles), function(x) {
@@ -394,11 +398,12 @@ bioclim_fast <- function(
         rt0_geom <- sf::st_geometry(rtt[x, ])
 
         exct_fun_combined <- function(df, coverage_fractions) {
-          ref_col_name <- path_variables$climate[1]
-          nonaID <- which(!is.na(df[[ref_col_name]]))
+          climate_colnames <- path_variables$climate
+          # Keep every cell with data in at least one layer; cells with some NA
+          # layers are set to NA per bio below (NA policy, see bio_inputs()).
+          nonaID <- which(rowSums(!is.na(df[, climate_colnames, drop = FALSE])) > 0)
           if (length(nonaID) == 0L) return(NULL)
           all_colnames <- names(df)
-          climate_colnames <- path_variables$climate
           static_colnames_expected <- names(paths)[grepl("^idx_", names(paths))]
           static_colnames_present <- intersect(static_colnames_expected, all_colnames)
           cell_id_col_name <- "cell"
@@ -549,6 +554,13 @@ bioclim_fast <- function(
           }
         }
         
+        # NA policy: rows with an NA in any unit of each variable. A bio is NA
+        # where any variable it is computed from is NA (see bio_inputs()).
+        tile_na <- lapply(list(tmin = tile_results$tmin, tmax = tile_results$tmax,
+                               tavg = tile_results$temperature_avg, prcp = tile_results$prec_vals,
+                               srad = tile_results$srad_vals, mois = tile_results$mois_vals),
+                          function(m) if (is.null(m)) NULL else rowSums(is.na(m)) > 0)
+
         # Calculate BIOs
         calculated_bios_in_tile <- list()
         # Order bios
@@ -758,6 +770,8 @@ bioclim_fast <- function(
                                     cell = cell_ids)
           }
           if (!is.null(result_var)) { 
+            na_rows <- Reduce(`|`, purrr::compact(tile_na[bio_inputs(bio_num, names(static_indices_tile))]), FALSE)
+            result_var[na_rows, 1] <- NA_real_
             calculated_bios_in_tile[[bio_output_name]] <- result_var
             if (bio_num %in% bios) { 
               qs2::qs_save(result_var, 

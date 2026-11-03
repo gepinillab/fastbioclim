@@ -4,7 +4,7 @@
 \alias{define_translate}
 \title{Create an Inverse Cell ID Translation Function}
 \usage{
-define_translate(ncol_src, ncol_tgt, row_offset, col_offset)
+define_translate(ncol_src, ncol_tgt, row_offset, col_offset, nrow_tgt)
 }
 \arguments{
 \item{ncol_src}{Integer. Number of columns in the source raster.}
@@ -16,6 +16,8 @@ relative to the source grid's top-left corner (0-based).}
 
 \item{col_offset}{Integer. Column offset of the target grid's top-left corner
 relative to the source grid's top-left corner (0-based).}
+
+\item{nrow_tgt}{Integer. Number of rows in the target raster.}
 }
 \value{
 A function that takes a vector of source cell IDs (`cell_src`) and

@@ -61,7 +61,7 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
     ref_rast_geom <- terra::rast(paths[1])
     original_extent_vec <- as.vector(terra::ext(ref_rast_geom))
     original_dims_vec <- c(terra::nrow(ref_rast_geom), terra::ncol(ref_rast_geom))
-    original_crs_txt <- terra::crs(ref_rast_geom, proj = TRUE)
+    original_crs_txt <- terra::crs(ref_rast_geom)
     original_ncol <- original_dims_vec[2]
     original_res <- terra::res(ref_rast_geom)
     target_extent_vec <- original_extent_vec
@@ -69,6 +69,7 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
     target_crs_txt <- original_crs_txt
     target_ncol <- original_ncol
     target_res <- original_res
+    region_mask_file <- NULL
     if (!is.null(user_region)) {
       target_template_rast <- NULL
       tryCatch({
@@ -76,6 +77,7 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
         if (terra::ncell(target_template_rast) > 0) {
           target_extent_vec <- as.vector(terra::ext(target_template_rast))
           target_dims_vec <- c(terra::nrow(target_template_rast), terra::ncol(target_template_rast))
+          region_mask_file <- write_region_mask(ref_rast_geom, terra::vect(base_map), qs_dir)
           target_ncol <- target_dims_vec[2]
           target_res <- terra::res(target_template_rast)
         } else {
@@ -97,7 +99,8 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
         dimensions = target_dims_vec,
         crs = target_crs_txt,
         res = target_res
-      )
+      ),
+      region_mask = region_mask_file
     )
     if (!is.null(user_region)) {
     target_xmin <- template_info$target_geom$extent[1] + template_info$target_geom$res[1] / 2
@@ -122,7 +125,8 @@ roll_fast <- function(paths, window_size, freq, step, fun, output_names_list, us
       ncol_src = original_ncol,
       ncol_tgt = target_ncol,
       row_offset = row_offset,
-      col_offset = col_offset
+      col_offset = col_offset,
+      nrow_tgt = target_dims_vec[1]
     )
   }
   template_info_file <- file.path(qs_dir, "template_info.qs2")

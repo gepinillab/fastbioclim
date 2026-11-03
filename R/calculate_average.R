@@ -144,7 +144,7 @@ calculate_average <- function(x,
     }
     
     temp_qs_dir <- aggregate_fast(
-      paths = terra::sources(x),
+      paths = layer_sources(x),
       index = index,
       output_names = output_names,
       user_region = user_region,

@@ -60,17 +60,70 @@ test_that("backends agree when only some layers of a cell are NA", {
   clim$rasters$prcp <- write_units(clim$vals$prcp, clim$template, dir, "prcp")
   clim$rasters$tmin <- write_units(clim$vals$tmin, clim$template, dir, "tmin")
 
-  skip_known_issue(paste(
-    "The backends treat partly missing cells differently. bioclim_fast() keeps only cells",
-    "where the first layer it reads (tmin_01 here) is not NA, so cell 30 is NA in all 35",
-    "bios on the tiled backend but fully computed by terra. For cell 10 (one prcp month NA),",
-    "terra sums the other 11 months for bio12 (na.rm = TRUE) while Rfast::rowsums() returns",
-    "NA; bio15 is NA on both backends, so terra is not consistent with its own bio12 either."
-  ))
   terra_res <- do.call(run_bioclim, c(list("terra", bios = 1:35), all_inputs(clim)))
   tiled_res <- do.call(run_bioclim, c(list("tiled", bios = 1:35, tile_degrees = 2), all_inputs(clim)))
 
   expect_rasters_equal(tiled_res, terra_res, label = "partially-NA cells")
+})
+
+# NA policy (#21): a bio is NA in a cell when any unit of any variable it is
+# computed from is NA there; bios that do not use that variable are unaffected.
+test_that("a bio is NA where any unit of a variable it uses is NA (#21)", {
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  dir <- withr::local_tempdir()
+  clim$vals$prcp[10, 12] <- NA  # cell 10: December precipitation missing
+  clim$vals$tmin[30, 1] <- NA   # cell 30: January tmin missing
+  clim$vals$srad[40, 6] <- NA   # cell 40: June radiation missing
+  clim$rasters$prcp <- write_units(clim$vals$prcp, clim$template, dir, "prcp")
+  clim$rasters$tmin <- write_units(clim$vals$tmin, clim$template, dir, "tmin")
+  clim$rasters$srad <- write_units(clim$vals$srad, clim$template, dir, "srad")
+
+  res <- do.call(run_bioclim, c(list("terra", bios = 1:35), all_inputs(clim)))
+  na_bios <- function(cell) {
+    v <- terra::values(res)[cell, ]
+    sort(names(v)[is.na(v)])
+  }
+  bios_using <- function(var) {
+    sort(sprintf("bio%02d", Filter(function(b) var %in% bio_inputs(b), 1:35)))
+  }
+  # tavg = (tmin + tmax) / 2, so a missing tmin also makes tavg missing.
+  expect_identical(na_bios(10), bios_using("prcp"))
+  expect_identical(na_bios(30), sort(union(bios_using("tmin"), bios_using("tavg"))))
+  expect_identical(na_bios(40), bios_using("srad"))
+  expect_true("bio12" %in% na_bios(10))
+  expect_false("bio01" %in% na_bios(10))
+
+  # A static warmest period replaces tavg as the selector of bio18, so a missing
+  # tmin no longer makes bio18 NA.
+  wp <- write_index(rep(5L, terra::ncell(clim$template)), clim$template, dir, "warmest_period")
+  res_wp <- run_bioclim("terra", bios = c(10, 18), tmin = clim$rasters$tmin,
+                        tmax = clim$rasters$tmax, prcp = clim$rasters$prcp, warmest_period = wp)
+  v <- terra::values(res_wp)[30, ]
+  expect_true(is.na(v[["bio10"]]))
+  expect_false(is.na(v[["bio18"]]))
+})
+
+test_that("derive_statistics(): backends agree when only some layers of a cell are NA (#21)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  dir <- withr::local_tempdir()
+  clim$vals$srad[c(10, 30), c(5, 1)] <- NA  # variable: one unit missing in cells 10 and 30
+  clim$vals$prcp[20, 7] <- NA               # interactive variable: one unit missing in cell 20
+  srad <- write_units(clim$vals$srad, clim$template, dir, "srad")
+  prcp <- write_units(clim$vals$prcp, clim$template, dir, "prcp")
+  stats <- c("mean", "max", "min", "sum", "stdev", "cv_cli", "max_period", "min_period")
+  args <- list(variable = srad, inter_variable = prcp, stats = stats,
+               inter_stats = c("max_inter", "min_inter"), output_prefix = "srad")
+
+  terra_res <- do.call(run_statistics, c(list("terra"), args))
+  tiled_res <- do.call(run_statistics, c(list("tiled", tile_degrees = 2), args))
+  expect_rasters_equal(tiled_res[[sort(names(tiled_res))]], terra_res[[sort(names(terra_res))]],
+                       label = "statistics, partially-NA cells")
+
+  v <- terra::values(terra_res)
+  expect_true(all(is.na(v[c(10, 30), ])))
+  # Cell 20: only the interactive statistics use prcp.
+  expect_identical(sort(colnames(v)[is.na(v[20, ])]), c("srad_inter_high", "srad_inter_low"))
 })
 
 # --- Single-cell raster -----------------------------------------------------------
@@ -325,4 +378,174 @@ test_that("derive_statistics(): tiled backend applies static indices", {
   tiled_res <- do.call(run_statistics, c(list("tiled", tile_degrees = 2), setup$args))
   expect_cells_match(tiled_res, static_cells, setup$expected,
                      label = "tiled statistics, static indices")
+})
+
+# --- Non-rectangular user_region (#11) ----------------------------------------------
+
+test_that("define_translate() drops source cells outside the target grid (#11)", {
+  # 10-column source grid; the 4 x 4 target starts at source row 4, column 3.
+  translate <- define_translate(ncol_src = 10L, ncol_tgt = 4L, row_offset = 3L,
+                                col_offset = 2L, nrow_tgt = 4L)
+  # Source cells at (row, col): (4, 3), (4, 6), (4, 7), (7, 3), (7, 6), (8, 3).
+  expect_identical(translate(c(33, 36, 37, 63, 66, 73)), c(1L, 4L, NA, 13L, 16L, NA))
+})
+
+test_that("tiled backends match terra with a non-rectangular user_region (#11)", {
+  skip_on_cran()
+  # Every layer holds the source cell id, so a value written to the wrong cell
+  # shows up as a different number. The L-shaped region cuts through cells on
+  # all sides, so exact_extract() returns cells that crop(mask = TRUE) drops.
+  template <- terra::rast(nrows = 10, ncols = 10, xmin = 0, xmax = 10, ymin = 0, ymax = 10,
+                          crs = "EPSG:4326")
+  id <- write_units(matrix(seq_len(100), 100, 12), template, withr::local_tempdir(), "id")
+  region <- sf::st_as_sf(sf::st_union(
+    sf::st_as_sfc(sf::st_bbox(c(xmin = 2.3, ymin = 4, xmax = 6.3, ymax = 6.3), crs = sf::st_crs(4326))),
+    sf::st_as_sfc(sf::st_bbox(c(xmin = 4, ymin = 2, xmax = 6.3, ymax = 4), crs = sf::st_crs(4326)))
+  ))
+
+  terra_stats <- run_statistics("terra", variable = id, stats = "mean", user_region = region)
+  tiled_stats <- run_statistics("tiled", variable = id, stats = "mean", user_region = region,
+                                tile_degrees = 2)
+  expect_rasters_equal(tiled_stats, terra_stats, label = "statistics, L-shaped region")
+
+  terra_bio <- run_bioclim("terra", bios = 12, prcp = id, user_region = region)
+  tiled_bio <- run_bioclim("tiled", bios = 12, prcp = id, user_region = region, tile_degrees = 2)
+  expect_rasters_equal(tiled_bio, terra_bio, label = "bioclim, L-shaped region")
+
+  avg_args <- list(index = rep(1:6, 2), output_names = "id", user_region = region)
+  terra_avg <- do.call(run_calculate, c(list(calculate_average, "terra", id), avg_args))
+  tiled_avg <- do.call(run_calculate, c(list(calculate_average, "tiled", id, tile_degrees = 2),
+                                        avg_args))
+  expect_rasters_equal(tiled_avg, terra_avg, label = "calculate_average, L-shaped region")
+
+  roll_args <- list(window_size = 2, freq = 6, output_prefix = "id", user_region = region)
+  terra_roll <- do.call(run_calculate, c(list(calculate_roll, "terra", id), roll_args))
+  tiled_roll <- do.call(run_calculate, c(list(calculate_roll, "tiled", id, tile_degrees = 2),
+                                         roll_args))
+  expect_rasters_equal(tiled_roll, terra_roll, label = "calculate_roll, L-shaped region")
+})
+
+# --- Layer subsets of multi-band files (#27) -------------------------------------------
+
+# Writes `vals` (one column per unit) into bands 13-24 of a single 24-band file,
+# with unrelated decoy values in bands 1-12, and returns the 12-layer subset.
+write_band_subset <- function(vals, template, dir, prefix) {
+  decoy <- matrix(-999, nrow(vals), 12)
+  r <- terra::rast(template, nlyrs = 24)
+  terra::values(r) <- cbind(decoy, vals)
+  f <- file.path(dir, paste0(prefix, "_multiband.tif"))
+  terra::writeRaster(r, f, overwrite = TRUE, datatype = "FLT8S")
+  terra::rast(f)[[13:24]]
+}
+
+test_that("layer_sources() gives one source per layer (#27)", {
+  clim <- make_climate(withr::local_tempdir(), nrows = 2, ncols = 3)
+  sub <- write_band_subset(clim$vals$prcp, clim$template, withr::local_tempdir(), "prcp")
+  src <- layer_sources(sub)
+  expect_length(src, 12)
+  expect_true(all(startsWith(src, "vrt://")))
+  expect_equal(unname(terra::values(terra::rast(src))), unname(terra::values(sub)))
+  # Single-band files keep their plain paths.
+  expect_identical(layer_sources(clim$rasters$prcp), terra::sources(clim$rasters$prcp))
+})
+
+test_that("tiled backends read the selected layers of a multi-band file (#27)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  dir <- withr::local_tempdir()
+  sub <- Map(write_band_subset, clim$vals, list(clim$template), list(dir), names(clim$vals))
+
+  bios <- c(1, 5, 8, 12, 16, 20, 28)
+  terra_bio <- run_bioclim("terra", bios = bios, tmin = sub$tmin, tmax = sub$tmax,
+                           prcp = sub$prcp, srad = sub$srad, mois = sub$mois)
+  tiled_bio <- run_bioclim("tiled", bios = bios, tmin = sub$tmin, tmax = sub$tmax,
+                           prcp = sub$prcp, srad = sub$srad, mois = sub$mois, tile_degrees = 2)
+  expect_rasters_equal(tiled_bio, terra_bio, label = "bioclim, band subsets")
+  hand_bios <- sprintf("bio%02d", c(1, 5, 8, 12, 16))
+  expect_cells_match(tiled_bio, c(1, 48), hand_bioclim_cells(clim, c(1, 48))[, hand_bios],
+                     label = "tiled bioclim, band subsets")
+
+  # A static index stored as one band of a multi-band file.
+  idx <- terra::rast(clim$template, nlyrs = 2)
+  terra::values(idx) <- cbind(1, rep(c(3, 7), length.out = terra::ncell(idx)))
+  idx_file <- file.path(dir, "indices.tif")
+  terra::writeRaster(idx, idx_file, datatype = "INT2S")
+  max_unit <- terra::rast(idx_file)[[2]]
+  stat_args <- list(variable = sub$srad, stats = c("mean", "max"), max_unit = max_unit,
+                    output_prefix = "srad")
+  tiled_stats <- do.call(run_statistics, c(list("tiled", tile_degrees = 2), stat_args))
+  expect_equal(unname(terra::values(tiled_stats[["srad_mean"]])[, 1]), rowMeans(clim$vals$srad),
+               tolerance = 1e-5)
+  expected_max <- clim$vals$srad[cbind(seq_len(48), rep(c(3, 7), length.out = 48))]
+  expect_equal(unname(terra::values(tiled_stats[["srad_max"]])[, 1]), expected_max, tolerance = 1e-5)
+
+  # A full-extent user_region, because the tiled calculate_*() backends need one (#12).
+  region <- terra::vect(terra::ext(sub$prcp), crs = terra::crs(sub$prcp))
+  terra_avg <- run_calculate(calculate_average, "terra", sub$prcp, index = rep(1:4, 3),
+                             output_names = "p")
+  tiled_avg <- run_calculate(calculate_average, "tiled", sub$prcp, index = rep(1:4, 3),
+                             output_names = "p", user_region = region, tile_degrees = 2)
+  expect_rasters_equal(tiled_avg, terra_avg, label = "calculate_average, band subset")
+  terra_roll <- run_calculate(calculate_roll, "terra", sub$prcp, window_size = 2, freq = 4,
+                              output_prefix = "p")
+  tiled_roll <- run_calculate(calculate_roll, "tiled", sub$prcp, window_size = 2, freq = 4,
+                              output_prefix = "p", user_region = region, tile_degrees = 2)
+  expect_rasters_equal(tiled_roll, terra_roll, label = "calculate_roll, band subset")
+})
+
+# --- Out-of-range static period indices (#28) ------------------------------------------
+
+test_that("period extractors return NA for out-of-range period indices (#28)", {
+  # Two cells, three periods, then the min_idx and max_idx columns.
+  periods <- cbind(period_1 = c(10, 20), period_2 = c(11, 21), period_3 = c(12, 22),
+                   min_idx = c(1, 1), max_idx = c(3, 3))
+  idx <- c(4, 2)  # 4 would point at min_idx
+  expect_warning(res <- bio10_fast(periods, idx, period_length = 3, cell = 1:2), "out of bounds")
+  expect_identical(unname(res[, "bio10"]), c(NA_real_, 21))
+  expect_warning(res <- bio18_fast(periods, c(5, 0), cell = 1:2), "out of bounds")
+  expect_identical(unname(res[, "bio18"]), c(NA_real_, NA_real_))
+  expect_identical(unname(bio16_fast(periods, c(NA, 1), cell = 1:2)[, "bio16"]), c(NA_real_, 20))
+})
+
+test_that("backends give NA for a static period index beyond the number of periods (#28)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  # circular = FALSE with 12 units and period_length 3 gives 10 periods; 11 is out of range.
+  wp <- write_index(rep(11L, terra::ncell(clim$template)), clim$template,
+                    withr::local_tempdir(), "warmest_period")
+  common <- list(bios = c(10, 18, 26, 34), tmin = clim$rasters$tmin, tmax = clim$rasters$tmax,
+                 prcp = clim$rasters$prcp, srad = clim$rasters$srad, mois = clim$rasters$mois,
+                 circular = FALSE, warmest_period = wp)
+  terra_res <- do.call(run_bioclim, c(list("terra"), common))
+  tiled_res <- suppressWarnings(do.call(run_bioclim, c(list("tiled", tile_degrees = 2), common)))
+  expect_true(all(is.na(terra::values(terra_res))))
+  expect_true(all(is.na(terra::values(tiled_res))))
+})
+
+# --- CRS of tiled outputs (#31) ---------------------------------------------------------
+
+test_that("tiled outputs keep the input CRS, including its EPSG code (#31)", {
+  skip_on_cran()
+  set.seed(31)
+  # 4 x 5 cells of 10 km in EPSG:3035 (ETRS89 / LAEA Europe), whose PROJ.4 string
+  # does not round-trip to the EPSG code.
+  template <- terra::rast(nrows = 4, ncols = 5, xmin = 4000000, xmax = 4050000,
+                          ymin = 3000000, ymax = 3040000, crs = "EPSG:3035")
+  vals <- matrix(stats::runif(20 * 12, 0, 100), 20)
+  x <- write_units(vals, template, withr::local_tempdir(), "prcp")
+  code <- function(r) terra::crs(r, describe = TRUE)$code
+  region <- terra::vect(terra::ext(x), crs = terra::crs(x))
+
+  outputs <- list(
+    bioclim = run_bioclim("tiled", bios = 12, prcp = x, tile_degrees = 1e6),
+    statistics = run_statistics("tiled", variable = x, stats = "mean", tile_degrees = 1e6),
+    average = run_calculate(calculate_average, "tiled", x, index = rep(1:4, 3),
+                            output_names = "p", user_region = region, tile_degrees = 1e6),
+    roll = run_calculate(calculate_roll, "tiled", x, window_size = 2, freq = 4,
+                         output_prefix = "p", user_region = region, tile_degrees = 1e6)
+  )
+  for (nm in names(outputs)) {
+    expect_identical(code(outputs[[nm]]), "3035", label = paste(nm, "EPSG code"))
+    expect_true(terra::same.crs(outputs[[nm]], x), label = paste(nm, "same.crs"))
+  }
 })
