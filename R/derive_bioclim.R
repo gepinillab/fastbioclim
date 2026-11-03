@@ -291,12 +291,12 @@ derive_bioclim <- function(bios,
           "i" = "Please save any in-memory rasters to disk first or use `method = 'terra'` if they are small enough."))
     }
     if (verbose) message("Extracting file paths from SpatRasters for tiled workflow.")
-    input_paths <- lapply(input_rasters, terra::sources)
+    input_paths <- lapply(input_rasters, layer_sources)
     static_index_paths <- list()
     if (length(static_index_rasters) > 0) {
       for (i in seq_along(static_index_rasters)) {
         name <- names(static_index_rasters)[i]
-        path <- terra::sources(static_index_rasters[[i]])
+        path <- layer_sources(static_index_rasters[[i]])
         static_index_paths[[paste0(name, "_path")]] <- path
       }
     }

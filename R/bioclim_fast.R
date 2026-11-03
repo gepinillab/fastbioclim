@@ -52,7 +52,7 @@ bioclim_fast <- function(
       if (endsWith(arg_name, path_suffix)) { 
         index_name <- sub(path_suffix, "", arg_name)
         if (index_name %in% valid_static_indices) {
-          if(is.character(dot_args[[arg_name]]) && length(dot_args[[arg_name]]) == 1 && file.exists(dot_args[[arg_name]])) { 
+          if(is.character(dot_args[[arg_name]]) && length(dot_args[[arg_name]]) == 1 && file.exists(sub("^vrt://(.*)\\?bands=[0-9]+$", "\\1", dot_args[[arg_name]]))) {
             static_index_paths[[index_name]] <- dot_args[[arg_name]]
             if (verbose) message("Using static index for: ", index_name)
           } else { 

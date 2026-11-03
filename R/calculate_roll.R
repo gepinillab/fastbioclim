@@ -192,7 +192,7 @@ calculate_roll <- function(x,
     }
 
     temp_qs_dir <- roll_fast(
-      paths = terra::sources(x),
+      paths = layer_sources(x),
       window_size = window_size,
       freq = freq,
       step = step,

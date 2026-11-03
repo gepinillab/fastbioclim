@@ -349,3 +349,31 @@ bio_inputs <- function(bio_num, static = character()) {
     stop("Unknown bioclimatic variable: ", bio_num)
   )
 }
+
+#' One Data Source per Layer of a File-Backed SpatRaster
+#'
+#' `terra::sources()` returns one entry per file, so a subset of the layers of
+#' a multi-band file (e.g. `r[[13:24]]`) gives a single path, and reopening that
+#' path reads every band. This returns one path per layer of `x`, in layer
+#' order: the file itself for a single-band file, and a GDAL `vrt://` connection
+#' string that selects the band (GDAL >= 3.1) for a band of a multi-band file.
+#'
+#' @param x A file-backed `SpatRaster`.
+#' @return Character vector of length `terra::nlyr(x)`.
+#' @keywords internal
+layer_sources <- function(x) {
+  src <- terra::sources(x, bands = TRUE)
+  files <- unique(src$source)
+  n_bands <- vapply(files, function(f) terra::nlyr(terra::rast(f)), numeric(1))
+  names(n_bands) <- files
+  single_band <- src$bands == 1 & n_bands[src$source] == 1
+  out <- src$source
+  if (any(!single_band)) {
+    if (package_version(terra::gdal()) < "3.1.0") {
+      stop("Reading single bands of multi-band files in the 'tiled' workflow requires GDAL >= 3.1. ",
+           "Write each layer to its own file or use method = 'terra'.")
+    }
+    out[!single_band] <- paste0("vrt://", src$source[!single_band], "?bands=", src$bands[!single_band])
+  }
+  out
+}

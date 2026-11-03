@@ -230,12 +230,12 @@ derive_statistics <- function(variable,
     }
 
     # Prepare arguments for the internal tiled function
-    input_paths <- lapply(input_rasters, terra::sources)
+    input_paths <- lapply(input_rasters, layer_sources)
     static_index_paths <- list()
     if (length(static_index_rasters) > 0) {
       for(i in seq_along(static_index_rasters)) {
         name <- names(static_index_rasters)[i]
-        static_index_paths[[paste0(name, "_path")]] <- terra::sources(static_index_rasters[[i]])
+        static_index_paths[[paste0(name, "_path")]] <- layer_sources(static_index_rasters[[i]])
       }
     }
     n_units <- terra::nlyr(variable)

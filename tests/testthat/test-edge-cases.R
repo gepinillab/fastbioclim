@@ -424,3 +424,71 @@ test_that("tiled backends match terra with a non-rectangular user_region (#11)",
                                          roll_args))
   expect_rasters_equal(tiled_roll, terra_roll, label = "calculate_roll, L-shaped region")
 })
+
+# --- Layer subsets of multi-band files (#27) -------------------------------------------
+
+# Writes `vals` (one column per unit) into bands 13-24 of a single 24-band file,
+# with unrelated decoy values in bands 1-12, and returns the 12-layer subset.
+write_band_subset <- function(vals, template, dir, prefix) {
+  decoy <- matrix(-999, nrow(vals), 12)
+  r <- terra::rast(template, nlyrs = 24)
+  terra::values(r) <- cbind(decoy, vals)
+  f <- file.path(dir, paste0(prefix, "_multiband.tif"))
+  terra::writeRaster(r, f, overwrite = TRUE, datatype = "FLT8S")
+  terra::rast(f)[[13:24]]
+}
+
+test_that("layer_sources() gives one source per layer (#27)", {
+  clim <- make_climate(withr::local_tempdir(), nrows = 2, ncols = 3)
+  sub <- write_band_subset(clim$vals$prcp, clim$template, withr::local_tempdir(), "prcp")
+  src <- layer_sources(sub)
+  expect_length(src, 12)
+  expect_true(all(startsWith(src, "vrt://")))
+  expect_equal(unname(terra::values(terra::rast(src))), unname(terra::values(sub)))
+  # Single-band files keep their plain paths.
+  expect_identical(layer_sources(clim$rasters$prcp), terra::sources(clim$rasters$prcp))
+})
+
+test_that("tiled backends read the selected layers of a multi-band file (#27)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  dir <- withr::local_tempdir()
+  sub <- Map(write_band_subset, clim$vals, list(clim$template), list(dir), names(clim$vals))
+
+  bios <- c(1, 5, 8, 12, 16, 20, 28)
+  terra_bio <- run_bioclim("terra", bios = bios, tmin = sub$tmin, tmax = sub$tmax,
+                           prcp = sub$prcp, srad = sub$srad, mois = sub$mois)
+  tiled_bio <- run_bioclim("tiled", bios = bios, tmin = sub$tmin, tmax = sub$tmax,
+                           prcp = sub$prcp, srad = sub$srad, mois = sub$mois, tile_degrees = 2)
+  expect_rasters_equal(tiled_bio, terra_bio, label = "bioclim, band subsets")
+  hand_bios <- sprintf("bio%02d", c(1, 5, 8, 12, 16))
+  expect_cells_match(tiled_bio, c(1, 48), hand_bioclim_cells(clim, c(1, 48))[, hand_bios],
+                     label = "tiled bioclim, band subsets")
+
+  # A static index stored as one band of a multi-band file.
+  idx <- terra::rast(clim$template, nlyrs = 2)
+  terra::values(idx) <- cbind(1, rep(c(3, 7), length.out = terra::ncell(idx)))
+  idx_file <- file.path(dir, "indices.tif")
+  terra::writeRaster(idx, idx_file, datatype = "INT2S")
+  max_unit <- terra::rast(idx_file)[[2]]
+  stat_args <- list(variable = sub$srad, stats = c("mean", "max"), max_unit = max_unit,
+                    output_prefix = "srad")
+  tiled_stats <- do.call(run_statistics, c(list("tiled", tile_degrees = 2), stat_args))
+  expect_equal(unname(terra::values(tiled_stats[["srad_mean"]])[, 1]), rowMeans(clim$vals$srad),
+               tolerance = 1e-5)
+  expected_max <- clim$vals$srad[cbind(seq_len(48), rep(c(3, 7), length.out = 48))]
+  expect_equal(unname(terra::values(tiled_stats[["srad_max"]])[, 1]), expected_max, tolerance = 1e-5)
+
+  # A full-extent user_region, because the tiled calculate_*() backends need one (#12).
+  region <- terra::vect(terra::ext(sub$prcp), crs = terra::crs(sub$prcp))
+  terra_avg <- run_calculate(calculate_average, "terra", sub$prcp, index = rep(1:4, 3),
+                             output_names = "p")
+  tiled_avg <- run_calculate(calculate_average, "tiled", sub$prcp, index = rep(1:4, 3),
+                             output_names = "p", user_region = region, tile_degrees = 2)
+  expect_rasters_equal(tiled_avg, terra_avg, label = "calculate_average, band subset")
+  terra_roll <- run_calculate(calculate_roll, "terra", sub$prcp, window_size = 2, freq = 4,
+                              output_prefix = "p")
+  tiled_roll <- run_calculate(calculate_roll, "tiled", sub$prcp, window_size = 2, freq = 4,
+                              output_prefix = "p", user_region = region, tile_degrees = 2)
+  expect_rasters_equal(tiled_roll, terra_roll, label = "calculate_roll, band subset")
+})

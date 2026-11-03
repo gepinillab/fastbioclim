@@ -99,7 +99,7 @@ stats_fast <- function(variable_path,
   for (idx_name in names(static_inputs_map)) {
     idx_path <- static_inputs_map[[idx_name]]
     if (!is.null(idx_path)) {
-      if (is.character(idx_path) && length(idx_path) == 1 && file.exists(idx_path)) {
+      if (is.character(idx_path) && length(idx_path) == 1 && file.exists(sub("^vrt://(.*)\\?bands=[0-9]+$", "\\1", idx_path))) {
         static_index_paths[[idx_name]] <- idx_path
         if (verbose) message("Using static index for: ", idx_name)
       } else {
