@@ -1,6 +1,7 @@
 fastbioclim 0.4.2.9002
 =============
 - `derive_bioclim()` with the terra backend passes each static index only to the bio that uses it, so supplying an index meant for another bio no longer stops with `unused argument` (#48).
+- `derive_statistics()` with the terra backend accepts static indices (`max_unit`, `min_period`, `max_interactive`, ...). It compares their extent, resolution and CRS with the variable, not their number of layers, and checks that each has one layer (#49).
 
 fastbioclim 0.4.2.9001
 =============

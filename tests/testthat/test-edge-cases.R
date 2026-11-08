@@ -377,14 +377,32 @@ statistics_static_setup <- function(dir_data, dir_idx) {
 test_that("derive_statistics(): terra backend applies static indices", {
   setup <- statistics_static_setup(withr::local_tempdir(), withr::local_tempdir())
 
-  skip_known_issue(paste(
-    "stats_terra() checks geometry with compareGeom(lyrs = TRUE) across the variable",
-    "and the single-layer static index rasters, so any static index makes it stop with",
-    "'[compareGeom] number of layers does not match'."
-  ))
   terra_res <- do.call(run_statistics, c(list("terra"), setup$args))
   expect_cells_match(terra_res, static_cells, setup$expected,
                      label = "terra statistics, static indices")
+})
+
+test_that("derive_statistics(): terra backend checks the geometry and layers of static indices (#49)", {
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  one_layer <- write_index(rep(2, terra::ncell(clim$template)), clim$template,
+                           withr::local_tempdir(), "max_unit")
+  # An index with more than one layer is rejected.
+  expect_error(
+    run_statistics("terra", variable = clim$rasters$srad, stats = "max",
+                   max_unit = clim$rasters$prcp),
+    "exactly one layer"
+  )
+  # An index on a different grid is rejected.
+  other_grid <- write_index(rep(2, 12), terra::rast(nrows = 3, ncols = 4, xmin = 0, xmax = 4,
+                                                    ymin = 0, ymax = 3, crs = "EPSG:4326"),
+                            withr::local_tempdir(), "max_unit")
+  expect_error(run_statistics("terra", variable = clim$rasters$srad, stats = "max",
+                              max_unit = other_grid))
+  # A valid single-layer index selects that unit.
+  res <- run_statistics("terra", variable = clim$rasters$srad, stats = "max",
+                        max_unit = one_layer, output_prefix = "srad")
+  expect_cells_match(res, static_cells, cbind(srad_max = clim$vals$srad[static_cells, 2]),
+                     label = "terra statistics, constant max_unit")
 })
 
 test_that("derive_statistics(): tiled backend applies static indices", {
