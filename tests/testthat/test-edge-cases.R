@@ -317,6 +317,45 @@ test_that("terra backend passes each static index only to the bio that uses it (
   expect_cells_match(res, static_cells, expected, label = "terra, unit indices of other bios supplied")
 })
 
+test_that("static period indices replace the variable that selects the period (#16)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  idx <- make_static_indices(clim, withr::local_tempdir(), period_index_names)
+  hand <- do.call(hand_bioclim_cells, c(list(clim, static_cells), idx$vals))
+  period_mean <- function(v, index) {
+    vapply(static_cells, function(cl) mean(clim$vals[[v]][cl, ((index[cl] - 1 + 0:2) %% 12) + 1]),
+           numeric(1))
+  }
+  for (method in c("terra", "tiled")) {
+    tile_degrees <- if (method == "tiled") 2
+    # bio08/bio09 take the temperature of the wettest/driest period: no prcp.
+    res <- do.call(run_bioclim, c(list(method, bios = 8:9, tmin = clim$rasters$tmin,
+                                       tmax = clim$rasters$tmax, tile_degrees = tile_degrees),
+                                  idx$rasters[c("wettest_period", "driest_period")]))
+    expect_cells_match(res, static_cells, hand[, c("bio08", "bio09")],
+                       label = paste(method, "bio08/bio09 without prcp"))
+    # bio18/bio19 take the precipitation of the warmest/coldest period: no temperature.
+    res <- do.call(run_bioclim, c(list(method, bios = 18:19, prcp = clim$rasters$prcp,
+                                       tile_degrees = tile_degrees),
+                                  idx$rasters[c("warmest_period", "coldest_period")]))
+    expect_cells_match(res, static_cells, hand[, c("bio18", "bio19")],
+                       label = paste(method, "bio18/bio19 without temperature"))
+    # bio24-bio27 and bio34/bio35: solar radiation or moisture of the period, no
+    # precipitation and no temperature.
+    res <- do.call(run_bioclim, c(list(method, bios = c(24:27, 34:35), srad = clim$rasters$srad,
+                                       mois = clim$rasters$mois, tile_degrees = tile_degrees),
+                                  idx$rasters))
+    expected <- cbind(bio24 = period_mean("srad", idx$vals$wettest_period),
+                      bio25 = period_mean("srad", idx$vals$driest_period),
+                      bio26 = period_mean("srad", idx$vals$warmest_period),
+                      bio27 = period_mean("srad", idx$vals$coldest_period),
+                      bio34 = period_mean("mois", idx$vals$warmest_period),
+                      bio35 = period_mean("mois", idx$vals$coldest_period))
+    expect_cells_match(res, static_cells, expected,
+                       label = paste(method, "bio24-bio27, bio34/bio35 without prcp or temperature"))
+  }
+})
+
 test_that("tiled backend applies static unit and period indices together", {
   skip_on_cran()
   clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)

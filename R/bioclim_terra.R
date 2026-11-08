@@ -123,7 +123,13 @@ bioclim_terra <- function(bios,
   }
 
   # Bios that requires tavg
-  if (any(c(1, 4, 8, 9, 10, 11, 18, 19) %in% bios)) {
+  # A static period index replaces the variable that would otherwise select the
+  # period, so a variable is only needed where bio_inputs() lists it.
+  uses_input <- function(variable, bio_set) {
+    any(vapply(intersect(bio_set, bios),
+               function(b) variable %in% bio_inputs(b, names(dot_args)), logical(1)))
+  }
+  if (uses_input("tavg", 1:35)) {
     if (is.null(tavg)) {
       if (is.null(tmin) | is.null(tmax)) {
         stop("tavg cannot be calculated because tmin and/or tmax are NULL")
@@ -160,7 +166,7 @@ bioclim_terra <- function(bios,
   
   
   ## ONLY PRECIPITATION PERIOD
-  if (any(c(8:9, 16:19, 24:25) %in% bios)) {
+  if (uses_input("prcp", c(8:9, 16:19, 24:25))) {
     wet <- get_window(prcp, period_length, circular)
     if (any(c(8, 16, 24) %in% bios) & !exists("wettest_period")) {
       wettest_period <- terra::which.max(wet)
@@ -176,7 +182,7 @@ bioclim_terra <- function(bios,
   
   ### ONLY TEMPERATURE PERIOD
   
-  if (any(c(8:11, 18:19, 26:27, 34:35) %in% bios)) {
+  if (uses_input("tavg", c(8:11, 18:19, 26:27, 34:35))) {
     tmp <- get_window(tavg, period_length, circular) / period_length
     if (any(c(10, 18, 26, 34) %in% bios) & !exists("warmest_period")) {
       warmest_period <- terra::which.max(tmp)
