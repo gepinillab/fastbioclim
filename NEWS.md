@@ -1,6 +1,10 @@
 fastbioclim 0.4.2.9003
 =============
 - `stats_fast()` uses its `write_raw_vars` argument. The `BIOCLIM_DEBUG_RAW_VARS` environment variable is only used when the argument is not supplied, and it is still the only switch in `bioclim_fast()` (#55).
+- README: the citation section now contains `citation("fastbioclim")` (#56).
+- NEWS.md: the two `fastbioclim 0.2.1` headings are merged into one, keeping all their entries (#56).
+- DESCRIPTION: the Title is shortened to under 65 characters (#56).
+- The pkgdown workflow uses `actions/checkout@v6` and `JamesIves/github-pages-deploy-action@v4.8.0` (#56).
 
 fastbioclim 0.4.2.9002
 =============
@@ -59,9 +63,6 @@ fastbioclim 0.2.1
 =============
 - Delete unused functions (e.g., mismatch_NA)
 - Verbose added.
-
-fastbioclim 0.2.1
-=============
 - Small changes for making the package ready for CRAN.
 - Update example data in README file.
 

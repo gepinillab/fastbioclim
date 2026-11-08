@@ -145,7 +145,7 @@ Pinilla‐Buitrago, G. E., & Osorio‐Olvera, L. (2026). fastbioclim: An R packa
 
 You can also retrieve this citation, and its bibtex format, at any time from within R by running:
 ```r
-
+citation("fastbioclim")
 ```
 
 ## Under Active Development
