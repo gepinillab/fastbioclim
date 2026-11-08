@@ -288,17 +288,72 @@ test_that("terra backend applies static unit and period indices together", {
   clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
   idx <- make_static_indices(clim, withr::local_tempdir(), c(unit_index_names, period_index_names))
 
-  skip_known_issue(paste(
-    "bioclim_terra() forwards every static index in `...` to bio05_terra(), bio06_terra(),",
-    "bio13_terra(), etc., which accept only their own index, so the call fails with",
-    "'unused argument'. This happens whenever any static index is supplied and bios",
-    "include 3, 5, 6, 7, 13, 14, 21, 22, 29 or 30 (e.g. bios = 1:19 with warmest_period)."
-  ))
   res <- do.call(run_bioclim, c(list("terra", bios = 1:19, tmin = clim$rasters$tmin,
                                      tmax = clim$rasters$tmax, prcp = clim$rasters$prcp),
                                 idx$rasters))
   expected <- do.call(hand_bioclim_cells, c(list(clim, static_cells), idx$vals))
   expect_cells_match(res, static_cells, expected, label = "terra, unit + period indices")
+})
+
+test_that("terra backend passes each static index only to the bio that uses it (#48)", {
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  hand_names <- c(unit_index_names, "warmest_period", "wettest_period")
+  other_names <- c("high_rad_unit", "low_rad_unit", "high_mois_unit", "low_mois_unit")
+  idx <- make_static_indices(clim, withr::local_tempdir(), c(hand_names, other_names))
+  # Every call supplies indices that belong to other bios than the ones requested.
+  bios <- c(5, 6, 10, 13, 14)
+  res <- do.call(run_bioclim, c(list("terra", bios = bios, tmin = clim$rasters$tmin,
+                                     tmax = clim$rasters$tmax, prcp = clim$rasters$prcp),
+                                idx$rasters))
+  expected <- do.call(hand_bioclim_cells, c(list(clim, static_cells), idx$vals[hand_names]))
+  expect_cells_match(res, static_cells, expected[, sprintf("bio%02d", bios)],
+                     label = "terra, indices of other bios supplied")
+
+  res <- do.call(run_bioclim, c(list("terra", bios = c(21, 22, 29, 30), srad = clim$rasters$srad,
+                                     mois = clim$rasters$mois), idx$rasters))
+  pick <- function(v, index) vapply(static_cells, function(cl) clim$vals[[v]][cl, idx$vals[[index]][cl]], numeric(1))
+  expected <- cbind(bio21 = pick("srad", "high_rad_unit"), bio22 = pick("srad", "low_rad_unit"),
+                    bio29 = pick("mois", "high_mois_unit"), bio30 = pick("mois", "low_mois_unit"))
+  expect_cells_match(res, static_cells, expected, label = "terra, unit indices of other bios supplied")
+})
+
+test_that("static period indices replace the variable that selects the period (#16)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  idx <- make_static_indices(clim, withr::local_tempdir(), period_index_names)
+  hand <- do.call(hand_bioclim_cells, c(list(clim, static_cells), idx$vals))
+  period_mean <- function(v, index) {
+    vapply(static_cells, function(cl) mean(clim$vals[[v]][cl, ((index[cl] - 1 + 0:2) %% 12) + 1]),
+           numeric(1))
+  }
+  for (method in c("terra", "tiled")) {
+    tile_degrees <- if (method == "tiled") 2
+    # bio08/bio09 take the temperature of the wettest/driest period: no prcp.
+    res <- do.call(run_bioclim, c(list(method, bios = 8:9, tmin = clim$rasters$tmin,
+                                       tmax = clim$rasters$tmax, tile_degrees = tile_degrees),
+                                  idx$rasters[c("wettest_period", "driest_period")]))
+    expect_cells_match(res, static_cells, hand[, c("bio08", "bio09")],
+                       label = paste(method, "bio08/bio09 without prcp"))
+    # bio18/bio19 take the precipitation of the warmest/coldest period: no temperature.
+    res <- do.call(run_bioclim, c(list(method, bios = 18:19, prcp = clim$rasters$prcp,
+                                       tile_degrees = tile_degrees),
+                                  idx$rasters[c("warmest_period", "coldest_period")]))
+    expect_cells_match(res, static_cells, hand[, c("bio18", "bio19")],
+                       label = paste(method, "bio18/bio19 without temperature"))
+    # bio24-bio27 and bio34/bio35: solar radiation or moisture of the period, no
+    # precipitation and no temperature.
+    res <- do.call(run_bioclim, c(list(method, bios = c(24:27, 34:35), srad = clim$rasters$srad,
+                                       mois = clim$rasters$mois, tile_degrees = tile_degrees),
+                                  idx$rasters))
+    expected <- cbind(bio24 = period_mean("srad", idx$vals$wettest_period),
+                      bio25 = period_mean("srad", idx$vals$driest_period),
+                      bio26 = period_mean("srad", idx$vals$warmest_period),
+                      bio27 = period_mean("srad", idx$vals$coldest_period),
+                      bio34 = period_mean("mois", idx$vals$warmest_period),
+                      bio35 = period_mean("mois", idx$vals$coldest_period))
+    expect_cells_match(res, static_cells, expected,
+                       label = paste(method, "bio24-bio27, bio34/bio35 without prcp or temperature"))
+  }
 })
 
 test_that("tiled backend applies static unit and period indices together", {
@@ -361,14 +416,32 @@ statistics_static_setup <- function(dir_data, dir_idx) {
 test_that("derive_statistics(): terra backend applies static indices", {
   setup <- statistics_static_setup(withr::local_tempdir(), withr::local_tempdir())
 
-  skip_known_issue(paste(
-    "stats_terra() checks geometry with compareGeom(lyrs = TRUE) across the variable",
-    "and the single-layer static index rasters, so any static index makes it stop with",
-    "'[compareGeom] number of layers does not match'."
-  ))
   terra_res <- do.call(run_statistics, c(list("terra"), setup$args))
   expect_cells_match(terra_res, static_cells, setup$expected,
                      label = "terra statistics, static indices")
+})
+
+test_that("derive_statistics(): terra backend checks the geometry and layers of static indices (#49)", {
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  one_layer <- write_index(rep(2, terra::ncell(clim$template)), clim$template,
+                           withr::local_tempdir(), "max_unit")
+  # An index with more than one layer is rejected.
+  expect_error(
+    run_statistics("terra", variable = clim$rasters$srad, stats = "max",
+                   max_unit = clim$rasters$prcp),
+    "exactly one layer"
+  )
+  # An index on a different grid is rejected.
+  other_grid <- write_index(rep(2, 12), terra::rast(nrows = 3, ncols = 4, xmin = 0, xmax = 4,
+                                                    ymin = 0, ymax = 3, crs = "EPSG:4326"),
+                            withr::local_tempdir(), "max_unit")
+  expect_error(run_statistics("terra", variable = clim$rasters$srad, stats = "max",
+                              max_unit = other_grid))
+  # A valid single-layer index selects that unit.
+  res <- run_statistics("terra", variable = clim$rasters$srad, stats = "max",
+                        max_unit = one_layer, output_prefix = "srad")
+  expect_cells_match(res, static_cells, cbind(srad_max = clim$vals$srad[static_cells, 2]),
+                     label = "terra statistics, constant max_unit")
 })
 
 test_that("derive_statistics(): tiled backend applies static indices", {
@@ -548,4 +621,36 @@ test_that("tiled outputs keep the input CRS, including its EPSG code (#31)", {
     expect_identical(code(outputs[[nm]]), "3035", label = paste(nm, "EPSG code"))
     expect_true(terra::same.crs(outputs[[nm]], x), label = paste(nm, "same.crs"))
   }
+})
+
+# --- Input files that share a band name (#54) ---------------------------------------------
+
+test_that("tiled calculate_*() accept input files that share a band name (#54)", {
+  skip_on_cran()
+  template <- terra::rast(nrows = 4, ncols = 6, xmin = 0, xmax = 3, ymin = 0, ymax = 2,
+                          crs = "EPSG:4326")
+  dir <- withr::local_tempdir()
+  set.seed(54)
+  files <- file.path(dir, sprintf("x_%02d.tif", 1:8))
+  for (i in 1:8) {
+    r <- terra::rast(template, nlyrs = 1)
+    terra::values(r) <- stats::runif(terra::ncell(template), 0, 100)
+    names(r) <- "lyr.1"   # the same band name in every file
+    terra::writeRaster(r, files[i], overwrite = TRUE, datatype = "FLT8S")
+  }
+  x <- terra::rast(files)
+  expect_identical(length(unique(names(x))), 1L)
+  # A full-extent user_region, because the tiled calculate_*() backends need one (#12).
+  region <- terra::vect(terra::ext(x), crs = terra::crs(x))
+  for (fun in list(calculate_average, calculate_sum)) {
+    terra_res <- run_calculate(fun, "terra", x, index = rep(1:4, each = 2), output_names = "x")
+    tiled_res <- run_calculate(fun, "tiled", x, index = rep(1:4, each = 2), output_names = "x",
+                               user_region = region, tile_degrees = 1)
+    expect_rasters_equal(tiled_res, terra_res, label = "shared band name")
+  }
+  terra_roll <- run_calculate(calculate_roll, "terra", x, window_size = 2, freq = 4,
+                              output_prefix = "x")
+  tiled_roll <- run_calculate(calculate_roll, "tiled", x, window_size = 2, freq = 4,
+                              output_prefix = "x", user_region = region, tile_degrees = 1)
+  expect_rasters_equal(tiled_roll, terra_roll, label = "calculate_roll, shared band name")
 })

@@ -51,11 +51,23 @@ stats_terra <- function(variable,
                         ...) {
   # Check for same extent, number of rows and columns, projection,
   # resolution, and origin
-  sameGeom <- class(purrr::reduce(list(variable, inter_variable, max_unit, min_unit, 
-                                       max_period, min_period, 
-                                       max_interactive, min_interactive) |>
+  # The variable and the interactive variable must also have the same number
+  # of layers. Static indices have a single layer, so only their geometry is
+  # compared with the variable.
+  sameGeom <- class(purrr::reduce(list(variable, inter_variable) |>
                                     purrr::discard(is.null),
                                   testGeom))
+  static_indices <- list(max_unit = max_unit, min_unit = min_unit,
+                         max_period = max_period, min_period = min_period,
+                         max_interactive = max_interactive,
+                         min_interactive = min_interactive) |>
+    purrr::discard(is.null)
+  for (index_name in names(static_indices)) {
+    if (terra::nlyr(static_indices[[index_name]]) != 1) {
+      stop("Static index '", index_name, "' must have exactly one layer.")
+    }
+    terra::compareGeom(variable, static_indices[[index_name]], lyrs = FALSE)
+  }
   if (sameGeom == "SpatRaster") {
     if (verbose) message("SpatRasters have same extent, number of rows and columns, ",
             "projection, resolution, and origin")

@@ -123,7 +123,13 @@ bioclim_terra <- function(bios,
   }
 
   # Bios that requires tavg
-  if (any(c(1, 4, 8, 9, 10, 11, 18, 19) %in% bios)) {
+  # A static period index replaces the variable that would otherwise select the
+  # period, so a variable is only needed where bio_inputs() lists it.
+  uses_input <- function(variable, bio_set) {
+    any(vapply(intersect(bio_set, bios),
+               function(b) variable %in% bio_inputs(b, names(dot_args)), logical(1)))
+  }
+  if (uses_input("tavg", 1:35)) {
     if (is.null(tavg)) {
       if (is.null(tmin) | is.null(tmax)) {
         stop("tavg cannot be calculated because tmin and/or tmax are NULL")
@@ -140,9 +146,9 @@ bioclim_terra <- function(bios,
   # Bio04
   if (4 %in% bios) bio04 <- bio04_terra(tavg)
   # Bio05
-  if (any(c(3, 5, 7) %in% bios)) bio05 <- bio05_terra(tmax, ...)
+  if (any(c(3, 5, 7) %in% bios)) bio05 <- bio05_terra(tmax, warmest_unit = dot_args$warmest_unit)
   # Bio06
-  if (any(c(3, 6, 7) %in% bios)) bio06 <- bio06_terra(tmin, ...)
+  if (any(c(3, 6, 7) %in% bios)) bio06 <- bio06_terra(tmin, coldest_unit = dot_args$coldest_unit)
   # Bio07
   if (any(c(3, 7) %in% bios)) bio07 <- bio07_terra(bio05, bio06)
   # Bio03
@@ -152,15 +158,15 @@ bioclim_terra <- function(bios,
   # Bio12
   if (12 %in% bios) bio12 <- bio12_terra(prcp)
   # Bio13
-  if (13 %in% bios) bio13 <- bio13_terra(prcp, ...)
+  if (13 %in% bios) bio13 <- bio13_terra(prcp, wettest_unit = dot_args$wettest_unit)
   # Bio14
-  if (14 %in% bios) bio14 <- bio14_terra(prcp, ...)
+  if (14 %in% bios) bio14 <- bio14_terra(prcp, driest_unit = dot_args$driest_unit)
   # Bio15
   if (15 %in% bios) bio15 <- bio15_terra(prcp)
   
   
   ## ONLY PRECIPITATION PERIOD
-  if (any(c(8:9, 16:19, 24:25) %in% bios)) {
+  if (uses_input("prcp", c(8:9, 16:19, 24:25))) {
     wet <- get_window(prcp, period_length, circular)
     if (any(c(8, 16, 24) %in% bios) & !exists("wettest_period")) {
       wettest_period <- terra::which.max(wet)
@@ -176,7 +182,7 @@ bioclim_terra <- function(bios,
   
   ### ONLY TEMPERATURE PERIOD
   
-  if (any(c(8:11, 18:19, 26:27, 34:35) %in% bios)) {
+  if (uses_input("tavg", c(8:11, 18:19, 26:27, 34:35))) {
     tmp <- get_window(tavg, period_length, circular) / period_length
     if (any(c(10, 18, 26, 34) %in% bios) & !exists("warmest_period")) {
       warmest_period <- terra::which.max(tmp)
@@ -194,9 +200,9 @@ bioclim_terra <- function(bios,
   # Bio20
   if (20 %in% bios) bio20 <- bio20_terra(srad)
   # Bio21
-  if (21 %in% bios) bio21 <- bio21_terra(srad, ...)
+  if (21 %in% bios) bio21 <- bio21_terra(srad, high_rad_unit = dot_args$high_rad_unit)
   # Bio22
-  if (22 %in% bios) bio22 <- bio22_terra(srad, ...)
+  if (22 %in% bios) bio22 <- bio22_terra(srad, low_rad_unit = dot_args$low_rad_unit)
   # Bio23
   if (23 %in% bios) bio23 <- bio23_terra(srad)
   
@@ -209,9 +215,9 @@ bioclim_terra <- function(bios,
   # Bio28
   if (28 %in% bios) bio28 <- bio28_terra(mois)
   # Bio29
-  if (29 %in% bios) bio29 <- bio29_terra(mois, ...)
+  if (29 %in% bios) bio29 <- bio29_terra(mois, high_mois_unit = dot_args$high_mois_unit)
   # Bio30
-  if (30 %in% bios) bio30 <- bio30_terra(mois, ...)
+  if (30 %in% bios) bio30 <- bio30_terra(mois, low_mois_unit = dot_args$low_mois_unit)
   # Bio31
   if (31 %in% bios) bio31 <- bio31_terra(mois)
   

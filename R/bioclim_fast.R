@@ -67,8 +67,8 @@ bioclim_fast <- function(
     bios <- sort(unique(bios))
     needs <- list(tmin = c(2, 3, 6, 7), 
                   tmax = c(2, 3, 5, 7), 
-                  tavg = c(1, 4, 5, 6, 8, 9, 10, 11, 18, 19, 26, 27, 34, 35), 
-                  prec = c(8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 24, 25),
+                  tavg = c(1, 4, 5, 6), 
+                  prec = c(12, 13, 14, 15),
                   srad = c(20, 21, 22, 23, 24, 25, 26, 27),
                   mois = c(28, 29, 30, 31, 32, 33, 34, 35),
                   bio02 = c(3), 
@@ -110,12 +110,22 @@ bioclim_fast <- function(
     req_prec_direct <- any(needs$prec %in% bios_to_calculate)
     req_srad_direct <- any(needs$srad %in% bios_to_calculate)
     req_mois_direct <- any(needs$mois %in% bios_to_calculate)
-    req_tavg_value <- any(needs$tavg %in% bios_to_calculate) || any(needs$temp_p %in% bios_to_calculate)
+    # A period bio needs the temperature or precipitation periods only when
+    # bio_inputs() lists that variable for it: a static period index replaces
+    # the variable that would otherwise select the period.
+    static_names <- names(static_index_paths)
+    uses_input <- function(variable, bio_set) {
+      any(vapply(intersect(bio_set, bios_to_calculate),
+                 function(b) variable %in% bio_inputs(b, static_names), logical(1)))
+    }
+    req_temp_p <- uses_input("tavg", needs$temp_p)
+    req_prec_p <- uses_input("prcp", needs$prec_p)
+    req_tavg_value <- any(needs$tavg %in% bios_to_calculate) || req_temp_p
     req_tavg_load <- req_tavg_value && !is.null(tavg_path)
     req_tavg_calc <- req_tavg_value && is.null(tavg_path)
     req_tmin_path <- req_tmin_direct || req_tavg_calc
     req_tmax_path <- req_tmax_direct || req_tavg_calc
-    req_prcp_path <- req_prec_direct || any(needs$prec_p %in% bios_to_calculate)
+    req_prcp_path <- req_prec_direct || req_prec_p
     req_srad_path <- req_srad_direct || any(needs$srad_p %in% bios_to_calculate)
     req_mois_path <- req_mois_direct || any(needs$mois_p %in% bios_to_calculate)
     if (req_tmin_path && is.null(tmin_path)) stop("tmin_path required.")
@@ -372,9 +382,9 @@ bioclim_fast <- function(
       # --- 6. Parallel Processing Loop ---
       # progressr::with_progress({
       p <- progressr::progressor(steps = ntiles)
-      worker_req_tavg <- any(needs$tavg %in% bios_to_calculate) || any(needs$temp_p %in% bios_to_calculate)
-      worker_req_temp_p <- any(needs$temp_p %in% bios_to_calculate)
-      worker_req_prec_p <- any(needs$prec_p %in% bios_to_calculate)
+      worker_req_tavg <- any(needs$tavg %in% bios_to_calculate) || req_temp_p
+      worker_req_temp_p <- req_temp_p
+      worker_req_prec_p <- req_prec_p
       worker_req_srad_p <- any(needs$srad_p %in% bios_to_calculate)
       worker_req_mois_p <- any(needs$mois_p %in% bios_to_calculate)
       export_vars <- c("paths", "path_variables", "rtt", "ntiles", "bios", "bios_to_calculate", 
@@ -589,9 +599,6 @@ bioclim_fast <- function(
           if (bio_num %in% c(9, 25) && is.null(static_indices_tile[["driest_period"]]) && !prec_p_available) {can_calculate <- FALSE}
           if (bio_num %in% c(18, 26, 34) && is.null(static_indices_tile[["warmest_period"]]) && !temp_p_available) {can_calculate <- FALSE}
           if (bio_num %in% c(19, 27, 35) && is.null(static_indices_tile[["coldest_period"]]) && !temp_p_available) {can_calculate <- FALSE}
-          if (bio_num %in% c(26, 27) && (!srad_p_available || !temp_p_available)) {can_calculate <- FALSE}
-          if (bio_num %in% c(34, 35) && (!mois_p_available || !temp_p_available)) {can_calculate <- FALSE}
-          if (bio_num %in% c(8, 9, 18, 19) && (!temp_p_available || !prec_p_available)) {can_calculate <- FALSE}
           if (bio_num == 7 && (is.null(calculated_bios_in_tile$bio05) || is.null(calculated_bios_in_tile$bio06))) {can_calculate <- FALSE}
           if (bio_num == 3 && (is.null(calculated_bios_in_tile$bio02) || is.null(calculated_bios_in_tile$bio07))) {can_calculate <- FALSE}
           if (bio_num == 15 && (is.null(tile_results$prec_vals) || is.null(calculated_bios_in_tile$bio12))) {can_calculate <- FALSE}
