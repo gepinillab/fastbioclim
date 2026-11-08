@@ -622,3 +622,35 @@ test_that("tiled outputs keep the input CRS, including its EPSG code (#31)", {
     expect_true(terra::same.crs(outputs[[nm]], x), label = paste(nm, "same.crs"))
   }
 })
+
+# --- Input files that share a band name (#54) ---------------------------------------------
+
+test_that("tiled calculate_*() accept input files that share a band name (#54)", {
+  skip_on_cran()
+  template <- terra::rast(nrows = 4, ncols = 6, xmin = 0, xmax = 3, ymin = 0, ymax = 2,
+                          crs = "EPSG:4326")
+  dir <- withr::local_tempdir()
+  set.seed(54)
+  files <- file.path(dir, sprintf("x_%02d.tif", 1:8))
+  for (i in 1:8) {
+    r <- terra::rast(template, nlyrs = 1)
+    terra::values(r) <- stats::runif(terra::ncell(template), 0, 100)
+    names(r) <- "lyr.1"   # the same band name in every file
+    terra::writeRaster(r, files[i], overwrite = TRUE, datatype = "FLT8S")
+  }
+  x <- terra::rast(files)
+  expect_identical(length(unique(names(x))), 1L)
+  # A full-extent user_region, because the tiled calculate_*() backends need one (#12).
+  region <- terra::vect(terra::ext(x), crs = terra::crs(x))
+  for (fun in list(calculate_average, calculate_sum)) {
+    terra_res <- run_calculate(fun, "terra", x, index = rep(1:4, each = 2), output_names = "x")
+    tiled_res <- run_calculate(fun, "tiled", x, index = rep(1:4, each = 2), output_names = "x",
+                               user_region = region, tile_degrees = 1)
+    expect_rasters_equal(tiled_res, terra_res, label = "shared band name")
+  }
+  terra_roll <- run_calculate(calculate_roll, "terra", x, window_size = 2, freq = 4,
+                              output_prefix = "x")
+  tiled_roll <- run_calculate(calculate_roll, "tiled", x, window_size = 2, freq = 4,
+                              output_prefix = "x", user_region = region, tile_degrees = 1)
+  expect_rasters_equal(tiled_roll, terra_roll, label = "calculate_roll, shared band name")
+})

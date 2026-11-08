@@ -3,6 +3,7 @@ fastbioclim 0.4.2.9002
 - `derive_bioclim()` with the terra backend passes each static index only to the bio that uses it, so supplying an index meant for another bio no longer stops with `unused argument` (#48).
 - `derive_statistics()` with the terra backend accepts static indices (`max_unit`, `min_period`, `max_interactive`, ...). It compares their extent, resolution and CRS with the variable, not their number of layers, and checks that each has one layer (#49).
 - `derive_bioclim()` no longer asks for the variable that a static period index replaces. With `wettest_period` or `driest_period`, bio08, bio09, bio24 and bio25 do not need `prcp`; with `warmest_period` or `coldest_period`, bio18, bio19, bio26, bio27, bio34 and bio35 do not need temperature. Both backends read what each bio needs from the same table (#16).
+- Tiled `calculate_average()`, `calculate_sum()` and `calculate_roll()` no longer fail with "No intermediate '.qs2' files found" when the input files share a band name: the stacked layers are named by position before `exact_extract()`, and an `exact_extract()` failure is now reported as a warning (#54).
 
 fastbioclim 0.4.2.9001
 =============

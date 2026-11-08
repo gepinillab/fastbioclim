@@ -188,9 +188,16 @@ aggregate_fast <- function(paths, index, output_names, user_region, tile_degrees
           return(NULL)
         }
 
+    # Input files can store the same band name (e.g. "lyr.1" in every file), and
+    # exact_extract() fails on duplicate names. Name the layers by position.
+    names(evars_stack_tile) <- paste0("L", seq_len(terra::nlyr(evars_stack_tile)))
     extracted <- tryCatch(
       exactextractr::exact_extract(evars_stack_tile, tile_geom, include_cell = TRUE),
-      error = function(e) NULL
+      error = function(e) {
+        warning(glue::glue("Tile {i}: exact_extract() failed: {conditionMessage(e)}"),
+                call. = FALSE)
+        NULL
+      }
     )
     if (is.null(extracted) || nrow(extracted[[1]]) == 0) return(NULL)
     df <- extracted[[1]][!is.na(extracted[[1]][[names(extracted[[1]])[1]]]), ]
