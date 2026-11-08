@@ -23,8 +23,10 @@
 #'   `NULL`, the full extent of the input rasters is used.
 #' @param tile_degrees Numeric, size of processing tiles.
 #' @param output_dir Character, path for temporary files.
-#' @param write_raw_vars Logical. Currently ignored: writing raw variable tiles
-#'   is controlled by the `BIOCLIM_DEBUG_RAW_VARS` environment variable.
+#' @param write_raw_vars Logical. If `TRUE`, writes the raw variable tiles. When
+#'   the argument is not supplied, it is `TRUE` if the `BIOCLIM_DEBUG_RAW_VARS`
+#'   environment variable is `"TRUE"`. A supplied value always wins over the
+#'   environment variable.
 #' @param verbose Logical, If `TRUE`, prints messages.
 #' @param ... Other arguments including inter_variable_path, period_length, circular,
 #'   static index paths, etc.
@@ -333,11 +335,10 @@ stats_fast <- function(variable_path,
     
   raw_paths_list <- list()
 
-  # Enable the debug mode: Sys.setenv(BIOCLIM_DEBUG_RAW_VARS = "TRUE")
-  write_raw_vars <- identical(toupper(Sys.getenv("BIOCLIM_DEBUG_RAW_VARS")), "TRUE")
-  if (write_raw_vars) {
-    if (verbose) message("DEBUG MODE: Writing raw variable tiles because BIOCLIM_DEBUG_RAW_VARS is set to TRUE.")
+  if (missing(write_raw_vars)) {
+    write_raw_vars <- identical(toupper(Sys.getenv("BIOCLIM_DEBUG_RAW_VARS")), "TRUE")
   }
+  if (write_raw_vars && verbose) message("DEBUG MODE: Writing raw variable tiles.")
   if (write_raw_vars) {
     raw_paths_list$variable <- file.path(stats_qs_dir, 
       paste0("raw_", output_prefix, "_", seq_len(ntiles), ".qs2"))

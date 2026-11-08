@@ -64,8 +64,10 @@ compute (`"max_inter"`, `"min_inter"`).}
 
 \item{output_dir}{Character, path for temporary files.}
 
-\item{write_raw_vars}{Logical. Currently ignored: writing raw variable tiles
-is controlled by the `BIOCLIM_DEBUG_RAW_VARS` environment variable.}
+\item{write_raw_vars}{Logical. If `TRUE`, writes the raw variable tiles. When
+the argument is not supplied, it is `TRUE` if the `BIOCLIM_DEBUG_RAW_VARS`
+environment variable is `"TRUE"`. A supplied value always wins over the
+environment variable.}
 
 \item{verbose}{Logical, If `TRUE`, prints messages.}
 

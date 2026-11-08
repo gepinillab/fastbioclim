@@ -1,3 +1,7 @@
+fastbioclim 0.4.2.9003
+=============
+- `stats_fast()` uses its `write_raw_vars` argument. The `BIOCLIM_DEBUG_RAW_VARS` environment variable is only used when the argument is not supplied, and it is still the only switch in `bioclim_fast()` (#55).
+
 fastbioclim 0.4.2.9002
 =============
 - `derive_bioclim()` with the terra backend passes each static index only to the bio that uses it, so supplying an index meant for another bio no longer stops with `unused argument` (#48).
