@@ -654,3 +654,24 @@ test_that("tiled calculate_*() accept input files that share a band name (#54)",
                               output_prefix = "x", user_region = region, tile_degrees = 1)
   expect_rasters_equal(tiled_roll, terra_roll, label = "calculate_roll, shared band name")
 })
+
+# --- stats_fast() write_raw_vars (#55) -------------------------------------------------------
+
+test_that("stats_fast() uses write_raw_vars and falls back to BIOCLIM_DEBUG_RAW_VARS (#55)", {
+  skip_on_cran()
+  clim <- make_climate(withr::local_tempdir(), nrows = 4, ncols = 6)
+  local_s2_restore()
+  n_raw <- function(...) {
+    dir_out <- muffle_tile_warnings(suppressMessages(
+      stats_fast(variable_path = terra::sources(clim$rasters$tmin), n_units = 12, stats = "mean",
+                 output_prefix = "tmin", output_dir = withr::local_tempdir(), verbose = FALSE, ...)
+    ))
+    length(list.files(dir_out, pattern = "^raw_"))
+  }
+  withr::local_envvar(BIOCLIM_DEBUG_RAW_VARS = NA)
+  expect_gt(n_raw(write_raw_vars = TRUE), 0)
+  expect_identical(n_raw(), 0L)
+  withr::local_envvar(BIOCLIM_DEBUG_RAW_VARS = "TRUE")
+  expect_identical(n_raw(write_raw_vars = FALSE), 0L)
+  expect_gt(n_raw(), 0)
+})
