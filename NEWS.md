@@ -1,3 +1,7 @@
+fastbioclim 0.4.2.9002
+=============
+- `derive_bioclim()` with the terra backend passes each static index only to the bio that uses it, so supplying an index meant for another bio no longer stops with `unused argument` (#48).
+
 fastbioclim 0.4.2.9001
 =============
 - Tiled backends with a `user_region` no longer write values from cells beyond the edge of the cropped grid into other cells, and they now drop the cells outside the region that the terra backend masks (#11).

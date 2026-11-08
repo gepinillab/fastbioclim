@@ -140,9 +140,9 @@ bioclim_terra <- function(bios,
   # Bio04
   if (4 %in% bios) bio04 <- bio04_terra(tavg)
   # Bio05
-  if (any(c(3, 5, 7) %in% bios)) bio05 <- bio05_terra(tmax, ...)
+  if (any(c(3, 5, 7) %in% bios)) bio05 <- bio05_terra(tmax, warmest_unit = dot_args$warmest_unit)
   # Bio06
-  if (any(c(3, 6, 7) %in% bios)) bio06 <- bio06_terra(tmin, ...)
+  if (any(c(3, 6, 7) %in% bios)) bio06 <- bio06_terra(tmin, coldest_unit = dot_args$coldest_unit)
   # Bio07
   if (any(c(3, 7) %in% bios)) bio07 <- bio07_terra(bio05, bio06)
   # Bio03
@@ -152,9 +152,9 @@ bioclim_terra <- function(bios,
   # Bio12
   if (12 %in% bios) bio12 <- bio12_terra(prcp)
   # Bio13
-  if (13 %in% bios) bio13 <- bio13_terra(prcp, ...)
+  if (13 %in% bios) bio13 <- bio13_terra(prcp, wettest_unit = dot_args$wettest_unit)
   # Bio14
-  if (14 %in% bios) bio14 <- bio14_terra(prcp, ...)
+  if (14 %in% bios) bio14 <- bio14_terra(prcp, driest_unit = dot_args$driest_unit)
   # Bio15
   if (15 %in% bios) bio15 <- bio15_terra(prcp)
   
@@ -194,9 +194,9 @@ bioclim_terra <- function(bios,
   # Bio20
   if (20 %in% bios) bio20 <- bio20_terra(srad)
   # Bio21
-  if (21 %in% bios) bio21 <- bio21_terra(srad, ...)
+  if (21 %in% bios) bio21 <- bio21_terra(srad, high_rad_unit = dot_args$high_rad_unit)
   # Bio22
-  if (22 %in% bios) bio22 <- bio22_terra(srad, ...)
+  if (22 %in% bios) bio22 <- bio22_terra(srad, low_rad_unit = dot_args$low_rad_unit)
   # Bio23
   if (23 %in% bios) bio23 <- bio23_terra(srad)
   
@@ -209,9 +209,9 @@ bioclim_terra <- function(bios,
   # Bio28
   if (28 %in% bios) bio28 <- bio28_terra(mois)
   # Bio29
-  if (29 %in% bios) bio29 <- bio29_terra(mois, ...)
+  if (29 %in% bios) bio29 <- bio29_terra(mois, high_mois_unit = dot_args$high_mois_unit)
   # Bio30
-  if (30 %in% bios) bio30 <- bio30_terra(mois, ...)
+  if (30 %in% bios) bio30 <- bio30_terra(mois, low_mois_unit = dot_args$low_mois_unit)
   # Bio31
   if (31 %in% bios) bio31 <- bio31_terra(mois)
   

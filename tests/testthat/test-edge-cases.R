@@ -288,17 +288,33 @@ test_that("terra backend applies static unit and period indices together", {
   clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
   idx <- make_static_indices(clim, withr::local_tempdir(), c(unit_index_names, period_index_names))
 
-  skip_known_issue(paste(
-    "bioclim_terra() forwards every static index in `...` to bio05_terra(), bio06_terra(),",
-    "bio13_terra(), etc., which accept only their own index, so the call fails with",
-    "'unused argument'. This happens whenever any static index is supplied and bios",
-    "include 3, 5, 6, 7, 13, 14, 21, 22, 29 or 30 (e.g. bios = 1:19 with warmest_period)."
-  ))
   res <- do.call(run_bioclim, c(list("terra", bios = 1:19, tmin = clim$rasters$tmin,
                                      tmax = clim$rasters$tmax, prcp = clim$rasters$prcp),
                                 idx$rasters))
   expected <- do.call(hand_bioclim_cells, c(list(clim, static_cells), idx$vals))
   expect_cells_match(res, static_cells, expected, label = "terra, unit + period indices")
+})
+
+test_that("terra backend passes each static index only to the bio that uses it (#48)", {
+  clim <- make_climate(withr::local_tempdir(), nrows = 6, ncols = 8)
+  hand_names <- c(unit_index_names, "warmest_period", "wettest_period")
+  other_names <- c("high_rad_unit", "low_rad_unit", "high_mois_unit", "low_mois_unit")
+  idx <- make_static_indices(clim, withr::local_tempdir(), c(hand_names, other_names))
+  # Every call supplies indices that belong to other bios than the ones requested.
+  bios <- c(5, 6, 10, 13, 14)
+  res <- do.call(run_bioclim, c(list("terra", bios = bios, tmin = clim$rasters$tmin,
+                                     tmax = clim$rasters$tmax, prcp = clim$rasters$prcp),
+                                idx$rasters))
+  expected <- do.call(hand_bioclim_cells, c(list(clim, static_cells), idx$vals[hand_names]))
+  expect_cells_match(res, static_cells, expected[, sprintf("bio%02d", bios)],
+                     label = "terra, indices of other bios supplied")
+
+  res <- do.call(run_bioclim, c(list("terra", bios = c(21, 22, 29, 30), srad = clim$rasters$srad,
+                                     mois = clim$rasters$mois), idx$rasters))
+  pick <- function(v, index) vapply(static_cells, function(cl) clim$vals[[v]][cl, idx$vals[[index]][cl]], numeric(1))
+  expected <- cbind(bio21 = pick("srad", "high_rad_unit"), bio22 = pick("srad", "low_rad_unit"),
+                    bio29 = pick("mois", "high_mois_unit"), bio30 = pick("mois", "low_mois_unit"))
+  expect_cells_match(res, static_cells, expected, label = "terra, unit indices of other bios supplied")
 })
 
 test_that("tiled backend applies static unit and period indices together", {
